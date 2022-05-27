@@ -1,0 +1,42 @@
+body {                         /* (全体)                 */
+    text-align: center;        /* テキスト中央寄せ       */
+    color:#C0C0C0;             /* テキストの色           */
+    background-color:#303030;  /* 背景の色               */
+}
+
+p {                            /* (手番とスコア)         */
+    font-size: 2rem;           /* フォントサイズ         */
+}
+
+img {                          /* (石の画像)             */
+    display: block;            /* 中央寄せ               */
+    margin: auto;              /* 周囲の余白 : 自動調整  */
+}
+
+div#ui_board table {           /* (表全体)               */
+    margin: auto;              /* 周囲の余白 : 自動調整  */
+    color: #E0E0E0;            /* テキストの色           */
+    background: #303030;       /* 背景色                 */
+    font-size: 1.5rem;         /* フォントサイズ         */
+}
+
+div#ui_board td {              /* (表の要素)             */
+    border:2px solid #303030;  /* 枠線 : サイズ 1本線 色 */
+}
+
+a:link {                       /* (リンク:未訪問)        */
+    color: #F0F0F0;            /* テキストの色           */
+}
+
+a:visited {                    /* (リンク:訪問済み)      */
+    color: #F0F0F0;            /* テキストの色           */
+}
+
+a:hover {                      /* (リンク:ホバー時)      */
+    color: #FFFFFF;            /* テキストの色           */
+    background: #0000DD;       /* 背景色                 */
+}
+
+a:active {                     /* (リンク:クリック時)    */
+    color: #FF0000;            /* テキストの色           */
+}
