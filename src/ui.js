@@ -27,13 +27,15 @@ function createBoardTable() {
       td.setAttribute('id', UI_BOARD_ID + (y * GAME_BOARD_SIZE + x));
     }
   }
-  // 盤面のサイズと背景色
+  // 盤面のサイズと背景色、盤面形状
   for (let i=0; i<BOARD.length; i++) {
     let square = document.getElementById(UI_BOARD_ID + i);
     square.width = 60;
     square.height = 60;
-    if (gameBoard[i] !== X) {
-        square.style.backgroundColor = 'green';
+    // 背景色の反映
+    const boardColor = BOARD_COLOR[i];
+    if (gameBoard[i] !== H && boardColor !== "*") {  // 穴と色なしは除外
+      square.style.backgroundColor = COLOR_CODE_CONFIG[boardColor];
     }
   }
   // 盤面のヘッダー情報を追加

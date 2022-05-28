@@ -1,5 +1,5 @@
 // 盤面
-const X = 0;  // 壁
+const H = 0;  // 穴
 const E = 1;  // 空きマス
 const B = 2;  // 黒色の石
 const W = 3;  // 白色の石
@@ -14,17 +14,48 @@ const DIRECTION_XY = [
   {'x':-1, 'y': 1},  // 左上
 ];
 const BOARD = [
-  X, X, X, X, X, X, X, X, X, X,
-  X, E, E, E, E, E, E, E, E, X,
-  X, E, E, E, E, E, E, E, E, X,
-  X, E, E, E, E, E, E, E, E, X,
-  X, E, E, E, W, B, E, E, E, X,
-  X, E, E, E, B, W, E, E, E, X,
-  X, E, E, E, E, E, E, E, E, X,
-  X, E, E, E, E, E, E, E, E, X,
-  X, E, E, E, E, E, E, E, E, X,
-  X, X, X, X, X, X, X, X, X, X,
+  H, H, H, H, H, H, H, H, H, H,
+  H, H, H, E, E, E, E, H, H, H,
+  H, H, E, E, E, E, E, E, H, H,
+  H, E, E, E, B, W, E, E, E, H,
+  H, E, E, B, W, B, W, E, E, H,
+  H, E, E, W, B, W, B, E, E, H,
+  H, E, E, E, W, B, E, E, E, H,
+  H, H, E, E, E, E, E, E, H, H,
+  H, H, H, E, E, E, E, H, H, H,
+  H, H, H, H, H, H, H, H, H, H,
 ];
+const BOARD_COLOR = [
+  "*", "*", "*", "*", "*", "*", "*", "*", "*", "*",
+  "*", "*", "*", "1", "1", "9", "9", "*", "*", "*",
+  "*", "*", "1", "1", "1", "9", "9", "9", "*", "*",
+  "*", "1", "1", "1", "1", "9", "9", "9", "9", "*",
+  "*", "1", "1", "1", "1", "9", "9", "9", "9", "*",
+  "*", "3", "3", "3", "3", "8", "8", "8", "8", "*",
+  "*", "3", "3", "3", "3", "8", "8", "8", "8", "*",
+  "*", "*", "3", "3", "3", "8", "8", "8", "*", "*",
+  "*", "*", "*", "3", "3", "8", "8", "*", "*", "*",
+  "*", "*", "*", "*", "*", "*", "*", "*", "*", "*",
+];
+const COLOR_CODE_CONFIG = {
+  '0': 'lightsteelblue',
+  '1': 'lightskyblue',
+  '2': 'paleturquoise',
+  '3': 'mediumaquamarine',
+  '4': 'aquamarine',
+  '5': 'palegreen',
+  '6': 'lightgreen',
+  '7': 'khaki',
+  '8': 'navajowhite',
+  '9': 'pink',
+  'a': 'thistle',
+  'b': 'plum',
+  'c': 'silver',
+  'd': 'gray',
+  'e': 'black',
+  'f': 'white',
+  '*': '* no color *',
+};
 const GAME_BOARD_SIZE = Math.sqrt(BOARD.length);
 const BOARD_SIZE = GAME_BOARD_SIZE - 2;
 const GAME_BOARD_ELEMENT_NUM = GAME_BOARD_SIZE * GAME_BOARD_SIZE;
