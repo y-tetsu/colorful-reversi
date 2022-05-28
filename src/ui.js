@@ -21,6 +21,10 @@ const UI_PLAYER_INFO = {
     "name"  : "Yamabuki",
     "img"   : "./image/yamabuki.png",
   },
+  [G]: {
+    "name"  : "Green",
+    "img"   : "./image/green.png",
+  },
 };
 
 // 盤面の初期設定
