@@ -13,6 +13,14 @@ const UI_PLAYER_INFO = {
     "name"  : "Ash",
     "img"   : "./image/ash.png",
   },
+  [C]: {
+    "name"  : "Cyan",
+    "img"   : "./image/cyan.png",
+  },
+  [Y]: {
+    "name"  : "Yamabuki",
+    "img"   : "./image/yamabuki.png",
+  },
 };
 
 // 盤面の初期設定

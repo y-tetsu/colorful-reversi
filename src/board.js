@@ -4,6 +4,8 @@ const E = 1;  // 空きマス
 const B = 2;  // 黒色の石
 const W = 3;  // 白色の石
 const A = 4;  // 灰色の石
+const C = 5;  // シアン色の石
+const Y = 6;  // 山吹色の石
 const DIRECTION_XY = [
   {'x': 0, 'y': 1},  // 上
   {'x': 1, 'y': 1},  // 右上

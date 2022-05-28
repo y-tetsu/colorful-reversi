@@ -11,20 +11,30 @@ const TURN_ORDER = [B, W, A];             // プレイヤーの順番
 const PLAYERS = [...new Set(TURN_ORDER)]  // 参加プレイヤー
 
 let playersInfo = {
-  [B]: {                      // 黒プレイヤー
-    'player'   : HUMAN,       // 人が操作
-    'opponents': [W, A],      // 白と灰をひっくり返せる
-    'score'    : 0,           // 黒の石の数
+  [B]: {                        // 黒プレイヤー
+    'player'   : HUMAN,         // 人が操作
+    'opponents': [W, A, C, Y],  // 対戦相手
+    'score'    : 0,             // 黒の石の数
   },
-  [W]: {                      // 白プレイヤー
-    'player'   : AI_LEVEL_1,  // コンピュータが操作(やや強い)
-    'opponents': [B, A],      // 黒と灰をひっくり返せる
-    'score'    : 0,           // 白の石の数
+  [W]: {                        // 白プレイヤー
+    'player'   : AI_LEVEL_1,    // コンピュータが操作(やや強い)
+    'opponents': [B, A, C, Y],  // 対戦相手
+    'score'    : 0,             // 白の石の数
   },
-  [A]: {                      // 灰プレイヤー
-    'player'   : AI_LEVEL_0,  // コンピュータが操作(ランダム)
-    'opponents': [B, W],      // 黒と白をひっくり返せる
-    'score'    : 0,           // 灰の石の数
+  [A]: {                        // 灰プレイヤー
+    'player'   : AI_LEVEL_0,    // コンピュータが操作(ランダム)
+    'opponents': [B, W, C, Y],  // 対戦相手
+    'score'    : 0,             // 灰の石の数
+  },
+  [C]: {                        // シアンプレイヤー
+    'player'   : AI_LEVEL_0,    // コンピュータが操作(ランダム)
+    'opponents': [B, W, A, Y],  // 対戦相手
+    'score'    : 0,             // シアンの石の数
+  },
+  [Y]: {                        // 山吹プレイヤー
+    'player'   : AI_LEVEL_0,    // コンピュータが操作(ランダム)
+    'opponents': [B, W, A, C],  // 対戦相手
+    'score'    : 0,             // 山吹の石の数
   },
 };
 let gameBoard = [];
