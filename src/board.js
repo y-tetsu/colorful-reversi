@@ -3,6 +3,7 @@ const H = 0;  // 穴
 const E = 1;  // 空きマス
 const B = 2;  // 黒色の石
 const W = 3;  // 白色の石
+const A = 4;  // 灰色の石
 const DIRECTION_XY = [
   {'x': 0, 'y': 1},  // 上
   {'x': 1, 'y': 1},  // 右上
@@ -17,10 +18,10 @@ const BOARD = [
   H, H, H, H, H, H, H, H, H, H,
   H, H, H, E, E, E, E, H, H, H,
   H, H, E, E, E, E, E, E, H, H,
-  H, E, E, E, B, W, E, E, E, H,
-  H, E, E, B, W, B, W, E, E, H,
-  H, E, E, W, B, W, B, E, E, H,
-  H, E, E, E, W, B, E, E, E, H,
+  H, E, E, E, B, A, E, E, E, H,
+  H, E, E, A, W, B, W, E, E, H,
+  H, E, E, W, B, W, A, E, E, H,
+  H, E, E, E, A, B, E, E, E, H,
   H, H, E, E, E, E, E, E, H, H,
   H, H, H, E, E, E, E, H, H, H,
   H, H, H, H, H, H, H, H, H, H,
@@ -94,13 +95,13 @@ function getLegalMoves(turn, board) {
 function getFlippablesAtIndex(turn, board, index) {
   let flippables = [];
   if (board[index] !== E) return flippables;  // 空きマス以外はスキップ
-  const opponent = turn === B ? W : B;
+  const opponents = getOpponentColors(turn);  // 自身の対戦相手を取得
   for (let {x, y} of DIRECTION_XY) {
     const dir = (GAME_BOARD_SIZE * y) + x;
     let opponentDiscs = [];
     let next = index + dir;
     // 相手ディスクが連続しているものを候補とする
-    while (opponent === board[next]) {
+    while (opponents.includes(board[next])) {
       opponentDiscs.push(next);
       next += dir;
     }

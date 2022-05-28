@@ -1,7 +1,19 @@
 // UIの盤面作成
 const UI_BOARD_ID = 'ui_board';
-const BLACK_IMG = './image/black.png';
-const WHITE_IMG = './image/white.png';
+const UI_PLAYER_INFO = {
+  [B]: {
+    "name": "Black",
+    "img": "./image/black.png",
+  },
+  [W]: {
+    "name": "White",
+    "img": "./image/white.png",
+  },
+  [A]: {
+    "name"  : "Ash",
+    "img"   : "./image/ash.png",
+  },
+};
 
 // 盤面の初期設定
 function initUi() {
@@ -54,19 +66,11 @@ function updateUi() {
   // 石の配置
   for (let index of BOARD_INDEXS) {
     let square = document.getElementById(UI_BOARD_ID + index);
-    switch (gameBoard[index]) {
-      case B:
-        displayDisc(square, BLACK_IMG);
-        break;
-      case W:
-        displayDisc(square, WHITE_IMG);
-        break;
-      default:
-        break;
-    }
+    const boardState = gameBoard[index];
+    if (boardState in UI_PLAYER_INFO) displayDisc(square, UI_PLAYER_INFO[boardState].img);
   }
-  document.getElementById('turn').textContent = getGameTurnText(gameTurn);         // 手番
-  document.getElementById('score').textContent = blackScore + ' : ' + whiteScore;  // スコア
+  document.getElementById('turn').textContent = getGameTurnText(gameTurn);                            // 手番
+  document.getElementById('score').textContent = PLAYERS.map(e => playersInfo[e].score).join(' : ');  // スコア
 }
 
 // 石の画像を表示
@@ -90,16 +94,13 @@ function removeChilds(element) {
 
 // 手番の文字列を取得
 function getGameTurnText(turn) {
-  if (turn === B) return 'Black';
-  if (turn === W) return 'White';
-  return GAME_TURN_END;
+  return turn in UI_PLAYER_INFO ? UI_PLAYER_INFO[turn].name : GAME_TURN_END;
 }
 
 // マスをクリックした時の処理
 function onBoardClicked(event) {
   if (gameState !== GAME_STOP) return;
-  let player = gameTurn === B ? BLACK_PLAYER : WHITE_PLAYER;
-  if (player === HUMAN) {
+  if (playersInfo[gameTurn].player === HUMAN) {
     const index = Number(this.getAttribute('id').replace(UI_BOARD_ID, ''));
     if (getFlippablesAtIndex(gameTurn, gameBoard, index).length > 0) {
       humanClicked = true;
