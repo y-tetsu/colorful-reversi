@@ -6,3 +6,5 @@ function start() {
 }
 
 start();  // ゲーム開始
+
+window.onresize = resizeUi;

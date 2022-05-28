@@ -26,6 +26,13 @@ const UI_PLAYER_INFO = {
     "img"   : "./image/green.png",
   },
 };
+const BASE_UI_SIZE = 930;
+const BASE_IMAGE_SIZE = 40;
+const MIN_IMAGE_SIZE = 25;
+const WIDTH_ASPECT = 1.25;
+
+let imageSize = BASE_IMAGE_SIZE;
+let tableSize = imageSize * 1.5;
 
 // 盤面の初期設定
 function initUi() {
@@ -54,8 +61,8 @@ function createBoardTable() {
   // 盤面のサイズと背景色、盤面形状
   for (let i=0; i<BOARD.length; i++) {
     let square = document.getElementById(UI_BOARD_ID + i);
-    square.width = 60;
-    square.height = 60;
+    square.width = tableSize;
+    square.height = tableSize;
     // 背景色の反映
     const boardColor = BOARD_COLOR[i];
     if (gameBoard[i] !== H && boardColor !== "*") {  // 穴と色なしは除外
@@ -75,14 +82,29 @@ function createBoardTable() {
 
 // 盤面の更新
 function updateUi() {
-  // 石の配置
-  for (let index of BOARD_INDEXS) {
-    let square = document.getElementById(UI_BOARD_ID + index);
-    const boardState = gameBoard[index];
-    if (boardState in UI_PLAYER_INFO) displayDisc(square, UI_PLAYER_INFO[boardState].img);
-  }
   document.getElementById('turn').textContent = getGameTurnText(gameTurn);                            // 手番
   document.getElementById('score').textContent = PLAYERS.map(e => playersInfo[e].score).join(' : ');  // スコア
+  // 盤面のリサイズ
+  resizeUi();
+}
+
+// 盤面のリサイズ
+function resizeUi(){
+  const innerWidth = window.innerWidth * WIDTH_ASPECT;
+  const innerHeight = window.innerHeight;
+  const uiSize = innerWidth < innerHeight ? innerWidth : innerHeight;
+  imageSize = BASE_IMAGE_SIZE * (uiSize / BASE_UI_SIZE);
+  imageSize = imageSize < MIN_IMAGE_SIZE ? MIN_IMAGE_SIZE : imageSize;
+  tableSize = imageSize * 1.5;
+  for (let i=0; i<BOARD.length; i++) {
+    // マス
+    let square = document.getElementById(UI_BOARD_ID + i);
+    square.width = tableSize;
+    square.height = tableSize;
+    // 石
+    const boardState = gameBoard[i];
+    if (boardState in UI_PLAYER_INFO) displayDisc(square, UI_PLAYER_INFO[boardState].img);
+  }
 }
 
 // 石の画像を表示
@@ -91,9 +113,9 @@ function displayDisc(element, imgPath) {
   removeChilds(element);
   // 画像追加
   let img = document.createElement('img');
-  img.src = imgPath;  // 画像パス
-  img.width = 40;     // 横サイズ（px）
-  img.height = 40;    // 縦サイズ（px）
+  img.src = imgPath;       // 画像パス
+  img.width = imageSize;   // 横サイズ（px）
+  img.height = imageSize;  // 縦サイズ（px）
   element.appendChild(img);
 }
 
