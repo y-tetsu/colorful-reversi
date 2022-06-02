@@ -1,0 +1,45 @@
+body {
+    text-align: center;
+    color:#C0C0C0;
+    background-color:#303030;
+}
+
+p {
+    font-size: 2rem;
+}
+
+span {
+    font-size: 2rem;
+}
+
+img {
+    display: block;
+    margin: auto;
+}
+
+div#ui_board table {
+    margin: auto;
+    background: #303030;
+}
+
+div#ui_board td {
+    width: 60px;
+    height: 60px;
+    border:2px solid #303030;
+}
+
+div#ui_board .header {
+    color: #E0E0E0;
+    background: #303030;
+    font-size: 1.5rem;
+}
+
+div#ui_board .hole {
+    color: #303030;
+    background: #303030;
+}
+
+div#ui_board .none {
+    color: #E0E0E0;
+    background: #303030;
+}
