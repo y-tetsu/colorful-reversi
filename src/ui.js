@@ -2,6 +2,7 @@
 const UI_BOARD_ID = "ui_board";
 const BLACK_IMG = './image/black.png';
 const WHITE_IMG = './image/white.png';
+const ASH_IMG   = './image/ash.png';
 const IMG_SIZE = 40;
 
 function initUi() {
@@ -66,6 +67,10 @@ function updateUi() {
         boardSquare.setAttribute("class", "white");
         addImg(boardSquare, WHITE_IMG);
         break;
+      case A:
+        boardSquare.setAttribute("class", "ash");
+        addImg(boardSquare, ASH_IMG);
+        break;
       case H:
         boardSquare.setAttribute("class", "hole");
         break;
@@ -79,6 +84,7 @@ function updateUi() {
   // スコア
   document.getElementById("black_score").textContent = blackScore;
   document.getElementById("white_score").textContent = whiteScore;
+  document.getElementById("ash_score").textContent   = ashScore;
 }
 
 function addImg(element, imgPath) {
@@ -98,12 +104,13 @@ function removeChilds(element) {
 function getGameTurnText(turn) {
   if (turn === B) return "Black";
   if (turn === W) return "White";
+  if (turn === A) return "Ash";
   return GAME_TURN_END;
 }
 
 function onBoardClicked(event) {
   if (gameState !== GAME_STOP) return;
-  let player = gameTurn === B ? BLACK_PLAYER : WHITE_PLAYER;
+  let player = gameTurn === B ? BLACK_PLAYER : gameTurn === W ? WHITE_PLAYER : ASH_PLAYER;
   if (player === HUMAN) {
     const index = Number(this.getAttribute("id").replace(UI_BOARD_ID, ""));
     if (getFlippablesAtIndex(gameTurn, gameBoard, index).length > 0) {

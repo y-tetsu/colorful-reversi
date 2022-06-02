@@ -1,8 +1,9 @@
 // 盤面
-const E = 0;  // EMPYT
-const B = 1;  // BLACK
-const W = -1; // WHITE
-const H = 2;  // HOLE
+const H = 0;  // 穴
+const E = 1;  // 空きマス
+const B = 2;  // 黒色の石
+const W = 3;  // 白色の石
+const A = 4;  // 灰色の石
 const DIRECTION_XY = [
   {'x': 0, 'y': 1},  // 上
   {'x': 1, 'y': 1},  // 右上
@@ -17,10 +18,10 @@ const BOARD = [
   H, H, H, H, H, H, H, H, H, H,
   H, H, H, E, E, E, E, H, H, H,
   H, H, E, E, E, E, E, E, H, H,
-  H, E, E, E, B, W, E, E, E, H,
-  H, E, E, B, W, B, W, E, E, H,
-  H, E, E, W, B, W, B, E, E, H,
-  H, E, E, E, W, B, E, E, E, H,
+  H, E, E, E, B, A, E, E, E, H,
+  H, E, E, A, W, B, W, E, E, H,
+  H, E, E, W, B, W, A, E, E, H,
+  H, E, E, E, A, B, E, E, E, H,
   H, H, E, E, E, E, E, E, H, H,
   H, H, H, E, E, E, E, H, H, H,
   H, H, H, H, H, H, H, H, H, H,
@@ -77,16 +78,23 @@ function getLegalMoves(turn, board) {
   return legalMoves;
 }
 
+// ひっくり返せる石を取得する処理
+// (引数)
+//  turn  : プレイヤーの手番(色)
+//  board : 盤面情報を格納した配列
+//  index : 石を置く位置(マス目を示す番号)
+// (戻り値)
+//  flippables : ひっくり返せる石の位置(マス目を示す番号)の配列
 function getFlippablesAtIndex(turn, board, index) {
   let flippables = [];
   if (board[index] !== E) return flippables;  // 空きマス以外はスキップ
-  const opponent = getOpponentColor(turn);
+  const opponents = getOpponentColors(turn);  // 自身の対戦相手を取得
   for (let xy of DIRECTION_XY) {
     const dir = (GAME_BOARD_SIZE * xy['y']) + xy['x'];
     let opponentDiscs = [];
     let next = index + dir;
     // 相手ディスクが連続しているものを候補とする
-    while (board[next] === opponent) {
+    while (opponents.includes(board[next])) {
       opponentDiscs.push(next);
       next += dir;
     }
@@ -98,10 +106,15 @@ function getFlippablesAtIndex(turn, board, index) {
   return flippables;
 }
 
+// 石を置く処理
+// (引数)
+//  turn  : プレイヤーの手番(色)
+//  board : 盤面情報を格納した配列
+//  index : 石を置く位置(マス目を示す番号)
 function putDisc(turn, board, index) {
   let flippables = getFlippablesAtIndex(turn, board, index);
-  board[index] = turn;            // 手の位置にディスクを置く
-  for (let move of flippables) {  // 相手のディスクをひっくり返す
-    board[move] = turn;
+  board[index] = turn;         // 手の位置にディスクを置く
+  for (let flippable of flippables) {  // 相手のディスクをひっくり返す
+    board[flippable] = turn;
   }
 }
