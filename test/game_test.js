@@ -27,52 +27,56 @@ const PASS_BOARD1 = [
 ];
 
 // play
-function testPlay(boards, turns, moves, expecteds) {
+function testPlay(boards, orders, moves, expecteds) {
   let i = 0;
-  for (let turn of turns) {
-    const game = new Game(boards[i], turn, new Player(HUMAN), new Player(HUMAN));
+  for (let order of orders) {
+    const game = new Game(boards[i], order, FLIPPERS);
     game.humanMove = moves[i];
     assertEqual(game.play(),       expecteds[i].result,       'play ' + (i + 1) + '-1');
     game.updateScore();
-    assertEqual(game.blackScore,   expecteds[i].blackScore,   'play ' + (i + 1) + '-2');
-    assertEqual(game.whiteScore,   expecteds[i].whiteScore,   'play ' + (i + 1) + '-3');
-    assertEqual(game.pass,         expecteds[i].pass,         'play ' + (i + 1) + '-4');
-    assertEqual(game.updatedDiscs, expecteds[i].updatedDiscs, 'play ' + (i + 1) + '-5');
-    assertEqual(game.turn,         expecteds[i].turn,         'play ' + (i + 1) + '-6');
+    const scores = game.participants.map(e => game.flippers[e].score);
+    assertEqual(scores,            expecteds[i].scores,       'play ' + (i + 1) + '-2');
+    assertEqual(game.pass,         expecteds[i].pass,         'play ' + (i + 1) + '-3');
+    assertEqual(game.updatedDiscs, expecteds[i].updatedDiscs, 'play ' + (i + 1) + '-4');
+    assertEqual(game.turn,         expecteds[i].turn,         'play ' + (i + 1) + '-5');
     i++;
   }
 }
 
 // setNextPlayer
-function testSetNextPlayer(board, turns, nexts, players) {
+function testSetNextPlayer(orders, indexs, expecteds) {
   let i = 0;
-  for (let turn of turns) {
-    const game = new Game(board, turn, new Player(HUMAN), new Player(RANDOM));
+  for (let order of orders) {
+    const game = new Game(TEST_BOARD1, order, FLIPPERS);
+    game.turnIndex = indexs[i];
     game.setNextPlayer();
-    assertEqual(game.turn,        nexts[i],   'setNextPlayer ' + (i + 1) + '-1');
-    assertEqual(game.player.name, players[i], 'setNextPlayer ' + (i + 1) + '-2');
+    assertEqual(game.turn,        expecteds[i].next,   'setNextPlayer ' + (i + 1) + '-1');
+    assertEqual(game.player.name, expecteds[i].player, 'setNextPlayer ' + (i + 1) + '-2');
     i++;
   }
 }
 
 // updateScore
-function testUpdateScore(board, turns, moves, scores) {
+function testUpdateScore(boards, orders, moves, scores) {
   let i = 0;
-  for (let turn of turns) {
-    const game = new Game(board, turn, new Player(HUMAN), new Player(HUMAN));
-    if (move) putDisc(turn, game.board, moves[i]);
+  for (let order of orders) {
+    const game = new Game(boards[i], order, FLIPPERS);
+    if (move) putDisc(game.turn, game.board, moves[i]);
     game.updateScore();
-    assertEqual(game.blackScore, scores[i][0], 'getScores ' + (i + 1) + '-1');
-    assertEqual(game.whiteScore, scores[i][1], 'getScores ' + (i + 1) + '-2');
+    let j = 0;
+    for (let participant of game.participants) {
+      assertEqual(game.flippers[participant].score, scores[i][j], 'getScores ' + (i + 1) + '-' + (j + 1));
+      j++;
+    }
     i++;
   }
 }
 
 // isEnd
-function testIsEnd(boards, turns, expecteds) {
+function testIsEnd(boards, orders, expecteds) {
   let i = 0;
-  for (let turn of turns) {
-    const game = new Game(boards[i], turn, new Player(HUMAN), new Player(HUMAN));
+  for (let order of orders) {
+    const game = new Game(boards[i], order, FLIPPERS);
     assertEqual(game.isEnd(), expecteds[i].result, 'isEnd ' + (i + 1) + '-1');
     assertEqual(game.turn,    expecteds[i].next,   'isEnd ' + (i + 1) + '-2');
     assertEqual(game.pass,    expecteds[i].pass,   'isEnd ' + (i + 1) + '-3');
@@ -81,10 +85,10 @@ function testIsEnd(boards, turns, expecteds) {
 }
 
 // isPass
-function testIsPass(turns, expecteds) {
+function testIsPass(orders, expecteds) {
   let i = 0;
-  for (let turn of turns) {
-    const game = new Game(PASS_BOARD1, turn, new Player(HUMAN), new Player(HUMAN));
+  for (let order of orders) {
+    const game = new Game(PASS_BOARD1, order, FLIPPERS);
     assertEqual(game.isPass(), expecteds[i].result, 'isPass ' + (i + 1) + '-1');
     assertEqual(game.turn,     expecteds[i].next,   'isPass ' + (i + 1) + '-2');
     assertEqual(game.pass,     expecteds[i].pass,   'isPass ' + (i + 1) + '-3');
@@ -93,10 +97,15 @@ function testIsPass(turns, expecteds) {
 }
 
 // indicatePass
-function testIndicatePass(passs, players, expecteds) {
+function testIndicatePass(orders, passs, players, expecteds) {
   let i = 0;
   for (let expected of expecteds) {
-    const game = new Game(TEST_BOARD1, B, new Player(players[i][0]), new Player(players[i][1]));
+    const game = new Game(TEST_BOARD1, orders[i], FLIPPERS);
+    let j = 0;
+    for (let participant of game.participants) {
+      game.flippers[participant].player = new Player(players[i][j]);
+      j++;
+    }
     game.pass = passs[i];
     assertEqual(game.indicatePass(), expected, 'indicatePass ' + (i + 1));
     i++;
@@ -104,21 +113,23 @@ function testIndicatePass(passs, players, expecteds) {
 }
 
 // getPassMessage
-function testGetPassMessage(turns, messages) {
+function testGetPassMessage(orders, indexs, passs, messages) {
   let i = 0;
-  for (let turn of turns) {
-    const game = new Game(TEST_BOARD1, turn, new Player(HUMAN), new Player(HUMAN));
+  for (let order of orders) {
+    const game = new Game(TEST_BOARD1, order, FLIPPERS);
+    game.turnIndex = indexs[i];
+    game.pass = passs[i];
     assertEqual(game.getPassMessage(), messages[i], 'getPassMessage ' + (i + 1));
     i++;
   }
 }
 
 // getWinnerMessage
-function testGetWinnerMessage(board, turns, moves, winners) {
+function testGetWinnerMessage(boards, orders, moves, winners) {
   let i = 0;
-  for (let turn of turns) {
-    const game = new Game(board, turn, new Player(HUMAN), new Player(HUMAN));
-    if (move) putDisc(turn, game.board, moves[i]);
+  for (let order of orders) {
+    const game = new Game(boards[i], order, FLIPPERS);
+    if (move) putDisc(game.turn, game.board, moves[i]);
     game.updateScore();
     assertEqual(game.getWinnerMessage(), winners[i], 'getWinnerMessage ' + (i + 1));
     i++;
@@ -126,60 +137,103 @@ function testGetWinnerMessage(board, turns, moves, winners) {
 }
 
 // getWinner
-function testGetWinner(board, turns, moves, winners) {
+function testGetWinner(boards, orders, moves, winners) {
   let i = 0;
-  for (let turn of turns) {
-    const game = new Game(board, turn, new Player(HUMAN), new Player(HUMAN));
-    if (move) putDisc(turn, game.board, moves[i]);
+  for (let order of orders) {
+    const game = new Game(boards[i], order, FLIPPERS);
+    if (move) putDisc(game.turn, game.board, moves[i]);
     game.updateScore();
     assertEqual(game.getWinner(), winners[i], 'getWinner ' + (i + 1));
     i++;
   }
 }
 
-boards    = [END_BOARD1, TEST_BOARD1, TEST_BOARD1];
-turns     = [B, B, B];
-moves     = [NO_MOVE, NO_MOVE, 34]
+// copyFlippers
+function testCopyFlippers(orders, flipperss, expecteds) {
+  let i = 0;
+  for (let order of orders) {
+    game = new Game(TEST_BOARD1, order, flipperss[i]);
+    let copy = game.copyFlippers(flipperss[i]);
+    for (let color of order) {
+      copy[color].player.name = 'unknown';
+      while (copy[color].opponents.length) copy[color].opponents.pop();
+      copy[color].score = 60;
+    }
+    assertEqual(copy,         expecteds[i].copy, 'copyFlippers ' + (i + 1) + '-1');
+    assertEqual(flipperss[i], expecteds[i].org,  'copyFlippers ' + (i + 1) + '-2');
+    i++;
+  }
+}
+
+boards    = [END_BOARD1, TEST_BOARD1, TEST_BOARD1, END_BOARD1];
+orders    = [[B, W], [B, W], [B, W], [W, A, B]];
+moves     = [NO_MOVE, NO_MOVE, 34, NO_MOVE]
 expecteds = [
   {
     'result'      : GAME_END,
-    'blackScore'  : 32,
-    'whiteScore'  : 32,
+    'scores'      : [32, 32],
     'pass'        : 2,
     'updatedDiscs': [],
     'turn'        : GAME_TURN_END,
   },
   {
     'result'      : GAME_STOP,
-    'blackScore'  : 2,
-    'whiteScore'  : 2,
+    'scores'      : [2, 2],
     'pass'        : 0,
     'updatedDiscs': [],
     'turn'        : B,
   },
   {
     'result'      : GAME_PLAY,
-    'blackScore'  : 4,
-    'whiteScore'  : 1,
+    'scores'      : [4, 1],
     'pass'        : 0,
     'updatedDiscs': [44, 34],
     'turn'        : W,
   },
+  {
+    'result'      : GAME_END,
+    'scores'      : [32, 0, 32],
+    'pass'        : 3,
+    'updatedDiscs': [],
+    'turn'        : GAME_TURN_END,
+  },
 ];
-testPlay(boards, turns, moves, expecteds);
+testPlay(boards, orders, moves, expecteds);
 
-turns     = [B, W];
-nexts     = [W, B];
-players   = [RANDOM, HUMAN];
-testSetNextPlayer(TEST_BOARD1, turns, nexts, players);
+orders    = [[B, W], [W, B], [B, W, A], [B, W, A], [B, W, A]];
+indexs    = [0, 0, 0, 1, 2];
+expecteds = [
+  {
+    'next'  : W,
+    'player': MCS,
+  },
+  {
+    'next'  : B,
+    'player': HUMAN,
+  },
+  {
+    'next'  : W,
+    'player': MCS,
+  },
+  {
+    'next'  : A,
+    'player': RANDOM,
+  },
+  {
+    'next'  : B,
+    'player': HUMAN,
+  },
+];
+testSetNextPlayer(orders, indexs, expecteds);
 
-turns   = [B, B, W];
-moves   = ['', 34, 35];
-scores = [[2, 2], [4, 1], [1, 4]];
-testUpdateScore(TEST_BOARD1, turns, moves, scores);
+boards = [TEST_BOARD1, TEST_BOARD1, TEST_BOARD1, TEST_BOARD3];
+orders = [[B, W], [B, W], [W, B], [B, W, A]];
+moves  = ['', 34, 35, ''];
+scores = [[2, 2], [4, 1], [4, 1], [2, 2, 4]];
+testUpdateScore(boards, orders, moves, scores);
 
-boards    = [PASS_BOARD1, END_BOARD1];
-turns     = [W, B];
+boards    = [PASS_BOARD1, END_BOARD1, PASS_BOARD1, END_BOARD1];
+orders    = [[W, B], [B, W], [A, W, B], [A, B, W]];
 expecteds = [
   {
     'result': false,
@@ -191,10 +245,20 @@ expecteds = [
     'next'  : GAME_TURN_END,
     'pass'  : 2,
   },
+  {
+    'result': false,
+    'next'  : B,
+    'pass'  : 2,
+  },
+  {
+    'result': true,
+    'next'  : GAME_TURN_END,
+    'pass'  : 3,
+  },
 ];
-testIsEnd(boards, turns, expecteds);
+testIsEnd(boards, orders, expecteds);
 
-turns     = [B, W];
+turns     = [[B, W], [W, B], [A, W, B]];
 expecteds = [
   {
     'result': false,
@@ -206,24 +270,74 @@ expecteds = [
     'next'  : B,
     'pass'  : 1,
   },
+  {
+    'result': true,
+    'next'  : W,
+    'pass'  : 1,
+  },
 ];
 testIsPass(turns, expecteds);
 
-passs     = [0, 1, 1, 1];
-players   = [[HUMAN, HUMAN], [HUMAN, HUMAN], [RANDOM, RANDOM], [HUMAN, RANDOM]];
-expecteds = [false, true, false, true];
-testIndicatePass(passs, players, expecteds);
+orders    = [[B, W], [B, W], [B, W], [B, W], [B, W, A], [B, W, A]];
+passs     = [0, 1, 1, 1, 1, 1];
+players   = [[HUMAN, HUMAN], [HUMAN, HUMAN], [RANDOM, RANDOM], [HUMAN, RANDOM], [RANDOM, RANDOM, RANDOM], [RANDOM, RANDOM, HUMAN]];
+expecteds = [false, true, false, true, false, true];
+testIndicatePass(orders, passs, players, expecteds);
 
-turns    = [B, W];
-messages = ['White Pass', 'Black Pass'];
-testGetPassMessage(turns, messages);
+orders    = [[B, W], [W, B], [B, W], [B, W, A], [B, W, A], [B, W, A], [B, W, A], [B, W, A], [B, W, A]];
+indexs    = [0, 0, 1, 0, 1, 2, 0, 1, 2];
+passs     = [1, 1, 1, 1, 1, 1, 2, 2, 2];
+expecteds = ['White Pass', 'Black Pass', 'Black Pass', 'Ash Pass', 'Black Pass', 'White Pass', 'White and Ash Pass', 'Ash and Black Pass', 'Black and White Pass'];
+testGetPassMessage(orders, indexs, passs, expecteds);
 
-turns   = [B, B, W];
-moves   = ['', 34, 35];
-winners = [DRAW, 'Black Win!', 'White Win!'];
-testGetWinnerMessage(TEST_BOARD1, turns, moves, winners);
+boards  = [TEST_BOARD1, TEST_BOARD1, TEST_BOARD1, TEST_BOARD3];
+orders  = [[B, W], [B, W], [W, B], [B, W, A]];
+moves   = ['', 34, 35, ''];
 
-turns   = [B, B, W];
-moves   = ['', 34, 35];
-winners = [DRAW, B, W];
-testGetWinner(TEST_BOARD1, turns, moves, winners);
+expecteds = [DRAW, 'Black Win!', 'White Win!', 'Ash Win!'];
+testGetWinnerMessage(boards, orders, moves, expecteds);
+
+expecteds = [DRAW, B, W, A];
+testGetWinner(boards, orders, moves, expecteds);
+
+orders    = [[B, W, A]];
+flipperss = [FLIPPERS];
+expecteds = [
+  {
+    'copy': {
+      [B]: {
+        'player'   : new Player('unknown'),
+        'opponents': [],
+        'score'    : 60,
+      },
+      [W]: {
+        'player'   : new Player('unknown'),
+        'opponents': [],
+        'score'    : 60,
+      },
+      [A]: {
+        'player'   : new Player('unknown'),
+        'opponents': [],
+        'score'    : 60,
+      },
+    },
+    'org': {
+      [B]: {
+        'player'   : new Player(HUMAN),
+        'opponents': [W, A],
+        'score'    : 0,
+      },
+      [W]: {
+        'player'   : new Player(MCS),
+        'opponents': [B, A],
+        'score'    : 0,
+      },
+      [A]: {
+        'player'   : new Player(RANDOM),
+        'opponents': [B, W],
+        'score'    : 0,
+      },
+    },
+  },
+];
+testCopyFlippers(orders, flipperss, expecteds);

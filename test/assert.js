@@ -1,10 +1,12 @@
 let turns = null;
+let indexs = null;
 let moves = null;
 let passs = null;
 let winners = null;
 let scores = null;
 let players = null;
 let messages = null;
+let orders = null;
 let expecteds = null;
 let waits = null;
 let total = '  OK   (total)';

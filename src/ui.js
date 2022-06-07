@@ -1,6 +1,18 @@
 const UI_BOARD = 'ui_board';
-const BLACK_IMG = './image/black.png';
-const WHITE_IMG = './image/white.png';
+const UI_PLAYER_INFO = {
+  [B]: {
+    'name': 'Black',
+    'img' : './image/black.png',
+  },
+  [W]: {
+    'name': 'White',
+    'img' : './image/white.png',
+  },
+  [A]: {
+    'name': 'Ash',
+    'img' : './image/ash.png',
+  },
+};
 const BOARD_SIZE = Math.sqrt(BOARD.length);
 const PLAYABLE_SIZE = BOARD_SIZE - 2;
 const BOARD_ELEMENT_NUM = BOARD_SIZE * BOARD_SIZE;
@@ -68,7 +80,7 @@ function updateUi() {
   const turn = document.getElementById('turn');
   turn.textContent = getGameTurnText(reversi.turn);
   const score = document.getElementById('score');
-  score.textContent = reversi.blackScore + ' : ' + reversi.whiteScore;
+  score.textContent = reversi.participants.map(e => reversi.flippers[e].score).join(' : ');
 }
 
 // 石を並べる
@@ -77,16 +89,8 @@ function updateUi() {
 function setupDiscs(indexs) {
   for (let index of indexs) {
     const square = document.getElementById(UI_BOARD + index);
-    switch (reversi.board[index]) {
-      case B:
-        setImg(square, BLACK_IMG);
-        break;
-      case W:
-        setImg(square, WHITE_IMG);
-        break;
-      default:
-        break;
-    }
+    const disc = reversi.board[index];
+    if (disc in UI_PLAYER_INFO) setImg(square, UI_PLAYER_INFO[disc].img);
   }
 }
 
@@ -112,9 +116,7 @@ function removeChilds(element) {
 
 // 手番の文字列を取得
 function getGameTurnText(turn) {
-  if (turn === B) return 'Black';
-  if (turn === W) return 'White';
-  return GAME_TURN_END;
+  return turn in UI_PLAYER_INFO ? UI_PLAYER_INFO[turn].name : GAME_TURN_END;
 }
 
 // マスをクリックした時の処理

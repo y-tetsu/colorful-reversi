@@ -45,6 +45,15 @@ function testBoardMethods(turns, board, expected, no) {
   testPutDisc(turns, board, expected['putDisc'], no);
 }
 
+// - getOpponentColors
+function testGetOpponentColors(turns, expected) {
+  let i = 0;
+  for (let turn in turns) {
+    assertEqual(getOpponentColors(turns[i]), expected[i], 'getOpponentColors ' + (i + 1));
+    i++;
+  }
+}
+
 // (1:初期配置)
 const TEST_BOARD1 = [
   H, H, H, H, H, H, H, H, H, H,
@@ -175,3 +184,40 @@ testBoardMethods([B],    TEST_BOARD2_1, board2_1Expected, '2-1');
 testBoardMethods([B],    TEST_BOARD2_2, board2_2Expected, '2-2');
 testBoardMethods([W],    TEST_BOARD2_3, board2_3Expected, '2-3');
 testBoardMethods([W],    TEST_BOARD2_4, board2_4Expected, '2-4');
+
+turns = [B, W, A, 'no color'];
+expecteds = [[W, A], [B, A], [B, W], []];
+testGetOpponentColors(turns, expecteds);
+
+// (3:初期配置+灰)
+const TEST_BOARD3 = [
+  H, H, H, H, H, H, H, H, H, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, A, E, E, E, E, H,
+  H, E, E, E, W, B, A, E, E, H,
+  H, E, E, A, B, W, E, E, E, H,
+  H, E, E, E, E, A, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, H, H, H, H, H, H, H, H, H,
+];
+let board3Expected = {
+  'getLegalMoves': [
+    [23, 24, 43, 47, 52, 56, 75, 76],
+    [24, 35, 37, 47, 52, 62, 64, 75],
+    [35, 43, 56, 64],
+  ],
+  'getFlippablesAtIndex': [
+    [[34], [34, 44], [44], [46], [53], [55], [65, 55], [65]],
+    [[34], [45], [46], [46, 45], [53, 54], [53], [54], [65]],
+    [[45, 55, 44], [44, 45, 54], [55, 54, 45], [54, 44, 55]],
+  ],
+  'putDisc': [
+    [[34, 23], [34, 44, 24], [44, 43], [46, 47], [53, 52], [55, 56], [65, 55, 75], [65, 76]],
+    [[34, 24], [45, 35], [46, 37], [46, 45, 47], [53, 54, 52], [53, 62], [54, 64], [65, 75]],
+    [[45, 55, 44, 35], [44, 45, 54, 43], [55, 54, 45, 56], [54, 44, 55, 64]],
+  ],
+}
+
+testBoardMethods([B, W, A], TEST_BOARD3, board3Expected, '3');
