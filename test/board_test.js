@@ -47,16 +47,16 @@ function testBoardMethods(turns, board, expected, no) {
 
 // (1:初期配置)
 const TEST_BOARD1 = [
-  X, X, X, X, X, X, X, X, X, X,
-  X, E, E, E, E, E, E, E, E, X,
-  X, E, E, E, E, E, E, E, E, X,
-  X, E, E, E, E, E, E, E, E, X,
-  X, E, E, E, W, B, E, E, E, X,
-  X, E, E, E, B, W, E, E, E, X,
-  X, E, E, E, E, E, E, E, E, X,
-  X, E, E, E, E, E, E, E, E, X,
-  X, E, E, E, E, E, E, E, E, X,
-  X, X, X, X, X, X, X, X, X, X,
+  H, H, H, H, H, H, H, H, H, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, W, B, E, E, E, H,
+  H, E, E, E, B, W, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, H, H, H, H, H, H, H, H, H,
 ];
 let board1Expected = {
   'getLegalMoves': [
@@ -75,16 +75,16 @@ let board1Expected = {
 
 // (2:8方向)
 const TEST_BOARD2_1 = [
-  X, X, X, X, X, X, X, X, X, X,
-  X, B, B, B, B, B, B, B, B, X,
-  X, B, W, W, W, W, W, W, B, X,
-  X, B, W, W, W, W, W, W, B, X,
-  X, B, W, W, E, W, W, W, B, X,
-  X, B, W, W, W, W, W, W, B, X,
-  X, B, W, W, W, W, W, W, B, X,
-  X, B, W, W, W, W, W, W, B, X,
-  X, B, B, B, B, B, B, B, B, X,
-  X, X, X, X, X, X, X, X, X, X,
+  H, H, H, H, H, H, H, H, H, H,
+  H, B, B, B, B, B, B, B, B, H,
+  H, B, W, W, W, W, W, W, B, H,
+  H, B, W, W, W, W, W, W, B, H,
+  H, B, W, W, E, W, W, W, B, H,
+  H, B, W, W, W, W, W, W, B, H,
+  H, B, W, W, W, W, W, W, B, H,
+  H, B, W, W, W, W, W, W, B, H,
+  H, B, B, B, B, B, B, B, B, H,
+  H, H, H, H, H, H, H, H, H, H,
 ];
 let board2_1Expected = {
   'getLegalMoves': [
@@ -99,16 +99,16 @@ let board2_1Expected = {
 }
 
 const TEST_BOARD2_2 = [
-  X, X, X, X, X, X, X, X, X, X,
-  X, B, B, B, B, B, B, B, B, X,
-  X, B, W, W, W, W, W, W, B, X,
-  X, B, W, W, W, W, W, W, B, X,
-  X, B, W, W, W, E, W, W, B, X,
-  X, B, W, W, W, W, W, W, B, X,
-  X, B, W, W, W, W, W, W, B, X,
-  X, B, W, W, W, W, W, W, B, X,
-  X, B, B, B, B, B, B, B, B, X,
-  X, X, X, X, X, X, X, X, X, X,
+  H, H, H, H, H, H, H, H, H, H,
+  H, B, B, B, B, B, B, B, B, H,
+  H, B, W, W, W, W, W, W, B, H,
+  H, B, W, W, W, W, W, W, B, H,
+  H, B, W, W, W, E, W, W, B, H,
+  H, B, W, W, W, W, W, W, B, H,
+  H, B, W, W, W, W, W, W, B, H,
+  H, B, W, W, W, W, W, W, B, H,
+  H, B, B, B, B, B, B, B, B, H,
+  H, H, H, H, H, H, H, H, H, H,
 ];
 let board2_2Expected = {
   'getLegalMoves': [
@@ -123,16 +123,16 @@ let board2_2Expected = {
 }
 
 const TEST_BOARD2_3 = [
-  X, X, X, X, X, X, X, X, X, X,
-  X, W, W, W, W, W, W, W, W, X,
-  X, W, B, B, B, B, B, B, W, X,
-  X, W, B, B, B, B, B, B, W, X,
-  X, W, B, B, B, B, B, B, W, X,
-  X, W, B, B, E, B, B, B, W, X,
-  X, W, B, B, B, B, B, B, W, X,
-  X, W, B, B, B, B, B, B, W, X,
-  X, W, W, W, W, W, W, W, W, X,
-  X, X, X, X, X, X, X, X, X, X,
+  H, H, H, H, H, H, H, H, H, H,
+  H, W, W, W, W, W, W, W, W, H,
+  H, W, B, B, B, B, B, B, W, H,
+  H, W, B, B, B, B, B, B, W, H,
+  H, W, B, B, B, B, B, B, W, H,
+  H, W, B, B, E, B, B, B, W, H,
+  H, W, B, B, B, B, B, B, W, H,
+  H, W, B, B, B, B, B, B, W, H,
+  H, W, W, W, W, W, W, W, W, H,
+  H, H, H, H, H, H, H, H, H, H,
 ];
 let board2_3Expected = {
   'getLegalMoves': [
@@ -147,16 +147,16 @@ let board2_3Expected = {
 }
 
 const TEST_BOARD2_4 = [
-  X, X, X, X, X, X, X, X, X, X,
-  X, W, W, W, W, W, W, W, W, X,
-  X, W, B, B, B, B, B, B, W, X,
-  X, W, B, B, B, B, B, B, W, X,
-  X, W, B, B, B, B, B, B, W, X,
-  X, W, B, B, B, E, B, B, W, X,
-  X, W, B, B, B, B, B, B, W, X,
-  X, W, B, B, B, B, B, B, W, X,
-  X, W, W, W, W, W, W, W, W, X,
-  X, X, X, X, X, X, X, X, X, X,
+  H, H, H, H, H, H, H, H, H, H,
+  H, W, W, W, W, W, W, W, W, H,
+  H, W, B, B, B, B, B, B, W, H,
+  H, W, B, B, B, B, B, B, W, H,
+  H, W, B, B, B, B, B, B, W, H,
+  H, W, B, B, B, E, B, B, W, H,
+  H, W, B, B, B, B, B, B, W, H,
+  H, W, B, B, B, B, B, B, W, H,
+  H, W, W, W, W, W, W, W, W, H,
+  H, H, H, H, H, H, H, H, H, H,
 ];
 let board2_4Expected = {
   'getLegalMoves': [

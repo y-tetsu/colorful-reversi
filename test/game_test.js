@@ -1,29 +1,29 @@
 console.log('[game_test.js]');
 
 const END_BOARD1 = [
-  X, X, X, X, X, X, X, X, X, X,
-  X, B, B, B, B, B, B, B, B, X,
-  X, B, W, W, W, W, W, W, B, X,
-  X, B, W, W, W, W, W, W, B, X,
-  X, B, W, W, B, B, W, W, B, X,
-  X, B, W, W, B, B, W, W, B, X,
-  X, B, W, W, W, W, W, W, B, X,
-  X, B, W, W, W, W, W, W, B, X,
-  X, B, B, B, B, B, B, B, B, X,
-  X, X, X, X, X, X, X, X, X, X,
+  H, H, H, H, H, H, H, H, H, H,
+  H, B, B, B, B, B, B, B, B, H,
+  H, B, W, W, W, W, W, W, B, H,
+  H, B, W, W, W, W, W, W, B, H,
+  H, B, W, W, B, B, W, W, B, H,
+  H, B, W, W, B, B, W, W, B, H,
+  H, B, W, W, W, W, W, W, B, H,
+  H, B, W, W, W, W, W, W, B, H,
+  H, B, B, B, B, B, B, B, B, H,
+  H, H, H, H, H, H, H, H, H, H,
 ];
 
 const PASS_BOARD1 = [
-  X, X, X, X, X, X, X, X, X, X,
-  X, B, E, E, E, E, E, W, B, X,
-  X, W, E, E, E, E, E, E, E, X,
-  X, E, E, E, E, E, E, E, E, X,
-  X, E, E, E, E, E, E, E, E, X,
-  X, E, E, E, E, E, E, E, E, X,
-  X, E, E, E, E, E, E, E, E, X,
-  X, E, E, E, E, E, E, E, W, X,
-  X, B, W, E, E, E, E, E, B, X,
-  X, X, X, X, X, X, X, X, X, X,
+  H, H, H, H, H, H, H, H, H, H,
+  H, B, E, E, E, E, E, W, B, H,
+  H, W, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, W, H,
+  H, B, W, E, E, E, E, E, B, H,
+  H, H, H, H, H, H, H, H, H, H,
 ];
 
 // play

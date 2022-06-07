@@ -39,13 +39,14 @@ function createBoardTable() {
       td.setAttribute('id', UI_BOARD + (y * BOARD_SIZE + x));
     }
   }
-  // 盤面のサイズと背景色
+  // 盤面のサイズと背景色と形
   for (let i=0; i<BOARD.length; i++) {
     const square = document.getElementById(UI_BOARD + i);
     square.width = 60;
     square.height = 60;
-    if (reversi.board[i] !== X) {
-        square.style.backgroundColor = 'green';
+    const boardColor = BOARD_COLOR[i];
+    if (reversi.board[i] !== H && boardColor !== '*') {
+      square.style.backgroundColor = COLOR_CODE[boardColor];
     }
   }
   // 盤面のヘッダー情報を追加
