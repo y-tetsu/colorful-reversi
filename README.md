@@ -1,19 +1,45 @@
-# simple-irregular-reversi
-簡単な変則リバーシ
+# colorful-reversi
+JavaScriptで作る変則リバーシ
 
-https://y-tetsu.github.io/simple-irregular-reversi/
+https://y-tetsu.github.io/colorful-reversi/
 
-<a href="https://y-tetsu.github.io/simple-irregular-reversi/" target="_blank">
-<img src="image/demo2.gif" width="48%">
-</a>
+<img src="image/demo4.gif" width="48%">
 
-(画像クリックで遊べます)
+6色の石を使った、3(+2)人対戦で遊べる変則リバーシです。<br>
+盤面の形や色、石の配置が変わっています。<br>
 
-黒と白に加え、灰色の3人対戦のリバーシです。<br>
-盤面形状、初期配置、盤面の色も通常から変更しています。<br>
+## プレイヤー
+|色 |説明 |
+|---|---|
+|黒 |あなた |
+|白 |コンピュータ(やや強い) |
+|灰 |コンピュータ(ランダム) |
+|シアン |コンピュータ(なるべく少なく石を取る、10手目に打つ) |
+|山吹 |コンピュータ(なるべく多く石を取る、30手目と40手目に打つ) |
 
-黒が人、白と灰色はコンピュータです。<br>
-灰色はランダムで、白はやや強いです。<br>
+白を倒すことを目標にして下さい。灰・シアン・山吹はお邪魔キャラです。
+
+## 石
+|色 |説明 |
+|---|---|
+|黒 |黒プレイヤーの石。挟むと相手の石を自分のものにできる。 |
+|白 |白プレイヤーの石。(扱いは黒と同様) |
+|灰 |灰プレイヤーの石。(扱いは黒と同様) |
+|緑 |置き石。ひっくり返せない。手番のプレイヤーが一番石を多く取れる色として扱われる。 |
+|シアン |シアンプレイヤーの石。挟むと相手の石を自分のものにできるが、ひっくり返されない。 |
+|山吹 |山吹プレイヤーの石。(扱いはシアンと同様) |
 
 ## 実行方法
 ソース一式をダウンロード後、index.htmlを任意のブラウザで開く。<br>
+
+## リンク
+### JavaScriptで作る変則リバーシ⓪
+https://qiita.com/y-tetsu/items/59237213d544f14bbc9c
+### JavaScriptで作る変則リバーシ①
+https://qiita.com/y-tetsu/items/5ba5a5487534e47cc7ca
+### JavaScriptで作る変則リバーシ②
+https://qiita.com/y-tetsu/items/d1a5c7485cb34ae5c904
+### JavaScriptで作る変則リバーシ③
+https://qiita.com/y-tetsu/items/ab8d92969c3c1b20fc9c
+### JavaScriptで作る変則リバーシ④
+https://qiita.com/y-tetsu/items/6730c37cbb4ce3d3994b

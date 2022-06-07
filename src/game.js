@@ -1,114 +1,212 @@
 // ゲーム進行
-const BLACK_PLAYER = HUMAN;       // 人が操作
-const WHITE_PLAYER = AI_LEVEL_1;  // コンピュータが操作(やや強い)
-const ASH_PLAYER = AI_LEVEL_0;    // コンピュータが操作(ランダム)
-const PLAYER_NUM = 3;             // プレイヤーの人数(黒、白、灰)
-const FIRST_PLAYER = B;           // 先手プレイヤー
 const GAME_PLAY = 0;
 const GAME_STOP = 1;
 const GAME_END = 2;
-const WAIT_TIME = 800; // ms
-const GAME_TURN_END = "End";
-const DRAW = "Draw";
+const WAIT_TIME = 800;  // ms
+const GAME_TURN_END = 'End';
+const DRAW = 'Draw';
+const PASS = 'Pass';
+const WIN = 'Win!';
+const TURN_ORDER = [B, W, A];             // プレイヤーの順番
+const PLAYERS = [...new Set(TURN_ORDER)]  // 参加プレイヤー
+const CUTIN_PLAYERS = {                   // 割り込みプレイヤー
+  10: C,  // 10手目でシアンが打つ
+  30: Y,  // 30手目で山吹色が打つ
+  40: Y,  // 40手目で山吹色が打つ
+};
+const NO_CUTIN_PLAYER = -1;
 
+let playersInfo = {
+  [B]: {                           // 黒プレイヤー
+    'player'   : HUMAN,            // 人が操作
+    'opponents': [W, A, C, Y, G],  // 対戦相手 + 置き石
+    'score'    : 0,                // 黒の石の数
+  },
+  [W]: {                           // 白プレイヤー
+    'player'   : AI_LEVEL_3,       // コンピュータが操作(やや強い)
+    'opponents': [B, A, C, Y, G],  // 対戦相手 + 置き石
+    'score'    : 0,                // 白の石の数
+  },
+  [A]: {                           // 灰プレイヤー
+    'player'   : AI_LEVEL_0,       // コンピュータが操作(ランダム)
+    'opponents': [B, W, C, Y, G],  // 対戦相手 + 置き石
+    'score'    : 0,                // 灰の石の数
+  },
+  [C]: {                           // シアンプレイヤー
+    'player'   : AI_LEVEL_1,       // コンピュータが操作(Minimum)
+    'opponents': [B, W, A, Y, G],  // 対戦相手 + 置き石
+    'score'    : 0,                // シアンの石の数
+  },
+  [Y]: {                           // 山吹プレイヤー
+    'player'   : AI_LEVEL_2,       // コンピュータが操作(Maximum)
+    'opponents': [B, W, A, C, G],  // 対戦相手 + 置き石
+    'score'    : 0,                // 山吹の石の数
+  },
+};
 let gameBoard = [];
 let gameState = GAME_PLAY;
-let gameTurn = FIRST_PLAYER;
+let moveCount = 1;
+let turnOrder = moveCount in CUTIN_PLAYERS ? [CUTIN_PLAYERS[moveCount]].concat(TURN_ORDER) : TURN_ORDER.concat();
+let turnIndex = 0;
+let cutInIndex = moveCount in CUTIN_PLAYERS ? turnIndex : NO_CUTIN_PLAYER;
+let gameTurn = turnOrder[turnIndex];
 let passCount = 0;
-let blackScore = 0;
-let whiteScore = 0;
-let ashScore = 0;
+let passEndCount = turnOrder.length;
 
+// ゲーム情報を初期化
 function initGame() {
-  gameBoard = BOARD.concat();
+  gameBoard = BOARD.concat();  // 盤面初期設定を取得
   gameState = GAME_PLAY;
-  gameTurn = FIRST_PLAYER;
+  moveCount = 1;
+  turnOrder = moveCount in CUTIN_PLAYERS ? [CUTIN_PLAYERS[moveCount]].concat(TURN_ORDER) : TURN_ORDER.concat();
+  turnIndex = 0;
+  cutInIndex = moveCount in CUTIN_PLAYERS ? turnIndex : NO_CUTIN_PLAYER;
+  gameTurn = turnOrder[turnIndex];
   passCount = 0;
+  passEndCount = turnOrder.length;
   updateScore();
 }
 
+// ゲームループ
 function gameLoop() {
   gameState = playGame();
   updateUi();
   switch (gameState) {
     case GAME_PLAY:
-      const waitTime = ((BLACK_PLAYER !== WHITE_PLAYER || BLACK_PLAYER !== ASH_PLAYER) && (BLACK_PLAYER === HUMAN || WHITE_PLAYER === HUMAN || ASH_PLAYER === HUMAN)) ? WAIT_TIME : 0;
-      setTimeout(() => gameLoop(), waitTime);
+      setTimeout(() => gameLoop(), getWaitTime());
       break;
     case GAME_END:
-      const winner = getWinner(blackScore, whiteScore, ashScore);
-      const message = winner === B ? "Black Win!" : winner === W ? "White Win!" : winner === A ? "Ash Win!" : winner;
-      alert(message);
+      indicateWinner();
       break;
     default:
       break;
   }
 }
 
+// 1手プレイ
 function playGame() {
-  if (passCount === PLAYER_NUM) return GAME_END;                // ゲーム終了
-  if (passCount < PLAYER_NUM && passCount > 0) indicatePass();  // パスの通知
-  if (isPassOrEnd()) return GAME_PLAY;                          // ゲーム開始時の終了判定
+  if (passCount === passEndCount) return GAME_END;                // ゲーム終了
+  if (passCount < passEndCount && passCount > 0) indicatePass();  // パスの通知
+  if (isPassOrEnd()) return GAME_PLAY;                            // ゲーム開始時のパス/終了判定
+  // 1手打つ
   passCount = 0;
-  let player = gameTurn === B ? BLACK_PLAYER : gameTurn === W ? WHITE_PLAYER : ASH_PLAYER;  // プレイヤー取得
-  const move = getMove(gameTurn, gameBoard, player);  // プレイヤーの手を取得
-  if (move === WAIT_HUMAN) return GAME_STOP;  // ユーザー入力待ち
-  putDisc(gameTurn, gameBoard, move);  // ディスクを置く
+  if (!actMove(gameTurn, gameBoard, playersInfo[gameTurn].player)) {
+    return GAME_STOP;  // ユーザー入力待ちのため、ゲームループを停止
+  }
+  moveCount++;
   updateScore();
-  gameTurn = getNextTurn(gameTurn);  // 次のターンを取得
-  if (isEnd()) gameTurn = GAME_TURN_END;  // ゲームの終了判定
+  // 割り込みプレイヤーを削除
+  turnIndex = deleteCutInPlayer(turnIndex);
+  // 割り込みプレイヤーを追加
+  passEndCount = addCutInPlayer(moveCount, turnIndex);
+  // 次の手の準備
+  [gameTurn, turnIndex] = getNextTurn(turnIndex);  // 次のターンを取得
+  if (isEnd()) gameTurn = GAME_TURN_END;           // ゲームの終了判定
   return GAME_PLAY;
 }
 
-function getWinner(black, white, ash) {
-  let winner = DRAW;
-  if (black > white && black > ash) winner = B;
-  if (white > black && white > ash) winner = W;
-  if (ash > black && ash > white) winner = A;
-  return winner;
+// 割り込みプレイヤーを追加
+// (引数)
+//  count : 開始からの手数
+//  index : プレイヤーの順番
+// (戻り値)
+//  return : 終了パス回数
+function addCutInPlayer(count, index) {
+  if (count in CUTIN_PLAYERS) {
+    cutInIndex = index + 1;
+    turnOrder.splice(cutInIndex, 0, CUTIN_PLAYERS[count]);
+  }
+  return turnOrder.length
 }
 
+// 割り込みプレイヤーを削除
+// (引数)
+//  index : プレイヤーの順番
+function deleteCutInPlayer(index) {
+  if (cutInIndex != NO_CUTIN_PLAYER) {
+    if (index >= cutInIndex) index--;
+    turnOrder.splice(cutInIndex, 1);
+    cutInIndex = NO_CUTIN_PLAYER;
+  }
+  return index;
+}
+
+// 待ち時間取得
+function getWaitTime() {
+  // ユーザー同士、コンピュータ同士の場合はウェイトなし
+  const players = [...new Set(PLAYERS.map(e => playersInfo[e].player))];
+  return players.includes(HUMAN) && (players.length > 1) ? WAIT_TIME : 0;
+}
+
+// 勝利プレイヤーの通知
+function indicateWinner() {
+  const winner = getWinner(PLAYERS.map(e => playersInfo[e].score));
+  const message = winner === DRAW ? winner : getGameTurnText(winner) + ' ' + WIN;
+  alert(message);
+}
+
+// 勝利プレイヤーの石を返す
+// (引数)
+//  scores : 各プレイヤーのスコア配列
+// (戻り値)
+//  winner : 勝利プレイヤーまたはDRAW(引き分け)
+function getWinner(scores) {
+  const max = Math.max(...scores);
+  return scores.filter(e => e === max).length === 1 ? PLAYERS[scores.indexOf(max)] : DRAW;
+}
+
+// パスの通知
 function indicatePass() {
-  if (BLACK_PLAYER === HUMAN || WHITE_PLAYER === HUMAN || ASH_PLAYER === HUMAN) {
-    if (passCount === 1) {
-      gameTurn === B ? alert('Ash Pass') : gameTurn === W ? alert('Black Pass') : alert('White Pass');
+  if ([...new Set(PLAYERS.map(e => playersInfo[e].player))].includes(HUMAN)) {
+    let passTurns = []
+    let index = turnIndex;
+    for (let i=0; i<passCount; i++) {
+      index--;
+      if (index < 0) index = turnOrder.length - 1;
+      passTurns.push(getGameTurnText(turnOrder[index]));
     }
-    else if (passCount === 2) {
-      gameTurn === B ? alert('White and Ash Pass') : gameTurn === W ? alert('Ash and Black Pass') : alert('Black and White Pass');
-    }
+    alert(passTurns.reverse().join(' and ') + ' ' + PASS);
   }
 }
 
+// パスまたは終了の判定
 function isPassOrEnd() {
   if (isPass()) {
-    if (isPass()) {
-      isPass();
+    for (let i=0; i<passEndCount-1; i++) {
+      if (!isPass()) break;
     }
     return true;
   }
   return false;
 }
 
+// パスの判定
 function isPass() {
   if (getLegalMoves(gameTurn, gameBoard).length <= 0) {
-    gameTurn = getNextTurn(gameTurn);
+    [gameTurn, turnIndex] = getNextTurn(turnIndex);
     passCount++;
     return true;
   }
   return false;
 }
 
+// 終了の判定
 function isEnd() {
-  return isPass() && isPass() && isPass();
+  for (let i=0; i<passEndCount; i++) {
+    if (!isPass()) return false;
+  }
+  return true;
 }
 
-// 自身の手番を返す
+// 次の手番と順番を返す
 // (引数)
-//  turn  : プレイヤーの手番(色)
+//  index  : プレイヤーの順番
 // (戻り値)
-//  return : 次の手番
-function getNextTurn(turn) {
-  return turn === B ? W : turn === W ? A : B;
+//  return : 次の手番と順番
+function getNextTurn(index) {
+  index++;
+  if (index >= turnOrder.length) index = 0;
+  return [turnOrder[index], index];
 }
 
 // 自身の対戦相手を返す
@@ -117,11 +215,12 @@ function getNextTurn(turn) {
 // (戻り値)
 //  return : 対戦相手を格納した配列
 function getOpponentColors(turn) {
-  return turn === B ? [W, A] : turn === W ? [A, B] : [B, W];
+  return turn in playersInfo ? playersInfo[turn].opponents : [];
 }
 
+// スコアの更新
 function updateScore() {
-  blackScore = gameBoard.filter(element => element === B).length;
-  whiteScore = gameBoard.filter(element => element === W).length;
-  ashScore = gameBoard.filter(element => element === A).length;
+  for (let player of PLAYERS) {
+    playersInfo[player].score = gameBoard.filter(e => e === player).length;
+  }
 }

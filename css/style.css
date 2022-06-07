@@ -1,45 +1,42 @@
-body {
-    text-align: center;
-    color:#C0C0C0;
-    background-color:#303030;
+body {                         /* (全体)                 */
+    text-align: center;        /* テキスト中央寄せ       */
+    color:#C0C0C0;             /* テキストの色           */
+    background-color:#303030;  /* 背景の色               */
 }
 
-p {
-    font-size: 2rem;
+p {                            /* (手番とスコア)         */
+    font-size: 2rem;           /* フォントサイズ         */
 }
 
-span {
-    font-size: 2rem;
+img {                          /* (石の画像)             */
+    display: block;            /* 中央寄せ               */
+    margin: auto;              /* 周囲の余白 : 自動調整  */
 }
 
-img {
-    display: block;
-    margin: auto;
+div#ui_board table {           /* (表全体)               */
+    margin: auto;              /* 周囲の余白 : 自動調整  */
+    color: #E0E0E0;            /* テキストの色           */
+    background: #303030;       /* 背景色                 */
+    font-size: 1.5rem;         /* フォントサイズ         */
 }
 
-div#ui_board table {
-    margin: auto;
-    background: #303030;
+div#ui_board td {              /* (表の要素)             */
+    border:2px solid #303030;  /* 枠線 : サイズ 1本線 色 */
 }
 
-div#ui_board td {
-    width: 60px;
-    height: 60px;
-    border:2px solid #303030;
+a:link {                       /* (リンク:未訪問)        */
+    color: #F0F0F0;            /* テキストの色           */
 }
 
-div#ui_board .header {
-    color: #E0E0E0;
-    background: #303030;
-    font-size: 1.5rem;
+a:visited {                    /* (リンク:訪問済み)      */
+    color: #F0F0F0;            /* テキストの色           */
 }
 
-div#ui_board .hole {
-    color: #303030;
-    background: #303030;
+a:hover {                      /* (リンク:ホバー時)      */
+    color: #FFFFFF;            /* テキストの色           */
+    background: #0000DD;       /* 背景色                 */
 }
 
-div#ui_board .none {
-    color: #E0E0E0;
-    background: #303030;
+a:active {                     /* (リンク:クリック時)    */
+    color: #FF0000;            /* テキストの色           */
 }
