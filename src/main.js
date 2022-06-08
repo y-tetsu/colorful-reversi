@@ -7,4 +7,5 @@ function start() {
   reversi.loop();
 }
 
+window.onresize = resizeUi;
 start();

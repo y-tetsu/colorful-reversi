@@ -31,6 +31,14 @@ const BOARD_ELEMENT_NUM = BOARD_SIZE * BOARD_SIZE;
 const PLAYABLE_START = BOARD_SIZE + 1;
 const PLAYABLE_END = (BOARD_SIZE + 1) * PLAYABLE_SIZE;
 const PLAYABLE_INDEXS = getPlayableIndexs();
+const BASE_UI_SIZE = 930;
+const BASE_IMAGE_SIZE = 40;
+const BASE_BOARD_SIZE = 10;
+const MIN_IMAGE_SIZE = 25;
+const WIDTH_ASPECT = 1.25;
+
+let imageSize = BASE_IMAGE_SIZE * (BASE_BOARD_SIZE / BOARD_SIZE);
+let tableSize = imageSize * 1.5;
 
 // ゲームで遊べる範囲の全ての盤面位置を取得
 function getPlayableIndexs() {
@@ -43,6 +51,7 @@ function getPlayableIndexs() {
 function initUi() {
   createBoardTable();  // 盤面のテーブルを作成
   updateUi();          // ゲーム情報を反映
+  resizeUi();          // 盤面のリサイズ
 }
 
 // 盤面のテーブル作成
@@ -66,8 +75,8 @@ function createBoardTable() {
   // 盤面のサイズと背景色と形
   for (let i=0; i<BOARD.length; i++) {
     const square = document.getElementById(UI_BOARD + i);
-    square.width = 60;
-    square.height = 60;
+    square.width = tableSize;
+    square.height = tableSize;
     const boardColor = BOARD_COLOR[i];
     if (reversi.board[i] !== H && boardColor !== '*') {
       square.style.backgroundColor = COLOR_CODE[boardColor];
@@ -95,6 +104,25 @@ function updateUi() {
   score.textContent = reversi.participants.map(e => reversi.flippers[e].score).join(' : ');
 }
 
+// 盤面のリサイズ
+function resizeUi(){
+  const innerWidth = window.innerWidth * WIDTH_ASPECT;
+  const innerHeight = window.innerHeight;
+  const uiSize = innerWidth < innerHeight ? innerWidth : innerHeight;
+  imageSize = BASE_IMAGE_SIZE * (uiSize / BASE_UI_SIZE) * (BASE_BOARD_SIZE / BOARD_SIZE);
+  imageSize = imageSize < MIN_IMAGE_SIZE ? MIN_IMAGE_SIZE : imageSize;
+  tableSize = imageSize * 1.5;
+  for (let i=0; i<BOARD.length; i++) {
+    // マス
+    let square = document.getElementById(UI_BOARD + i);
+    square.width = tableSize;
+    square.height = tableSize;
+    // 石
+    const disc = reversi.board[i];
+    if (disc in UI_PLAYER_INFO) setImg(square, UI_PLAYER_INFO[disc].img);
+  }
+}
+
 // 石を並べる
 // (引数)
 //  indexs  : 石を置く位置(マスを示す番号)の配列
@@ -114,8 +142,8 @@ function setImg(element, imgPath) {
   removeChilds(element);                      // 一旦、子要素削除
   const img = document.createElement('img');  // 画像要素作成
   img.src = imgPath;                          // 画像パス
-  img.width = 40;                             // 横サイズ（px）
-  img.height = 40;                            // 縦サイズ（px）
+  img.width = imageSize;                      // 横サイズ（px）
+  img.height = imageSize;                     // 縦サイズ（px）
   element.appendChild(img);                   // 画像追加
 }
 
