@@ -12,6 +12,14 @@ const UI_PLAYER_INFO = {
     'name': 'Ash',
     'img' : './image/ash.png',
   },
+  [C]: {
+    'name': 'Cyan',
+    'img' : './image/cyan.png',
+  },
+  [Y]: {
+    'name': 'Yamabuki',
+    'img' : './image/yamabuki.png',
+  },
 };
 const BOARD_SIZE = Math.sqrt(BOARD.length);
 const PLAYABLE_SIZE = BOARD_SIZE - 2;

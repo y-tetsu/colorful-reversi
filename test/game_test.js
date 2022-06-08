@@ -300,7 +300,7 @@ testGetWinnerMessage(boards, orders, moves, expecteds);
 expecteds = [DRAW, B, W, A];
 testGetWinner(boards, orders, moves, expecteds);
 
-orders    = [[B, W, A]];
+orders    = [[B, W, A, C, Y]];
 flipperss = [FLIPPERS];
 expecteds = [
   {
@@ -320,21 +320,41 @@ expecteds = [
         'opponents': [],
         'score'    : 60,
       },
+      [C]: {
+        'player'   : new Player('unknown'),
+        'opponents': [],
+        'score'    : 60,
+      },
+      [Y]: {
+        'player'   : new Player('unknown'),
+        'opponents': [],
+        'score'    : 60,
+      },
     },
     'org': {
       [B]: {
         'player'   : new Player(HUMAN),
-        'opponents': [W, A],
+        'opponents': [W, A, C, Y],
         'score'    : 0,
       },
       [W]: {
         'player'   : new Player(MCS),
-        'opponents': [B, A],
+        'opponents': [B, A, C, Y],
         'score'    : 0,
       },
       [A]: {
         'player'   : new Player(RANDOM),
-        'opponents': [B, W],
+        'opponents': [B, W, C, Y],
+        'score'    : 0,
+      },
+      [C]: {
+        'player'   : new Player(RANDOM),
+        'opponents': [B, W, A, Y],
+        'score'    : 0,
+      },
+      [Y]: {
+        'player'   : new Player(RANDOM),
+        'opponents': [B, W, A, C],
         'score'    : 0,
       },
     },

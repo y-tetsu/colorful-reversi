@@ -186,7 +186,7 @@ testBoardMethods([W],    TEST_BOARD2_3, board2_3Expected, '2-3');
 testBoardMethods([W],    TEST_BOARD2_4, board2_4Expected, '2-4');
 
 turns = [B, W, A, 'no color'];
-expecteds = [[W, A], [B, A], [B, W], []];
+expecteds = [[W, A, C, Y], [B, A, C, Y], [B, W, C, Y], []];
 testGetOpponentColors(turns, expecteds);
 
 // (3:初期配置+灰)
