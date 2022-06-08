@@ -3,9 +3,10 @@ JavaScriptで作る変則リバーシ
 
 https://y-tetsu.github.io/colorful-reversi/
 
-<img src="image/demo2.gif" width="48%">
+<img src="image/demo3.gif" width="48%">
 
-盤面の形や色、石の初期配置が異なる3人対戦の変則リバーシです。<br>
+4色の石を使った、3人対戦で遊べる変則リバーシです。<br>
+盤面の形や色、石の初期配置も通常とは異なっています。<br>
 
 ## プレイヤー
 |色 |説明 |
@@ -22,6 +23,7 @@ https://y-tetsu.github.io/colorful-reversi/
 |黒 |黒プレイヤーの石。相手の石を挟むと自分のものにできる。 |
 |白 |白プレイヤーの石。(扱いは黒と同様) |
 |灰 |灰プレイヤーの石。(扱いは黒と同様) |
+|緑 |プレイヤーなし。手番のプレイヤーが一番石を多く取れる色として扱われる。また、この石はひっくり返されない。 |
 
 ## 実行方法
 ソース一式をダウンロード後、index.htmlを任意のブラウザで開く。<br>
@@ -33,3 +35,5 @@ https://qiita.com/y-tetsu/items/59237213d544f14bbc9c
 https://qiita.com/y-tetsu/items/5ba5a5487534e47cc7ca
 ### JavaScriptで作る変則リバーシ②
 https://qiita.com/y-tetsu/items/d1a5c7485cb34ae5c904
+### JavaScriptで作る変則リバーシ③
+https://qiita.com/y-tetsu/items/ab8d92969c3c1b20fc9c

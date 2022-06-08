@@ -334,27 +334,27 @@ expecteds = [
     'org': {
       [B]: {
         'player'   : new Player(HUMAN),
-        'opponents': [W, A, C, Y],
+        'opponents': [W, A, C, Y, G],
         'score'    : 0,
       },
       [W]: {
         'player'   : new Player(MCS),
-        'opponents': [B, A, C, Y],
+        'opponents': [B, A, C, Y, G],
         'score'    : 0,
       },
       [A]: {
         'player'   : new Player(RANDOM),
-        'opponents': [B, W, C, Y],
+        'opponents': [B, W, C, Y, G],
         'score'    : 0,
       },
       [C]: {
         'player'   : new Player(RANDOM),
-        'opponents': [B, W, A, Y],
+        'opponents': [B, W, A, Y, G],
         'score'    : 0,
       },
       [Y]: {
         'player'   : new Player(RANDOM),
-        'opponents': [B, W, A, C],
+        'opponents': [B, W, A, C, G],
         'score'    : 0,
       },
     },

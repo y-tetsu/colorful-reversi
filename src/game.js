@@ -11,27 +11,27 @@ const ORDER = [B, W, A];              // プレイヤーの順番
 const FLIPPERS = {                    // 使用可能な全プレイヤー情報(石をひっくり返せる)
   [B]: {                              // 黒
     'player'   : new Player(HUMAN),   // 人が操作
-    'opponents': [W, A, C, Y],        // 対戦相手
+    'opponents': [W, A, C, Y, G],     // 対戦相手 + 置き石
     'score'    : 0,                   // 黒の石の数
   },
   [W]: {                              // 白
     'player'   : new Player(MCS),     // コンピュータが操作(原始モンテカルロ探索)
-    'opponents': [B, A, C, Y],        // 対戦相手
+    'opponents': [B, A, C, Y, G],     // 対戦相手 + 置き石
     'score'    : 0,                   // 白の石の数
   },
   [A]: {                              // 灰
     'player'   : new Player(RANDOM),  // コンピュータが操作(ランダム)
-    'opponents': [B, W, C, Y],        // 対戦相手
+    'opponents': [B, W, C, Y, G],     // 対戦相手 + 置き石
     'score'    : 0,                   // 灰の石の数
   },
   [C]: {                              // シアン
     'player'   : new Player(RANDOM),  // コンピュータが操作(ランダム)
-    'opponents': [B, W, A, Y],        // 対戦相手
+    'opponents': [B, W, A, Y, G],     // 対戦相手 + 置き石
     'score'    : 0,                   // シアンの石の数
   },
   [Y]: {                              // 山吹
     'player'   : new Player(RANDOM),  // コンピュータが操作(ランダム)
-    'opponents': [B, W, A, C],        // 対戦相手
+    'opponents': [B, W, A, C, G],     // 対戦相手 + 置き石
     'score'    : 0,                   // 山吹の石の数
   },
 };

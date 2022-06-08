@@ -20,6 +20,10 @@ const UI_PLAYER_INFO = {
     'name': 'Yamabuki',
     'img' : './image/yamabuki.png',
   },
+  [G]: {
+    'name': 'Green',
+    'img' : './image/green.png',
+  },
 };
 const BOARD_SIZE = Math.sqrt(BOARD.length);
 const PLAYABLE_SIZE = BOARD_SIZE - 2;

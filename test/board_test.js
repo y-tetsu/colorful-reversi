@@ -186,7 +186,7 @@ testBoardMethods([W],    TEST_BOARD2_3, board2_3Expected, '2-3');
 testBoardMethods([W],    TEST_BOARD2_4, board2_4Expected, '2-4');
 
 turns = [B, W, A, 'no color'];
-expecteds = [[W, A, C, Y], [B, A, C, Y], [B, W, C, Y], []];
+expecteds = [[W, A, C, Y, G], [B, A, C, Y, G], [B, W, C, Y, G], []];
 testGetOpponentColors(turns, expecteds);
 
 // (3:初期配置+灰)
@@ -221,3 +221,36 @@ let board3Expected = {
 }
 
 testBoardMethods([B, W, A], TEST_BOARD3, board3Expected, '3');
+
+// (4:緑)
+const TEST_BOARD4 = [
+  H, H, H, H, H, H, H, H, H, H,
+  H, G, E, E, E, E, E, E, G, H,
+  H, W, E, E, E, E, E, E, G, H,
+  H, G, E, E, E, E, E, E, E, H,
+  H, A, E, E, G, A, E, E, E, H,
+  H, E, E, E, B, W, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, H, H, H, H, H, H, H, H, H,
+];
+let board4Expected = {
+  'getLegalMoves': [
+    [34, 36, 38, 46, 51, 56, 66],
+    [33, 35, 38, 46, 51, 53, 64],
+    [38, 43, 63, 64, 65, 66],
+  ],
+  'getFlippablesAtIndex': [
+    [[44], [45], [28], [45], [41, 31, 21], [55], [55]],
+    [[44], [45], [28], [45], [41, 31], [54], [54]],
+    [[28], [44], [54], [54], [55], [55]],
+  ],
+  'putDisc': [
+    [[44, 34], [45, 36], [28, 38], [45, 46], [41, 31, 21, 51], [55, 56], [55, 66]],
+    [[44, 33], [45, 35], [28, 38], [45, 46], [41, 31, 51], [54, 53], [54, 64]],
+    [[28, 38], [44, 43], [54, 63], [54, 64], [55, 65], [55, 66]],
+  ],
+}
+
+testBoardMethods([B, W, A], TEST_BOARD4, board4Expected, '4');

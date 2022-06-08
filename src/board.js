@@ -5,6 +5,7 @@ const W = 3;  // 白色の石
 const A = 4;  // 灰色の石
 const C = 5;  // シアン色の石
 const Y = 6;  // 山吹色の石
+const G = 7;  // 緑色の石
 const DIRECTION_XY = [
   {'x': 0, 'y':-1},  // 上
   {'x': 1, 'y':-1},  // 右上
@@ -15,14 +16,16 @@ const DIRECTION_XY = [
   {'x':-1, 'y': 0},  // 左
   {'x':-1, 'y':-1},  // 左上
 ];
+const WILDCARD = G;   // 変化石
+const PERMANENT = G;  // 不変石
 const BOARD = [
   H, H, H, H, H, H, H, H, H, H,
   H, H, H, E, E, E, E, H, H, H,
   H, H, E, E, E, E, E, E, H, H,
-  H, E, E, E, B, A, E, E, E, H,
-  H, E, E, A, W, B, W, E, E, H,
-  H, E, E, W, B, W, A, E, E, H,
-  H, E, E, E, A, B, E, E, E, H,
+  H, E, E, E, G, A, E, E, E, H,
+  H, E, E, A, W, B, G, E, E, H,
+  H, E, E, G, B, W, A, E, E, H,
+  H, E, E, E, A, G, E, E, E, H,
   H, H, E, E, E, E, E, E, H, H,
   H, H, H, E, E, E, E, H, H, H,
   H, H, H, H, H, H, H, H, H, H,
@@ -88,6 +91,16 @@ function getFlippablesAtIndex(turn, board, index) {
     if (board[next] === turn) {
       flippables = flippables.concat(opponentDiscs);
     }
+    else {
+      while (opponentDiscs.length) {
+        // 候補をpopし、変化石を探す
+        if (board[opponentDiscs.pop()] === WILDCARD) {
+          // 変化石が見つかったら、残りの候補を戻り値に追加
+          flippables = flippables.concat(opponentDiscs);
+          break;
+        }
+      }
+    }
   }
   return flippables;
 }
@@ -102,9 +115,9 @@ function getFlippablesAtIndex(turn, board, index) {
 function putDisc(turn, board, index) {
   if (index === NO_MOVE) return [];
   const flippables = getFlippablesAtIndex(turn, board, index);
-  board[index] = turn;                 // 手の位置にディスクを置く
-  for (let flippable of flippables) {  // 相手のディスクをひっくり返す
-    board[flippable] = turn;
+  board[index] = turn;                                            // 手の位置にディスクを置く
+  for (let flippable of flippables) {                             // 相手のディスクをひっくり返す
+    if (board[flippable] !== PERMANENT) board[flippable] = turn;  // 不変石はひっくり返さない
   }
   return flippables.concat(index);
 }
