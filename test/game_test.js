@@ -26,11 +26,26 @@ const PASS_BOARD1 = [
   H, H, H, H, H, H, H, H, H, H,
 ];
 
-// play
-function testPlay(boards, orders, moves, expecteds) {
+// constructor
+function testConstructor(orders, cutins, expecteds) {
   let i = 0;
   for (let order of orders) {
-    const game = new Game(boards[i], order, FLIPPERS);
+    const game = new Game(TEST_BOARD1, order, FLIPPERS, cutins[i][0]);
+    assertEqual(game.order,      expecteds[i].order,      'constructor ' + (i + 1) + '-1');
+    assertEqual(game.cutInIndex, expecteds[i].cutInIndex, 'constructor ' + (i + 1) + '-2');
+    assertEqual(game.cutins,     expecteds[i].cutins,     'constructor ' + (i + 1) + '-3');
+    game.cutins = cutins[i][1]
+    assertNotEqual(game.cutins,  cutins[i][0],            'constructor ' + (i + 1) + '-4');
+    i++;
+  }
+}
+
+// play
+function testPlay(coutns, boards, orders, moves, cutins, expecteds) {
+  let i = 0;
+  for (let order of orders) {
+    const game = new Game(boards[i], order, FLIPPERS, cutins[i]);
+    game.moveCount = counts[i];
     game.humanMove = moves[i];
     assertEqual(game.play(),       expecteds[i].result,       'play ' + (i + 1) + '-1');
     game.updateScore();
@@ -39,19 +54,52 @@ function testPlay(boards, orders, moves, expecteds) {
     assertEqual(game.pass,         expecteds[i].pass,         'play ' + (i + 1) + '-3');
     assertEqual(game.updatedDiscs, expecteds[i].updatedDiscs, 'play ' + (i + 1) + '-4');
     assertEqual(game.turn,         expecteds[i].turn,         'play ' + (i + 1) + '-5');
+    assertEqual(game.moveCount,    expecteds[i].moveCount,    'play ' + (i + 1) + '-6');
     i++;
   }
 }
 
 // setNextPlayer
-function testSetNextPlayer(orders, indexs, expecteds) {
+function testSetNextPlayer(counts, orders, indexs, cindexs, cutins, expecteds) {
   let i = 0;
   for (let order of orders) {
-    const game = new Game(TEST_BOARD1, order, FLIPPERS);
+    const game = new Game(TEST_BOARD1, order, FLIPPERS, cutins[i]);
+    game.moveCount = counts[i];
     game.turnIndex = indexs[i];
+    game.cutInIndex = cindexs[i];
     game.setNextPlayer();
-    assertEqual(game.turn,        expecteds[i].next,   'setNextPlayer ' + (i + 1) + '-1');
-    assertEqual(game.player.name, expecteds[i].player, 'setNextPlayer ' + (i + 1) + '-2');
+    assertEqual(game.turn,        expecteds[i].next,      'setNextPlayer ' + (i + 1) + '-1');
+    assertEqual(game.player.name, expecteds[i].player,    'setNextPlayer ' + (i + 1) + '-2');
+    assertEqual(game.turnIndex,   expecteds[i].turnIndex, 'setNextPlayer ' + (i + 1) + '-3');
+    i++;
+  }
+}
+
+// deleteCutInPlayer
+function testDeleteCutInPlayer(orders, indexs, cindexs, cutins, expecteds) {
+  let i = 0;
+  for (let order of orders) {
+    const game = new Game(TEST_BOARD1, order, FLIPPERS, cutins[i]);
+    game.turnIndex = indexs[i];
+    game.cutInIndex = cindexs[i];
+    game.deleteCutInPlayer();
+    assertEqual(game.order,      expecteds[i].order,      'deleteCutInPlayer ' + (i + 1) + '-1');
+    assertEqual(game.turnIndex,  expecteds[i].turnIndex,  'deleteCutInPlayer ' + (i + 1) + '-2');
+    assertEqual(game.cutInIndex, expecteds[i].cutInIndex, 'deleteCutInPlayer ' + (i + 1) + '-3');
+    i++;
+  }
+}
+
+// addCutInPlayer
+function testAddCutInPlayer(counts, orders, indexs, cutins, expecteds) {
+  let i = 0;
+  for (let order of orders) {
+    const game = new Game(TEST_BOARD1, order, FLIPPERS, cutins[i]);
+    game.moveCount = counts[i];
+    game.turnIndex = indexs[i];
+    game.addCutInPlayer();
+    assertEqual(game.order,      expecteds[i].order,      'addCutInPlayer ' + (i + 1) + '-1');
+    assertEqual(game.cutInIndex, expecteds[i].cutInIndex, 'addCutInPlayer ' + (i + 1) + '-2');
     i++;
   }
 }
@@ -60,7 +108,7 @@ function testSetNextPlayer(orders, indexs, expecteds) {
 function testUpdateScore(boards, orders, moves, scores) {
   let i = 0;
   for (let order of orders) {
-    const game = new Game(boards[i], order, FLIPPERS);
+    const game = new Game(boards[i], order, FLIPPERS, CUTINS);
     if (move) putDisc(game.turn, game.board, moves[i]);
     game.updateScore();
     let j = 0;
@@ -76,7 +124,7 @@ function testUpdateScore(boards, orders, moves, scores) {
 function testIsEnd(boards, orders, expecteds) {
   let i = 0;
   for (let order of orders) {
-    const game = new Game(boards[i], order, FLIPPERS);
+    const game = new Game(boards[i], order, FLIPPERS, CUTINS);
     assertEqual(game.isEnd(), expecteds[i].result, 'isEnd ' + (i + 1) + '-1');
     assertEqual(game.turn,    expecteds[i].next,   'isEnd ' + (i + 1) + '-2');
     assertEqual(game.pass,    expecteds[i].pass,   'isEnd ' + (i + 1) + '-3');
@@ -88,7 +136,7 @@ function testIsEnd(boards, orders, expecteds) {
 function testIsPass(orders, expecteds) {
   let i = 0;
   for (let order of orders) {
-    const game = new Game(PASS_BOARD1, order, FLIPPERS);
+    const game = new Game(PASS_BOARD1, order, FLIPPERS, CUTINS);
     assertEqual(game.isPass(), expecteds[i].result, 'isPass ' + (i + 1) + '-1');
     assertEqual(game.turn,     expecteds[i].next,   'isPass ' + (i + 1) + '-2');
     assertEqual(game.pass,     expecteds[i].pass,   'isPass ' + (i + 1) + '-3');
@@ -100,7 +148,7 @@ function testIsPass(orders, expecteds) {
 function testIndicatePass(orders, passs, players, expecteds) {
   let i = 0;
   for (let expected of expecteds) {
-    const game = new Game(TEST_BOARD1, orders[i], FLIPPERS);
+    const game = new Game(TEST_BOARD1, orders[i], FLIPPERS, CUTINS);
     let j = 0;
     for (let participant of game.participants) {
       game.flippers[participant].player = new Player(players[i][j]);
@@ -116,7 +164,7 @@ function testIndicatePass(orders, passs, players, expecteds) {
 function testGetPassMessage(orders, indexs, passs, messages) {
   let i = 0;
   for (let order of orders) {
-    const game = new Game(TEST_BOARD1, order, FLIPPERS);
+    const game = new Game(TEST_BOARD1, order, FLIPPERS, CUTINS);
     game.turnIndex = indexs[i];
     game.pass = passs[i];
     assertEqual(game.getPassMessage(), messages[i], 'getPassMessage ' + (i + 1));
@@ -128,7 +176,7 @@ function testGetPassMessage(orders, indexs, passs, messages) {
 function testGetWinnerMessage(boards, orders, moves, winners) {
   let i = 0;
   for (let order of orders) {
-    const game = new Game(boards[i], order, FLIPPERS);
+    const game = new Game(boards[i], order, FLIPPERS, CUTINS);
     if (move) putDisc(game.turn, game.board, moves[i]);
     game.updateScore();
     assertEqual(game.getWinnerMessage(), winners[i], 'getWinnerMessage ' + (i + 1));
@@ -140,7 +188,7 @@ function testGetWinnerMessage(boards, orders, moves, winners) {
 function testGetWinner(boards, orders, moves, winners) {
   let i = 0;
   for (let order of orders) {
-    const game = new Game(boards[i], order, FLIPPERS);
+    const game = new Game(boards[i], order, FLIPPERS, CUTINS);
     if (move) putDisc(game.turn, game.board, moves[i]);
     game.updateScore();
     assertEqual(game.getWinner(), winners[i], 'getWinner ' + (i + 1));
@@ -152,7 +200,7 @@ function testGetWinner(boards, orders, moves, winners) {
 function testCopyFlippers(orders, flipperss, expecteds) {
   let i = 0;
   for (let order of orders) {
-    game = new Game(TEST_BOARD1, order, flipperss[i]);
+    game = new Game(TEST_BOARD1, order, flipperss[i], CUTINS);
     let copy = game.copyFlippers(flipperss[i]);
     for (let color of order) {
       copy[color].player.name = 'unknown';
@@ -165,9 +213,30 @@ function testCopyFlippers(orders, flipperss, expecteds) {
   }
 }
 
-boards    = [END_BOARD1, TEST_BOARD1, TEST_BOARD1, END_BOARD1];
-orders    = [[B, W], [B, W], [B, W], [W, A, B]];
-moves     = [NO_MOVE, NO_MOVE, 34, NO_MOVE]
+orders  = [[B, W], [B, W]];
+cutins  = [
+  [{10: C}, {10: Y}],
+  [{1: C}, {1: Y}]
+];
+expecteds = [
+  {
+    'order'     : [B, W],
+    'cutInIndex': NO_CUTIN,
+    'cutins'    : {10: C},
+  },
+  {
+    'order'     : [C, B, W],
+    'cutInIndex': 0,
+    'cutins'    : {1: C},
+  },
+];
+testConstructor(orders, cutins, expecteds);
+
+counts    = [1, 1, 1, 1, 1];
+boards    = [END_BOARD1, TEST_BOARD1, TEST_BOARD1, END_BOARD1, END_BOARD1];
+orders    = [[B, W], [B, W], [B, W], [W, A, B], [W, A, B]];
+moves     = [NO_MOVE, NO_MOVE, 34, NO_MOVE, NO_MOVE]
+cutins    = [{10: C}, {10: C}, {10: C}, {10: C}, {1: C}];
 expecteds = [
   {
     'result'      : GAME_END,
@@ -175,6 +244,7 @@ expecteds = [
     'pass'        : 2,
     'updatedDiscs': [],
     'turn'        : GAME_TURN_END,
+    'moveCount'   : 1,
   },
   {
     'result'      : GAME_STOP,
@@ -182,6 +252,7 @@ expecteds = [
     'pass'        : 0,
     'updatedDiscs': [],
     'turn'        : B,
+    'moveCount'   : 1,
   },
   {
     'result'      : GAME_PLAY,
@@ -189,6 +260,7 @@ expecteds = [
     'pass'        : 0,
     'updatedDiscs': [44, 34],
     'turn'        : W,
+    'moveCount'   : 2,
   },
   {
     'result'      : GAME_END,
@@ -196,35 +268,110 @@ expecteds = [
     'pass'        : 3,
     'updatedDiscs': [],
     'turn'        : GAME_TURN_END,
+    'moveCount'   : 1,
+  },
+  {
+    'result'      : GAME_END,
+    'scores'      : [32, 0, 32],
+    'pass'        : 4,
+    'updatedDiscs': [],
+    'turn'        : GAME_TURN_END,
+    'moveCount'   : 1,
   },
 ];
-testPlay(boards, orders, moves, expecteds);
+testPlay(counts, boards, orders, moves, cutins, expecteds);
 
-orders    = [[B, W], [W, B], [B, W, A], [B, W, A], [B, W, A]];
-indexs    = [0, 0, 0, 1, 2];
+counts    = [1, 1, 1, 1, 1, 11, 11];
+orders    = [[B, W], [W, B], [B, W, A], [B, W, A], [B, W, A], [C, B, W, A], [B, C, W, A]];
+indexs    = [0, 0, 0, 1, 2, 0, 1];
+cindexs   = [NO_CUTIN, NO_CUTIN, NO_CUTIN, NO_CUTIN, NO_CUTIN, 0, 1];
+cutins    = [{10: C}, {10: C}, {10: C}, {10: C}, {10: C}, {10: C, 11: Y}, {10: C, 11: Y}];
 expecteds = [
   {
-    'next'  : W,
-    'player': MCS,
+    'next'     : W,
+    'player'   : MCS,
+    'turnIndex': 1,
   },
   {
-    'next'  : B,
-    'player': HUMAN,
+    'next'     : B,
+    'player'   : HUMAN,
+    'turnIndex': 1,
   },
   {
-    'next'  : W,
-    'player': MCS,
+    'next'     : W,
+    'player'   : MCS,
+    'turnIndex': 1,
   },
   {
-    'next'  : A,
-    'player': RANDOM,
+    'next'     : A,
+    'player'   : RANDOM,
+    'turnIndex': 2,
   },
   {
-    'next'  : B,
-    'player': HUMAN,
+    'next'     : B,
+    'player'   : HUMAN,
+    'turnIndex': 0,
+  },
+  {
+    'next'     : Y,
+    'player'   : MAXIMUM,
+    'turnIndex': 0,
+  },
+  {
+    'next'     : Y,
+    'player'   : MAXIMUM,
+    'turnIndex': 1,
   },
 ];
-testSetNextPlayer(orders, indexs, expecteds);
+testSetNextPlayer(counts, orders, indexs, cindexs, cutins, expecteds);
+
+orders  = [[B, W], [B, C, W], [C, B, W], [C, B, W]];
+indexs  = [1, 0, 2, 0];
+cindexs = [NO_CUTIN, 1, 0, 0];
+cutins  = [{10: C}, {10: C}, {10: C}, {10: C}];
+expecteds = [
+  {
+    'order'     : [B, W],
+    'turnIndex' : 1,
+    'cutInIndex': NO_CUTIN,
+  },
+  {
+    'order'     : [B, W],
+    'turnIndex' : 0,
+    'cutInIndex': NO_CUTIN,
+  },
+  {
+    'order'     : [B, W],
+    'turnIndex' : 1,
+    'cutInIndex': NO_CUTIN,
+  },
+  {
+    'order'     : [B, W],
+    'turnIndex' : -1,
+    'cutInIndex': NO_CUTIN,
+  },
+];
+testDeleteCutInPlayer(orders, indexs, cindexs, cutins, expecteds);
+
+counts  = [1, 10, 10];
+orders  = [[B, W], [B, W], [B, W]];
+indexs  = [0, 0, 1];
+cutins  = [{10: C}, {10: C}, {10: C}];
+expecteds = [
+  {
+    'order'     : [B, W],
+    'cutInIndex': NO_CUTIN,
+  },
+  {
+    'order'     : [C, B, W],
+    'cutInIndex': 0,
+  },
+  {
+    'order'     : [B, C, W],
+    'cutInIndex': 1,
+  },
+];
+testAddCutInPlayer(counts, orders, indexs, cutins, expecteds);
 
 boards = [TEST_BOARD1, TEST_BOARD1, TEST_BOARD1, TEST_BOARD3];
 orders = [[B, W], [B, W], [W, B], [B, W, A]];
@@ -348,12 +495,12 @@ expecteds = [
         'score'    : 0,
       },
       [C]: {
-        'player'   : new Player(RANDOM),
+        'player'   : new Player(MINIMUM),
         'opponents': [B, W, A, Y, G],
         'score'    : 0,
       },
       [Y]: {
-        'player'   : new Player(RANDOM),
+        'player'   : new Player(MAXIMUM),
         'opponents': [B, W, A, C, G],
         'score'    : 0,
       },

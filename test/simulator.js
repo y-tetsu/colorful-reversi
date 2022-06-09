@@ -7,7 +7,7 @@ players = [
 ];
 
 // simulator
-function simulator(players, board, order, num) {
+function simulator(players, board, order, cutins, num) {
   const startTime = performance.now();
   console.log('------------------------------');
   console.log('start at ' + startTime.toFixed(3));
@@ -28,7 +28,7 @@ function simulator(players, board, order, num) {
         flippers[color].player = new Player(player[j]);
         j++;
       }
-      const game = new Game(board, order, flippers);
+      const game = new Game(board, order, flippers, cutins);
       while (game.play() === GAME_PLAY);
       game.updateScore();
       const winner = game.getWinner();
@@ -49,7 +49,7 @@ function onStartClicked(event) {
   const num = document.getElementById('num').value;
   start.disabled = true;
   alert('start ' + num + ' matches simulation.');
-  simulator(players, BOARD, ORDER, num);
+  simulator(players, BOARD, ORDER, CUTINS, num);
   start.disabled = false;
 }
 

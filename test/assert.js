@@ -6,6 +6,7 @@ let winners = null;
 let scores = null;
 let players = null;
 let messages = null;
+let counts = null;
 let orders = null;
 let expecteds = null;
 let waits = null;
@@ -18,6 +19,18 @@ function assertEqual(first, second, name) {
   second = JSON.stringify(second);
   if (first != second) {
     result = '* NG * (' + name + ')\n' + 'first != second' + '\n' + 'first = ' + first + '\n' + 'second = ' + second;
+    total = '* NG * (total)';
+  }
+  console.log(result);
+};
+
+// assertNotEqual
+function assertNotEqual(first, second, name) {
+  let result = '  OK   (' + name + ')';
+  first = JSON.stringify(first);
+  second = JSON.stringify(second);
+  if (first == second) {
+    result = '* NG * (' + name + ')\n' + 'first == second' + '\n' + 'first = ' + first + '\n' + 'second = ' + second;
     total = '* NG * (total)';
   }
   console.log(result);

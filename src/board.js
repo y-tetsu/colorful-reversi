@@ -16,31 +16,35 @@ const DIRECTION_XY = [
   {'x':-1, 'y': 0},  // 左
   {'x':-1, 'y':-1},  // 左上
 ];
-const WILDCARD = G;   // 変化石
-const PERMANENT = G;  // 不変石
+const WILDCARD = G;            // 変化石
+const PERMANENTS = [G, C, Y];  // 不変石
 const BOARD = [
-  H, H, H, H, H, H, H, H, H, H,
-  H, H, H, E, E, E, E, H, H, H,
-  H, H, E, E, E, E, E, E, H, H,
-  H, E, E, E, G, A, E, E, E, H,
-  H, E, E, A, W, B, G, E, E, H,
-  H, E, E, G, B, W, A, E, E, H,
-  H, E, E, E, A, G, E, E, E, H,
-  H, H, E, E, E, E, E, E, H, H,
-  H, H, H, E, E, E, E, H, H, H,
-  H, H, H, H, H, H, H, H, H, H,
+  H, H, H, H, H, H, H, H, H, H, H, H,
+  H, H, H, H, H, E, E, H, H, H, H, H,
+  H, H, H, H, E, E, E, E, H, H, H, H,
+  H, H, H, E, E, E, E, E, E, H, H, H,
+  H, H, E, E, E, G, C, E, E, E, H, H,
+  H, E, E, E, Y, W, B, G, E, E, E, H,
+  H, E, E, E, G, B, W, Y, E, E, E, H,
+  H, H, E, E, E, C, G, E, E, E, H, H,
+  H, H, H, E, E, E, E, E, E, H, H, H,
+  H, H, H, H, E, E, E, E, H, H, H, H,
+  H, H, H, H, H, E, E, H, H, H, H, H,
+  H, H, H, H, H, H, H, H, H, H, H, H,
 ];
 const BOARD_COLOR = [
-  '*', '*', '*', '*', '*', '*', '*', '*', '*', '*',
-  '*', '*', '*', '1', '1', '2', '2', '*', '*', '*',
-  '*', '*', '1', '1', '1', '2', '2', '2', '*', '*',
-  '*', '1', '1', '1', '1', '2', '2', '2', '2', '*',
-  '*', '1', '1', '1', '1', '2', '2', '2', '2', '*',
-  '*', '3', '3', '3', '3', '4', '4', '4', '4', '*',
-  '*', '3', '3', '3', '3', '4', '4', '4', '4', '*',
-  '*', '*', '3', '3', '3', '4', '4', '4', '*', '*',
-  '*', '*', '*', '3', '3', '4', '4', '*', '*', '*',
-  '*', '*', '*', '*', '*', '*', '*', '*', '*', '*',
+  '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*',
+  '*', '*', '*', '*', '*', '1', '2', '*', '*', '*', '*', '*',
+  '*', '*', '*', '*', '1', '1', '2', '2', '*', '*', '*', '*',
+  '*', '*', '*', '1', '5', '1', '2', '2', '2', '*', '*', '*',
+  '*', '*', '1', '1', '1', '1', '2', '2', '6', '2', '*', '*',
+  '*', '1', '1', '1', '1', '1', '2', '2', '2', '2', '2', '*',
+  '*', '3', '3', '3', '3', '3', '4', '4', '4', '4', '4', '*',
+  '*', '*', '3', '6', '3', '3', '4', '4', '4', '4', '*', '*',
+  '*', '*', '*', '3', '3', '3', '4', '5', '4', '*', '*', '*',
+  '*', '*', '*', '*', '3', '3', '4', '4', '*', '*', '*', '*',
+  '*', '*', '*', '*', '*', '3', '4', '*', '*', '*', '*', '*',
+  '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*', '*',
 ];
 const COLOR_CODE = {
   '0': 'green',
@@ -48,6 +52,8 @@ const COLOR_CODE = {
   '2': 'pink',
   '3': 'mediumaquamarine',
   '4': 'navajowhite',
+  '5': 'white',
+  '6': 'black',
   '*': '* no color *',
 };
 
@@ -115,9 +121,9 @@ function getFlippablesAtIndex(turn, board, index) {
 function putDisc(turn, board, index) {
   if (index === NO_MOVE) return [];
   const flippables = getFlippablesAtIndex(turn, board, index);
-  board[index] = turn;                                            // 手の位置にディスクを置く
-  for (let flippable of flippables) {                             // 相手のディスクをひっくり返す
-    if (board[flippable] !== PERMANENT) board[flippable] = turn;  // 不変石はひっくり返さない
+  board[index] = turn;                                                    // 手の位置にディスクを置く
+  for (let flippable of flippables) {                                     // 相手のディスクをひっくり返す
+    if (!PERMANENTS.includes(board[flippable])) board[flippable] = turn;  // 不変石はひっくり返さない
   }
   return flippables.concat(index);
 }

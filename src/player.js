@@ -1,10 +1,12 @@
 const HUMAN = 'human';
 const RANDOM = 'random';
+const MINIMUM = 'minimum';
+const MAXIMUM = 'maximum';
 const MCS = 'mcs';
 const NO_MOVE = -1;
 const MCS_SCHEDULE = [
-  [40, 34, 28, 22,  16,  13,  10,   6],  // 空きマス残り
-  [20, 40, 60, 80, 120, 200, 400, 800],  // プレイアウト回数
+  [48, 40, 34, 28, 22,  16,  13,  10,   6],  // 空きマス残り
+  [10, 20, 40, 60, 80, 120, 200, 400, 800],  // プレイアウト回数
 ];
 
 // プレイヤー
@@ -22,6 +24,12 @@ class Player {
         break;
       case RANDOM:
         move = getMoveByRandom(game);
+        break;
+      case MINIMUM:
+        move = getMoveByMinimum(game);
+        break;
+      case MAXIMUM:
+        move = getMoveByMaximum(game);
         break;
       case MCS:
         move = getMoveByMonteCarloSearch(game, MCS_SCHEDULE);
@@ -55,6 +63,30 @@ function getMoveByRandom(game) {
   return legalMoves[randomIndex];
 }
 
+// なるべく少なく石が取れる手を返す
+// (引数)
+//  game  : ゲーム情報
+// (戻り値)
+//  return : コンピュータの手(マスを表す番号)
+function getMoveByMinimum(game) {
+  const turn = game.turn;
+  const board = game.board;
+  const legalMoves = getLegalMoves(turn, board);
+  return legalMoves.reduce((a, b) => getFlippablesAtIndex(turn, board, a).length < getFlippablesAtIndex(turn, board, b).length ? a : b);
+}
+
+// なるべく多く石が取れる手を返す
+// (引数)
+//  game  : ゲーム情報
+// (戻り値)
+//  return : コンピュータの手(マスを表す番号)
+function getMoveByMaximum(game) {
+  const turn = game.turn;
+  const board = game.board;
+  const legalMoves = getLegalMoves(turn, board);
+  return legalMoves.reduce((a, b) => getFlippablesAtIndex(turn, board, a).length > getFlippablesAtIndex(turn, board, b).length ? a : b);
+}
+
 // 原始モンテカルロ探索で選んだ手を返す
 // (引数)
 //  game     : ゲーム情報
@@ -73,7 +105,7 @@ function getMoveByMonteCarloSearch(game, schedule) {
     putDisc(turn, localBoard, move);
     let value = 0;
     for (let i=0; i<num; i++) {
-      value += getPlayoutValue(game.turnIndex, localBoard, game.order, randomFlippers);
+      value += getPlayoutValue(game.turnIndex, localBoard, game.order, randomFlippers, game.cutins);
     }
     results.push(value);
   }
@@ -113,10 +145,11 @@ function getRandomFlippers(flippers) {
 //  board    : 盤面情報を格納した配列
 //  order    : プレイヤーの順番を格納した配列
 //  flippers : プレイヤー情報を格納した連想配列
+//  cutins   : 割り込みプレイヤー情報を格納した連想配列
 // (戻り値)
 //  return   : プレイアウト結果(勝ち=1、それ以外=0)
-function getPlayoutValue(index, board, order, flippers) {
-  const playout = new Game(board, order, flippers);
+function getPlayoutValue(index, board, order, flippers, cutins) {
+  const playout = new Game(board, order, flippers, cutins);
   playout.turnIndex = index;
   playout.setNextPlayer();
   while (playout.play() === GAME_PLAY);

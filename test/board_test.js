@@ -254,3 +254,36 @@ let board4Expected = {
 }
 
 testBoardMethods([B, W, A], TEST_BOARD4, board4Expected, '4');
+
+// (5:シアン、山吹)
+const TEST_BOARD5 = [
+  H, H, H, H, H, H, H, H, H, H,
+  H, C, E, Y, E, E, E, E, E, H,
+  H, Y, E, C, E, E, E, E, E, H,
+  H, A, E, A, E, E, E, E, E, H,
+  H, W, E, W, E, E, E, E, E, H,
+  H, B, E, B, E, E, E, E, E, H,
+  H, G, E, G, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, H, H, H, H, H, H, H, H, H,
+];
+let board5Expected = {
+  'getLegalMoves': [
+    [71, 73],
+    [71, 73],
+    [71, 73],
+  ],
+  'getFlippablesAtIndex': [
+    [[61], [63]],
+    [[61, 51, 41, 31, 21], [63, 53, 43, 33]],
+    [[61, 51, 41, 31], [63, 53, 43, 33, 23]],
+  ],
+  'putDisc': [
+    [[61, 71], [63, 73]],
+    [[61, 51, 41, 31, 21, 71], [63, 53, 43, 33, 73]],
+    [[61, 51, 41, 31, 71], [63, 53, 43, 33, 23, 73]],
+  ],
+}
+
+testBoardMethods([B, C, Y], TEST_BOARD5, board5Expected, '5');

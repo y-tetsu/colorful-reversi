@@ -6,45 +6,54 @@ const GAME_TURN_END = 'End';
 const DRAW = 'Draw';
 const PASS = 'Pass';
 const WIN = 'Win!';
-const WAIT_TIME = 800;                // ウェイト時間(ms)
-const ORDER = [B, W, A];              // プレイヤーの順番
-const FLIPPERS = {                    // 使用可能な全プレイヤー情報(石をひっくり返せる)
-  [B]: {                              // 黒
-    'player'   : new Player(HUMAN),   // 人が操作
-    'opponents': [W, A, C, Y, G],     // 対戦相手 + 置き石
-    'score'    : 0,                   // 黒の石の数
+const WAIT_TIME = 800;                 // ウェイト時間(ms)
+const ORDER = [B, W, A];               // プレイヤーの順番
+const NO_CUTIN = -1;
+const CUTINS = {                       // 割り込みプレイヤー
+  10: C,                               // 10手目でシアンが打つ
+  30: Y,                               // 30手目で山吹色が打つ
+  40: Y,                               // 40手目で山吹色が打つ
+};
+const FLIPPERS = {                     // 使用可能な全プレイヤー情報(石をひっくり返せる)
+  [B]: {                               // 黒
+    'player'   : new Player(HUMAN),    // 人が操作
+    'opponents': [W, A, C, Y, G],      // 対戦相手 + 置き石
+    'score'    : 0,                    // 黒の石の数
   },
-  [W]: {                              // 白
-    'player'   : new Player(MCS),     // コンピュータが操作(原始モンテカルロ探索)
-    'opponents': [B, A, C, Y, G],     // 対戦相手 + 置き石
-    'score'    : 0,                   // 白の石の数
+  [W]: {                               // 白
+    'player'   : new Player(MCS),      // コンピュータが操作(原始モンテカルロ探索)
+    'opponents': [B, A, C, Y, G],      // 対戦相手 + 置き石
+    'score'    : 0,                    // 白の石の数
   },
-  [A]: {                              // 灰
-    'player'   : new Player(RANDOM),  // コンピュータが操作(ランダム)
-    'opponents': [B, W, C, Y, G],     // 対戦相手 + 置き石
-    'score'    : 0,                   // 灰の石の数
+  [A]: {                               // 灰
+    'player'   : new Player(RANDOM),   // コンピュータが操作(ランダム)
+    'opponents': [B, W, C, Y, G],      // 対戦相手 + 置き石
+    'score'    : 0,                    // 灰の石の数
   },
-  [C]: {                              // シアン
-    'player'   : new Player(RANDOM),  // コンピュータが操作(ランダム)
-    'opponents': [B, W, A, Y, G],     // 対戦相手 + 置き石
-    'score'    : 0,                   // シアンの石の数
+  [C]: {                               // シアン
+    'player'   : new Player(MINIMUM),  // コンピュータが操作(Minimum)
+    'opponents': [B, W, A, Y, G],      // 対戦相手 + 置き石
+    'score'    : 0,                    // シアンの石の数
   },
-  [Y]: {                              // 山吹
-    'player'   : new Player(RANDOM),  // コンピュータが操作(ランダム)
-    'opponents': [B, W, A, C, G],     // 対戦相手 + 置き石
-    'score'    : 0,                   // 山吹の石の数
+  [Y]: {                               // 山吹
+    'player'   : new Player(MAXIMUM),  // コンピュータが操作(Maximum)
+    'opponents': [B, W, A, C, G],      // 対戦相手 + 置き石
+    'score'    : 0,                    // 山吹の石の数
   },
 };
 
 // ゲームの管理
 class Game {
-  constructor(board, order, flippers) {
+  constructor(board, order, flippers, cutins) {
     this.board = board.concat();
-    this.order = order.concat();
+    this.moveCount = 1;
+    this.order = this.moveCount in cutins ? [cutins[this.moveCount]].concat(order) : order.concat();
     this.turnIndex = 0;
+    this.cutInIndex = this.moveCount in cutins ? this.turnIndex : NO_CUTIN;
     this.turn = this.order[this.turnIndex];
     this.flippers = this.copyFlippers(flippers);
     this.player = this.flippers[this.turn].player;
+    this.cutins = cutins;
     this.participants = [...new Set(order)];
     this.pass = 0;
     this.wait = WAIT_TIME;
@@ -81,16 +90,40 @@ class Game {
     this.pass = 0;
     this.updatedDiscs = this.player.actMove(this);
     if (this.updatedDiscs.length === 0) return GAME_STOP;
+    this.moveCount++;
     this.setNextPlayer();
     return GAME_PLAY;
   }
 
   // 次のプレイヤーを設定する
   setNextPlayer() {
+    // 今回の割り込みプレイヤー削除
+    this.deleteCutInPlayer();
+    // 手番を回す
     this.turnIndex++;
     if (this.turnIndex >= this.order.length) this.turnIndex = 0;
+    // 次回の割り込みプレイヤー追加
+    this.addCutInPlayer();
+    // プレイヤー設定更新
     this.turn = this.order[this.turnIndex];
     this.player = this.flippers[this.turn].player;
+  }
+
+  // 割り込みプレイヤーを削除する
+  deleteCutInPlayer() {
+    if (this.cutInIndex != NO_CUTIN) {
+      if (this.turnIndex >= this.cutInIndex) this.turnIndex--;
+      this.order.splice(this.cutInIndex, 1);
+      this.cutInIndex = NO_CUTIN;
+    }
+  }
+
+  // 割り込みプレイヤーを追加する
+  addCutInPlayer() {
+    if (this.moveCount in this.cutins) {
+      this.cutInIndex = this.turnIndex;
+      this.order.splice(this.cutInIndex, 0, this.cutins[this.moveCount]);
+    }
   }
 
   // スコアの更新

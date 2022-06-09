@@ -32,8 +32,8 @@ const PLAYABLE_START = BOARD_SIZE + 1;
 const PLAYABLE_END = (BOARD_SIZE + 1) * PLAYABLE_SIZE;
 const PLAYABLE_INDEXS = getPlayableIndexs();
 const BASE_UI_SIZE = 930;
-const BASE_IMAGE_SIZE = 40;
-const BASE_BOARD_SIZE = 10;
+const BASE_IMAGE_SIZE = 35;
+const BASE_BOARD_SIZE = 12;
 const MIN_IMAGE_SIZE = 25;
 const WIDTH_ASPECT = 1.25;
 
