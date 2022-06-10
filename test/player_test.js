@@ -3,28 +3,34 @@ console.log('[player_test.js]');
 // Player
 let game = new Game(TEST_BOARD1, ORDER, FLIPPERS, CUTINS);
 let player = new Player('unknown');
-assertEqual(player.actMove(game), [], 'Player 1');
+assertEqual(player.actMove(game), {'put': NO_MOVE, 'flipped': []}, 'Player 1');
 
 game = new Game(TEST_BOARD1, ORDER, FLIPPERS, CUTINS);
 player = new Player(HUMAN);
 game.humanMove = 34;
-assertEqual(player.actMove(game), [44, 34], 'Player 2');
+assertEqual(player.actMove(game), {'put': 34, 'flipped': [44]}, 'Player 2');
 
 game = new Game(TEST_BOARD1, ORDER, FLIPPERS, CUTINS);
 player = new Player(RANDOM);
-assertIncludes(player.actMove(game), [[44, 34], [44, 43], [55, 56], [55, 65]], 'Player 3');
+const possibleActs = [
+  {'put': 34, 'flipped': [44]},
+  {'put': 43, 'flipped': [44]},
+  {'put': 56, 'flipped': [55]},
+  {'put': 65, 'flipped': [55]}
+];
+assertIncludes(player.actMove(game), possibleActs, 'Player 3');
 
 game = new Game(TEST_BOARD1, ORDER, FLIPPERS, CUTINS);
 player = new Player(MCS);
-assertIncludes(player.actMove(game), [[44, 34], [44, 43], [55, 56], [55, 65]], 'Player 4');
+assertIncludes(player.actMove(game), possibleActs, 'Player 4');
 
 game = new Game(TEST_BOARD1, ORDER, FLIPPERS, CUTINS);
 player = new Player(MINIMUM);
-assertIncludes(player.actMove(game), [[44, 34], [44, 43], [55, 56], [55, 65]], 'Player 5');
+assertIncludes(player.actMove(game), possibleActs, 'Player 5');
 
 game = new Game(TEST_BOARD1, ORDER, FLIPPERS, CUTINS);
 player = new Player(MAXIMUM);
-assertIncludes(player.actMove(game), [[44, 34], [44, 43], [55, 56], [55, 65]], 'Player 6');
+assertIncludes(player.actMove(game), possibleActs, 'Player 6');
 
 // getMoveByHuman
 game = new Game(TEST_BOARD1, ORDER, FLIPPERS, CUTINS);

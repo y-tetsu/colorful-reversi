@@ -54,6 +54,7 @@ const COLOR_CODE = {
   '4': 'navajowhite',
   '5': 'white',
   '6': 'black',
+  '7': '#DED5FA',
   '*': '* no color *',
 };
 
@@ -117,15 +118,15 @@ function getFlippablesAtIndex(turn, board, index) {
 //  board : 盤面情報を格納した配列
 //  index : 石を置く位置(マスを示す番号)
 // (戻り値)
-//  return : 更新された石
+//  return : 置いた石、ひっくり返した石
 function putDisc(turn, board, index) {
-  if (index === NO_MOVE) return [];
+  if (index === NO_MOVE) return {'put': NO_MOVE, 'flipped': []};
   const flippables = getFlippablesAtIndex(turn, board, index);
   board[index] = turn;                                                    // 手の位置にディスクを置く
   for (let flippable of flippables) {                                     // 相手のディスクをひっくり返す
     if (!PERMANENTS.includes(board[flippable])) board[flippable] = turn;  // 不変石はひっくり返さない
   }
-  return flippables.concat(index);
+  return {'put': index, 'flipped': flippables};
 }
 
 // 自身の対戦相手を返す

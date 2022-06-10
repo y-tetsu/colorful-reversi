@@ -39,6 +39,7 @@ const WIDTH_ASPECT = 1.25;
 
 let imageSize = BASE_IMAGE_SIZE * (BASE_BOARD_SIZE / BOARD_SIZE);
 let tableSize = imageSize * 1.5;
+let prePut = NO_MOVE;
 
 // ゲームで遊べる範囲の全ての盤面位置を取得
 function getPlayableIndexs() {
@@ -97,7 +98,7 @@ function createBoardTable() {
 
 // 盤面の更新
 function updateUi() {
-  setupDiscs(reversi.updatedDiscs);
+  updateDiscs();
   const turn = document.getElementById('turn');
   turn.textContent = getGameTurnText(reversi.turn);
   const score = document.getElementById('score');
@@ -121,6 +122,22 @@ function resizeUi(){
     const disc = reversi.board[i];
     if (disc in UI_PLAYER_INFO) setImg(square, UI_PLAYER_INFO[disc].img);
   }
+}
+
+// 石を更新
+function updateDiscs() {
+  const {put, flipped} = reversi.updatedDiscs;
+  if (put === NO_MOVE) return;
+  // 前回の手のハイライトを消す
+  if (prePut !== NO_MOVE) {
+    const square = document.getElementById(UI_BOARD + prePut);
+    square.style.backgroundColor = COLOR_CODE[BOARD_COLOR[prePut]];
+  }
+  // 石を置く
+  setupDiscs(flipped.concat(put));
+  // 今回の手をハイライト
+  document.getElementById(UI_BOARD + put).style.backgroundColor = COLOR_CODE['7'];
+  prePut = put;
 }
 
 // 石を並べる

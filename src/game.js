@@ -59,13 +59,13 @@ class Game {
     this.wait = WAIT_TIME;
     this.humanMove = NO_MOVE;
     this.updateScore();
-    this.updatedDiscs = [];
+    this.updatedDiscs = {'put': NO_MOVE, 'flipped': []};
     this.state = GAME_INIT;
   }
 
   // ゲームループ
   loop() {
-    this.updatedDiscs = [];
+    this.updatedDiscs = {'put': NO_MOVE, 'flipped': []};
     this.state = this.play();
     this.updateScore();
     updateUi();
@@ -89,7 +89,7 @@ class Game {
     if (this.indicatePass()) alert(this.getPassMessage());
     this.pass = 0;
     this.updatedDiscs = this.player.actMove(this);
-    if (this.updatedDiscs.length === 0) return GAME_STOP;
+    if (this.updatedDiscs.put === NO_MOVE) return GAME_STOP;
     this.moveCount++;
     this.setNextPlayer();
     return GAME_PLAY;
