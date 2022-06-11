@@ -24,6 +24,10 @@ const UI_PLAYER_INFO = {
     'name': 'Green',
     'img' : './image/green.png',
   },
+  [R]: {
+    'name': 'Red',
+    'img' : './image/red.png',
+  },
 };
 const BOARD_SIZE = Math.sqrt(BOARD.length);
 const PLAYABLE_SIZE = BOARD_SIZE - 2;
@@ -126,7 +130,7 @@ function resizeUi(){
 
 // 石を更新
 function updateDiscs() {
-  const {put, flipped} = reversi.updatedDiscs;
+  const {put, flipped, flippers, erasable} = reversi.updatedDiscs;
   if (put === NO_MOVE) return;
   // 前回の手のハイライトを消す
   if (prePut !== NO_MOVE) {
@@ -134,7 +138,8 @@ function updateDiscs() {
     square.style.backgroundColor = COLOR_CODE[BOARD_COLOR[prePut]];
   }
   // 石を置く
-  setupDiscs(flipped.concat(put));
+  const updated = erasable === true ? flipped.concat(put, flippers) : flipped.concat(put);
+  setupDiscs(updated);
   // 今回の手をハイライト
   document.getElementById(UI_BOARD + put).style.backgroundColor = COLOR_CODE['7'];
   prePut = put;
@@ -147,7 +152,12 @@ function setupDiscs(indexs) {
   for (let index of indexs) {
     const square = document.getElementById(UI_BOARD + index);
     const disc = reversi.board[index];
-    if (disc in UI_PLAYER_INFO) setImg(square, UI_PLAYER_INFO[disc].img);
+    if (disc in UI_PLAYER_INFO) {
+      setImg(square, UI_PLAYER_INFO[disc].img);
+    }
+    else if (disc === E) {
+      removeChilds(square);
+    }
   }
 }
 
@@ -181,7 +191,7 @@ function onBoardClicked(event) {
   if (reversi.state !== GAME_STOP) return;
   if (reversi.player.name === HUMAN) {
     const index = Number(this.getAttribute('id').replace(UI_BOARD, ''));
-    const flippables = getFlippablesAtIndex(reversi.turn, reversi.board, index);
+    const {flippables, flippers, erasable} = getFlippablesAtIndex(reversi.turn, reversi.board, index);
     if (flippables.length > 0) {
       reversi.humanMove = index;
       reversi.loop();

@@ -17,27 +17,27 @@ const CUTINS = {                       // 割り込みプレイヤー
 const FLIPPERS = {                     // 使用可能な全プレイヤー情報(石をひっくり返せる)
   [B]: {                               // 黒
     'player'   : new Player(HUMAN),    // 人が操作
-    'opponents': [W, A, C, Y, G],      // 対戦相手 + 置き石
+    'opponents': [W, A, C, Y, G, R],   // 対戦相手 + 置き石
     'score'    : 0,                    // 黒の石の数
   },
   [W]: {                               // 白
     'player'   : new Player(MCS),      // コンピュータが操作(原始モンテカルロ探索)
-    'opponents': [B, A, C, Y, G],      // 対戦相手 + 置き石
+    'opponents': [B, A, C, Y, G, R],   // 対戦相手 + 置き石
     'score'    : 0,                    // 白の石の数
   },
   [A]: {                               // 灰
     'player'   : new Player(RANDOM),   // コンピュータが操作(ランダム)
-    'opponents': [B, W, C, Y, G],      // 対戦相手 + 置き石
+    'opponents': [B, W, C, Y, G, R],   // 対戦相手 + 置き石
     'score'    : 0,                    // 灰の石の数
   },
   [C]: {                               // シアン
     'player'   : new Player(MINIMUM),  // コンピュータが操作(Minimum)
-    'opponents': [B, W, A, Y, G],      // 対戦相手 + 置き石
+    'opponents': [B, W, A, Y, G, R],   // 対戦相手 + 置き石
     'score'    : 0,                    // シアンの石の数
   },
   [Y]: {                               // 山吹
     'player'   : new Player(MAXIMUM),  // コンピュータが操作(Maximum)
-    'opponents': [B, W, A, C, G],      // 対戦相手 + 置き石
+    'opponents': [B, W, A, C, G, R],   // 対戦相手 + 置き石
     'score'    : 0,                    // 山吹の石の数
   },
 };
@@ -59,13 +59,13 @@ class Game {
     this.wait = WAIT_TIME;
     this.humanMove = NO_MOVE;
     this.updateScore();
-    this.updatedDiscs = {'put': NO_MOVE, 'flipped': []};
+    this.updatedDiscs = {'put': NO_MOVE, 'flipped': [], 'flippers': [], 'erasable': false};
     this.state = GAME_INIT;
   }
 
   // ゲームループ
   loop() {
-    this.updatedDiscs = {'put': NO_MOVE, 'flipped': []};
+    this.updatedDiscs = {'put': NO_MOVE, 'flipped': [], 'flippers': [], 'erasable': false};
     this.state = this.play();
     this.updateScore();
     updateUi();

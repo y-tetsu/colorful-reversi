@@ -6,6 +6,7 @@ const A = 4;  // 灰色の石
 const C = 5;  // シアン色の石
 const Y = 6;  // 山吹色の石
 const G = 7;  // 緑色の石
+const R = 8;  // 赤色の石
 const DIRECTION_XY = [
   {'x': 0, 'y':-1},  // 上
   {'x': 1, 'y':-1},  // 右上
@@ -18,17 +19,18 @@ const DIRECTION_XY = [
 ];
 const WILDCARD = G;            // 変化石
 const PERMANENTS = [G, C, Y];  // 不変石
+const BOMB = R;                // ボム石
 const BOARD = [
   H, H, H, H, H, H, H, H, H, H, H, H,
   H, H, H, H, H, E, E, H, H, H, H, H,
-  H, H, H, H, E, E, E, E, H, H, H, H,
+  H, H, H, H, E, E, R, E, H, H, H, H,
   H, H, H, E, E, E, E, E, E, H, H, H,
   H, H, E, E, E, G, C, E, E, E, H, H,
-  H, E, E, E, Y, W, B, G, E, E, E, H,
-  H, E, E, E, G, B, W, Y, E, E, E, H,
+  H, E, R, E, Y, W, B, G, E, E, E, H,
+  H, E, E, E, G, B, W, Y, E, R, E, H,
   H, H, E, E, E, C, G, E, E, E, H, H,
   H, H, H, E, E, E, E, E, E, H, H, H,
-  H, H, H, H, E, E, E, E, H, H, H, H,
+  H, H, H, H, E, R, E, E, H, H, H, H,
   H, H, H, H, H, E, E, H, H, H, H, H,
   H, H, H, H, H, H, H, H, H, H, H, H,
 ];
@@ -67,7 +69,7 @@ const COLOR_CODE = {
 function getLegalMoves(turn, board) {
   let legalMoves = [];
   for (let i=0; i<board.length; i++) {
-    const flippables = getFlippablesAtIndex(turn, board, i);
+    const {flippables, flippers, erasable} = getFlippablesAtIndex(turn, board, i);
     if (flippables.length > 0) legalMoves.push(i);
   }
   return legalMoves;
@@ -79,10 +81,16 @@ function getLegalMoves(turn, board) {
 //  board : 盤面情報を格納した配列
 //  index : 石を置く位置(マスを示す番号)
 // (戻り値)
-//  flippables : ひっくり返せる石の位置(マスを示す番号)の配列
+//  return : ひっくり返せる石、挟んだ石、消せるかどうか
 function getFlippablesAtIndex(turn, board, index) {
   let flippables = [];
-  if (board[index] !== E) return flippables;  // 空きマス以外はスキップ
+  let flippers = [];
+  let erasable = false;
+  if (board[index] !== E) return {
+    'flippables': flippables,
+    'flippers'  : flippers,
+    'erasable'  : erasable,
+  };  // 空きマス以外はスキップ
   const opponents = getOpponentColors(turn);
   const size = Math.sqrt(board.length);
   for (let {x, y} of DIRECTION_XY) {
@@ -97,19 +105,28 @@ function getFlippablesAtIndex(turn, board, index) {
     // 連続が途切れた箇所が自ディスクの場合、候補を戻り値に追加
     if (board[next] === turn) {
       flippables = flippables.concat(opponentDiscs);
+      // 挟んだ側の石を記憶
+      if (opponentDiscs.length > 0) flippers.push(next);
+      // ボム石が見つかったら記憶
+      if (opponentDiscs.map(e => board[e]).includes(BOMB)) erasable = true;
     }
     else {
       while (opponentDiscs.length) {
         // 候補をpopし、変化石を探す
-        if (board[opponentDiscs.pop()] === WILDCARD) {
+        const pre = opponentDiscs.pop();
+        if (board[pre] === WILDCARD) {
           // 変化石が見つかったら、残りの候補を戻り値に追加
           flippables = flippables.concat(opponentDiscs);
+          // 挟んだ側の石を記憶
+          if (opponentDiscs.length > 0) flippers.push(pre);
+          // ボム石が見つかったら記憶
+          if (opponentDiscs.map(e => board[e]).includes(BOMB)) erasable = true;
           break;
         }
       }
     }
   }
-  return flippables;
+  return {'flippables': flippables, 'flippers': flippers, 'erasable': erasable};
 }
 
 // 石を置く処理
@@ -118,15 +135,20 @@ function getFlippablesAtIndex(turn, board, index) {
 //  board : 盤面情報を格納した配列
 //  index : 石を置く位置(マスを示す番号)
 // (戻り値)
-//  return : 置いた石、ひっくり返した石
+//  return : 置いた石、ひっくり返した石、挟んだ石、消せるかどうか
 function putDisc(turn, board, index) {
-  if (index === NO_MOVE) return {'put': NO_MOVE, 'flipped': []};
-  const flippables = getFlippablesAtIndex(turn, board, index);
-  board[index] = turn;                                                    // 手の位置にディスクを置く
-  for (let flippable of flippables) {                                     // 相手のディスクをひっくり返す
-    if (!PERMANENTS.includes(board[flippable])) board[flippable] = turn;  // 不変石はひっくり返さない
+  if (index === NO_MOVE) return {'put': NO_MOVE, 'flipped': [], 'flippers': [], 'erasable': false};
+  const {flippables, flippers, erasable} = getFlippablesAtIndex(turn, board, index);
+  if (erasable === true) {
+    for (let erase of flippables.concat(flippers)) board[erase] = E;  // 石を消す
   }
-  return {'put': index, 'flipped': flippables};
+  else {
+    board[index] = turn;                                                    // 手の位置にディスクを置く
+    for (let flippable of flippables) {                                     // 相手のディスクをひっくり返す
+      if (!PERMANENTS.includes(board[flippable])) board[flippable] = turn;  // 不変石はひっくり返さない
+    }
+  }
+  return {'put': index, 'flipped': flippables, 'flippers': flippers, 'erasable': erasable};
 }
 
 // 自身の対戦相手を返す

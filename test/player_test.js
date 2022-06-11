@@ -3,20 +3,20 @@ console.log('[player_test.js]');
 // Player
 let game = new Game(TEST_BOARD1, ORDER, FLIPPERS, CUTINS);
 let player = new Player('unknown');
-assertEqual(player.actMove(game), {'put': NO_MOVE, 'flipped': []}, 'Player 1');
+assertEqual(player.actMove(game), {'put': NO_MOVE, 'flipped': [], 'flippers': [], 'erasable': false}, 'Player 1');
 
 game = new Game(TEST_BOARD1, ORDER, FLIPPERS, CUTINS);
 player = new Player(HUMAN);
 game.humanMove = 34;
-assertEqual(player.actMove(game), {'put': 34, 'flipped': [44]}, 'Player 2');
+assertEqual(player.actMove(game), {'put': 34, 'flipped': [44], 'flippers': [54], 'erasable': false}, 'Player 2');
 
 game = new Game(TEST_BOARD1, ORDER, FLIPPERS, CUTINS);
 player = new Player(RANDOM);
 const possibleActs = [
-  {'put': 34, 'flipped': [44]},
-  {'put': 43, 'flipped': [44]},
-  {'put': 56, 'flipped': [55]},
-  {'put': 65, 'flipped': [55]}
+  {'put': 34, 'flipped': [44], 'flippers': [54], 'erasable': false},
+  {'put': 43, 'flipped': [44], 'flippers': [45], 'erasable': false},
+  {'put': 56, 'flipped': [55], 'flippers': [54], 'erasable': false},
+  {'put': 65, 'flipped': [55], 'flippers': [45], 'erasable': false}
 ];
 assertIncludes(player.actMove(game), possibleActs, 'Player 3');
 

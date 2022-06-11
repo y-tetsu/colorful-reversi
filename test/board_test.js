@@ -73,12 +73,12 @@ let board1Expected = {
     [35, 46, 53, 64],
   ],
   'getFlippablesAtIndex': [
-    [[44], [44], [55], [55]],
-    [[45], [45], [54], [54]],
+    [{'flippables': [44], 'flippers': [54], 'erasable': false}, {'flippables': [44], 'flippers': [45], 'erasable': false}, {'flippables': [55], 'flippers': [54], 'erasable': false}, {'flippables': [55], 'flippers': [45], 'erasable': false}],
+    [{'flippables': [45], 'flippers': [55], 'erasable': false}, {'flippables': [45], 'flippers': [44], 'erasable': false}, {'flippables': [54], 'flippers': [55], 'erasable': false}, {'flippables': [54], 'flippers': [44], 'erasable': false}],
   ],
   'putDisc': [
-    [{'put': 34, 'flipped': [44]}, {'put': 43, 'flipped': [44]}, {'put': 56, 'flipped': [55]}, {'put': 65, 'flipped': [55]}],
-    [{'put': 35, 'flipped': [45]}, {'put': 46, 'flipped': [45]}, {'put': 53, 'flipped': [54]}, {'put': 64, 'flipped': [54]}],
+    [{'put': 34, 'flipped': [44], 'flippers': [54], 'erasable': false}, {'put': 43, 'flipped': [44], 'flippers': [45], 'erasable': false}, {'put': 56, 'flipped': [55], 'flippers': [54], 'erasable': false}, {'put': 65, 'flipped': [55], 'flippers': [45], 'erasable': false}],
+    [{'put': 35, 'flipped': [45], 'flippers': [55], 'erasable': false}, {'put': 46, 'flipped': [45], 'flippers': [44], 'erasable': false}, {'put': 53, 'flipped': [54], 'flippers': [55], 'erasable': false}, {'put': 64, 'flipped': [54], 'flippers': [44], 'erasable': false}],
   ],
 }
 
@@ -100,10 +100,10 @@ let board2_1Expected = {
     [44],
   ],
   'getFlippablesAtIndex': [
-    [[34, 24, 35, 26, 45, 46, 47, 55, 66, 77, 54, 64, 74, 53, 62, 43, 42, 33, 22]],
+    [{'flippables': [34, 24, 35, 26, 45, 46, 47, 55, 66, 77, 54, 64, 74, 53, 62, 43, 42, 33, 22], 'flippers': [14, 17, 48, 88, 84, 71, 41, 11], 'erasable': false}],
   ],
   'putDisc': [
-    [{'put': 44, 'flipped': [34, 24, 35, 26, 45, 46, 47, 55, 66, 77, 54, 64, 74, 53, 62, 43, 42, 33, 22]}],
+    [{'put': 44, 'flipped': [34, 24, 35, 26, 45, 46, 47, 55, 66, 77, 54, 64, 74, 53, 62, 43, 42, 33, 22], 'flippers': [14, 17, 48, 88, 84, 71, 41, 11], 'erasable': false}],
   ],
 }
 
@@ -124,10 +124,10 @@ let board2_2Expected = {
     [45],
   ],
   'getFlippablesAtIndex': [
-    [[35, 25, 36, 27, 46, 47, 56, 67, 55, 65, 75, 54, 63, 72, 44, 43, 42, 34, 23]],
+    [{'flippables': [35, 25, 36, 27, 46, 47, 56, 67, 55, 65, 75, 54, 63, 72, 44, 43, 42, 34, 23], 'flippers': [15, 18, 48, 78, 85, 81, 41, 12], 'erasable': false}],
   ],
   'putDisc': [
-    [{'put': 45, 'flipped': [35, 25, 36, 27, 46, 47, 56, 67, 55, 65, 75, 54, 63, 72, 44, 43, 42, 34, 23]}],
+    [{'put': 45, 'flipped': [35, 25, 36, 27, 46, 47, 56, 67, 55, 65, 75, 54, 63, 72, 44, 43, 42, 34, 23], 'flippers': [15, 18, 48, 78, 85, 81, 41, 12], 'erasable': false}],
   ],
 }
 
@@ -148,10 +148,10 @@ let board2_3Expected = {
     [54],
   ],
   'getFlippablesAtIndex': [
-    [[44, 34, 24, 45, 36, 27, 55, 56, 57, 65, 76, 64, 74, 63, 72, 53, 52, 43, 32]],
+    [{'flippables': [44, 34, 24, 45, 36, 27, 55, 56, 57, 65, 76, 64, 74, 63, 72, 53, 52, 43, 32], 'flippers': [14, 18, 58, 87, 84, 81, 51, 21], 'erasable': false}],
   ],
   'putDisc': [
-    [{'put': 54, 'flipped': [44, 34, 24, 45, 36, 27, 55, 56, 57, 65, 76, 64, 74, 63, 72, 53, 52, 43, 32]}],
+    [{'put': 54, 'flipped': [44, 34, 24, 45, 36, 27, 55, 56, 57, 65, 76, 64, 74, 63, 72, 53, 52, 43, 32], 'flippers': [14, 18, 58, 87, 84, 81, 51, 21], 'erasable': false}],
   ],
 }
 
@@ -172,10 +172,10 @@ let board2_4Expected = {
     [55],
   ],
   'getFlippablesAtIndex': [
-    [[45, 35, 25, 46, 37, 56, 57, 66, 77, 65, 75, 64, 73, 54, 53, 52, 44, 33, 22]],
+    [{'flippables': [45, 35, 25, 46, 37, 56, 57, 66, 77, 65, 75, 64, 73, 54, 53, 52, 44, 33, 22], 'flippers': [15, 28, 58, 88, 85, 82, 51, 11], 'erasable': false}],
   ],
   'putDisc': [
-    [{'put': 55, 'flipped': [45, 35, 25, 46, 37, 56, 57, 66, 77, 65, 75, 64, 73, 54, 53, 52, 44, 33, 22]}],
+    [{'put': 55, 'flipped': [45, 35, 25, 46, 37, 56, 57, 66, 77, 65, 75, 64, 73, 54, 53, 52, 44, 33, 22], 'flippers': [15, 28, 58, 88, 85, 82, 51, 11], 'erasable': false}],
   ],
 }
 
@@ -186,7 +186,7 @@ testBoardMethods([W],    TEST_BOARD2_3, board2_3Expected, '2-3');
 testBoardMethods([W],    TEST_BOARD2_4, board2_4Expected, '2-4');
 
 turns = [B, W, A, 'no color'];
-expecteds = [[W, A, C, Y, G], [B, A, C, Y, G], [B, W, C, Y, G], []];
+expecteds = [[W, A, C, Y, G, R], [B, A, C, Y, G, R], [B, W, C, Y, G, R], []];
 testGetOpponentColors(turns, expecteds);
 
 // (3:初期配置+灰)
@@ -209,14 +209,60 @@ let board3Expected = {
     [35, 43, 56, 64],
   ],
   'getFlippablesAtIndex': [
-    [[34], [34, 44], [44], [46], [53], [55], [65, 55], [65]],
-    [[34], [45], [46], [46, 45], [53, 54], [53], [54], [65]],
-    [[45, 55, 44], [44, 45, 54], [55, 54, 45], [54, 44, 55]],
+    [
+      {'flippables': [34],     'flippers': [45], 'erasable': false},
+      {'flippables': [34, 44], 'flippers': [54], 'erasable': false},
+      {'flippables': [44],     'flippers': [45], 'erasable': false},
+      {'flippables': [46],     'flippers': [45], 'erasable': false},
+      {'flippables': [53],     'flippers': [54], 'erasable': false},
+      {'flippables': [55],     'flippers': [54], 'erasable': false},
+      {'flippables': [65, 55], 'flippers': [45], 'erasable': false},
+      {'flippables': [65],     'flippers': [54], 'erasable': false},
+    ],
+    [
+      {'flippables': [34],     'flippers': [44], 'erasable': false},
+      {'flippables': [45],     'flippers': [55], 'erasable': false},
+      {'flippables': [46],     'flippers': [55], 'erasable': false},
+      {'flippables': [46, 45], 'flippers': [44], 'erasable': false},
+      {'flippables': [53, 54], 'flippers': [55], 'erasable': false},
+      {'flippables': [53],     'flippers': [44], 'erasable': false},
+      {'flippables': [54],     'flippers': [44], 'erasable': false},
+      {'flippables': [65],     'flippers': [55], 'erasable': false},
+    ],
+    [
+      {'flippables': [45, 55, 44], 'flippers': [65, 53], 'erasable': false},
+      {'flippables': [44, 45, 54], 'flippers': [46, 65], 'erasable': false},
+      {'flippables': [55, 54, 45], 'flippers': [53, 34], 'erasable': false},
+      {'flippables': [54, 44, 55], 'flippers': [34, 46], 'erasable': false},
+    ],
   ],
   'putDisc': [
-    [{'put': 23, 'flipped': [34]}, {'put': 24, 'flipped': [34, 44]}, {'put': 43, 'flipped': [44]}, {'put': 47, 'flipped': [46]}, {'put': 52, 'flipped': [53]}, {'put': 56, 'flipped': [55]}, {'put': 75, 'flipped': [65, 55]}, {'put': 76, 'flipped': [65]}],
-    [{'put': 24, 'flipped': [34]}, {'put': 35, 'flipped': [45]}, {'put': 37, 'flipped': [46]}, {'put': 47, 'flipped': [46, 45]}, {'put': 52, 'flipped': [53, 54]}, {'put': 62, 'flipped': [53]}, {'put': 64, 'flipped': [54]}, {'put': 75, 'flipped': [65]}],
-    [{'put': 35, 'flipped': [45, 55, 44]}, {'put': 43, 'flipped': [44, 45, 54]}, {'put': 56, 'flipped': [55, 54, 45]}, {'put': 64, 'flipped': [54, 44, 55]}],
+    [
+      {'put': 23, 'flipped': [34],     'flippers': [45], 'erasable': false},
+      {'put': 24, 'flipped': [34, 44], 'flippers': [54], 'erasable': false},
+      {'put': 43, 'flipped': [44],     'flippers': [45], 'erasable': false},
+      {'put': 47, 'flipped': [46],     'flippers': [45], 'erasable': false},
+      {'put': 52, 'flipped': [53],     'flippers': [54], 'erasable': false},
+      {'put': 56, 'flipped': [55],     'flippers': [54], 'erasable': false},
+      {'put': 75, 'flipped': [65, 55], 'flippers': [45], 'erasable': false},
+      {'put': 76, 'flipped': [65],     'flippers': [54], 'erasable': false},
+    ],
+    [
+      {'put': 24, 'flipped': [34],     'flippers': [44], 'erasable': false},
+      {'put': 35, 'flipped': [45],     'flippers': [55], 'erasable': false},
+      {'put': 37, 'flipped': [46],     'flippers': [55], 'erasable': false},
+      {'put': 47, 'flipped': [46, 45], 'flippers': [44], 'erasable': false},
+      {'put': 52, 'flipped': [53, 54], 'flippers': [55], 'erasable': false},
+      {'put': 62, 'flipped': [53],     'flippers': [44], 'erasable': false},
+      {'put': 64, 'flipped': [54],     'flippers': [44], 'erasable': false},
+      {'put': 75, 'flipped': [65],     'flippers': [55], 'erasable': false},
+    ],
+    [
+      {'put': 35, 'flipped': [45, 55, 44], 'flippers': [65, 53], 'erasable': false},
+      {'put': 43, 'flipped': [44, 45, 54], 'flippers': [46, 65], 'erasable': false},
+      {'put': 56, 'flipped': [55, 54, 45], 'flippers': [53, 34], 'erasable': false},
+      {'put': 64, 'flipped': [54, 44, 55], 'flippers': [34, 46], 'erasable': false},
+    ],
   ],
 }
 
@@ -242,14 +288,60 @@ let board4Expected = {
     [38, 43, 63, 64, 65, 66],
   ],
   'getFlippablesAtIndex': [
-    [[44], [45], [28], [45], [41, 31, 21], [55], [55]],
-    [[44], [45], [28], [45], [41, 31], [54], [54]],
-    [[28], [44], [54], [54], [55], [55]],
+    [
+      {'flippables': [44],         'flippers': [54], 'erasable': false},
+      {'flippables': [45],         'flippers': [54], 'erasable': false},
+      {'flippables': [28],         'flippers': [18], 'erasable': false},
+      {'flippables': [45],         'flippers': [44], 'erasable': false},
+      {'flippables': [41, 31, 21], 'flippers': [11], 'erasable': false},
+      {'flippables': [55],         'flippers': [54], 'erasable': false},
+      {'flippables': [55],         'flippers': [44], 'erasable': false},
+    ],
+    [
+      {'flippables': [44],     'flippers': [55], 'erasable': false},
+      {'flippables': [45],     'flippers': [55], 'erasable': false},
+      {'flippables': [28],     'flippers': [18], 'erasable': false},
+      {'flippables': [45],     'flippers': [44], 'erasable': false},
+      {'flippables': [41, 31], 'flippers': [21], 'erasable': false},
+      {'flippables': [54],     'flippers': [55], 'erasable': false},
+      {'flippables': [54],     'flippers': [44], 'erasable': false},
+    ],
+    [
+      {'flippables': [28], 'flippers': [18], 'erasable': false},
+      {'flippables': [44], 'flippers': [45], 'erasable': false},
+      {'flippables': [54], 'flippers': [45], 'erasable': false},
+      {'flippables': [54], 'flippers': [44], 'erasable': false},
+      {'flippables': [55], 'flippers': [45], 'erasable': false},
+      {'flippables': [55], 'flippers': [44], 'erasable': false},
+    ],
   ],
   'putDisc': [
-    [{'put': 34, 'flipped': [44]}, {'put': 36, 'flipped': [45]}, {'put': 38, 'flipped': [28]}, {'put': 46, 'flipped': [45]}, {'put': 51, 'flipped': [41, 31, 21]}, {'put': 56, 'flipped': [55]}, {'put': 66, 'flipped': [55]}],
-    [{'put': 33, 'flipped': [44]}, {'put': 35, 'flipped': [45]}, {'put': 38, 'flipped': [28]}, {'put': 46, 'flipped': [45]}, {'put': 51, 'flipped': [41, 31]}, {'put': 53, 'flipped': [54]}, {'put': 64, 'flipped': [54]}],
-    [{'put': 38, 'flipped': [28]}, {'put': 43, 'flipped': [44]}, {'put': 63, 'flipped': [54]}, {'put': 64, 'flipped': [54]}, {'put': 65, 'flipped': [55]}, {'put': 66, 'flipped': [55]}],
+    [
+      {'put': 34, 'flipped': [44],         'flippers': [54], 'erasable': false},
+      {'put': 36, 'flipped': [45],         'flippers': [54], 'erasable': false},
+      {'put': 38, 'flipped': [28],         'flippers': [18], 'erasable': false},
+      {'put': 46, 'flipped': [45],         'flippers': [44], 'erasable': false},
+      {'put': 51, 'flipped': [41, 31, 21], 'flippers': [11], 'erasable': false},
+      {'put': 56, 'flipped': [55],         'flippers': [54], 'erasable': false},
+      {'put': 66, 'flipped': [55],         'flippers': [44], 'erasable': false},
+    ],
+    [
+      {'put': 33, 'flipped': [44],     'flippers': [55], 'erasable': false},
+      {'put': 35, 'flipped': [45],     'flippers': [55], 'erasable': false},
+      {'put': 38, 'flipped': [28],     'flippers': [18], 'erasable': false},
+      {'put': 46, 'flipped': [45],     'flippers': [44], 'erasable': false},
+      {'put': 51, 'flipped': [41, 31], 'flippers': [21], 'erasable': false},
+      {'put': 53, 'flipped': [54],     'flippers': [55], 'erasable': false},
+      {'put': 64, 'flipped': [54],     'flippers': [44], 'erasable': false},
+    ],
+    [
+      {'put': 38, 'flipped': [28], 'flippers': [18], 'erasable': false},
+      {'put': 43, 'flipped': [44], 'flippers': [45], 'erasable': false},
+      {'put': 63, 'flipped': [54], 'flippers': [45], 'erasable': false},
+      {'put': 64, 'flipped': [54], 'flippers': [44], 'erasable': false},
+      {'put': 65, 'flipped': [55], 'flippers': [45], 'erasable': false},
+      {'put': 66, 'flipped': [55], 'flippers': [44], 'erasable': false},
+    ],
   ],
 }
 
@@ -275,15 +367,52 @@ let board5Expected = {
     [71, 73],
   ],
   'getFlippablesAtIndex': [
-    [[61], [63]],
-    [[61, 51, 41, 31, 21], [63, 53, 43, 33]],
-    [[61, 51, 41, 31], [63, 53, 43, 33, 23]],
+    [{'flippables': [61],                 'flippers': [51], 'erasable': false}, {'flippables': [63],                 'flippers': [53], 'erasable': false}],
+    [{'flippables': [61, 51, 41, 31, 21], 'flippers': [11], 'erasable': false}, {'flippables': [63, 53, 43, 33],     'flippers': [23], 'erasable': false}],
+    [{'flippables': [61, 51, 41, 31],     'flippers': [21], 'erasable': false}, {'flippables': [63, 53, 43, 33, 23], 'flippers': [13], 'erasable': false}],
   ],
   'putDisc': [
-    [{'put': 71, 'flipped': [61]}, {'put': 73, 'flipped': [63]}],
-    [{'put': 71, 'flipped': [61, 51, 41, 31, 21]}, {'put': 73, 'flipped': [63, 53, 43, 33]}],
-    [{'put': 71, 'flipped': [61, 51, 41, 31]}, {'put': 73, 'flipped': [63, 53, 43, 33, 23]}],
+    [{'put': 71, 'flipped': [61],                 'flippers': [51], 'erasable': false}, {'put': 73, 'flipped': [63],                 'flippers': [53], 'erasable': false}],
+    [{'put': 71, 'flipped': [61, 51, 41, 31, 21], 'flippers': [11], 'erasable': false}, {'put': 73, 'flipped': [63, 53, 43, 33],     'flippers': [23], 'erasable': false}],
+    [{'put': 71, 'flipped': [61, 51, 41, 31],     'flippers': [21], 'erasable': false}, {'put': 73, 'flipped': [63, 53, 43, 33, 23], 'flippers': [13], 'erasable': false}],
   ],
 }
 
 testBoardMethods([B, C, Y], TEST_BOARD5, board5Expected, '5');
+
+// (6:赤)
+const TEST_BOARD6 = [
+  H, H, H, H, H, H, H, H, H, H,
+  H, E, B, W, R, E, W, W, B, H,
+  H, W, W, E, E, B, E, E, E, H,
+  H, R, E, G, E, E, E, E, E, H,
+  H, B, E, E, B, E, E, E, E, H,
+  H, G, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, H, H, H, H, H, H, H, H, H,
+];
+let board6Expected = {
+  'getLegalMoves': [
+    [11, 15, 32, 61],
+  ],
+  'getFlippablesAtIndex': [
+    [
+      {'flippables': [22, 33, 21, 31], 'flippers': [44, 41], 'erasable': true},
+      {'flippables': [16, 17, 14, 13], 'flippers': [18, 12], 'erasable': true},
+      {'flippables': [22], 'flippers': [12], 'erasable': false},
+      {'flippables': [51], 'flippers': [41], 'erasable': false},
+    ],
+  ],
+  'putDisc': [
+    [
+      {'put': 11, 'flipped': [22, 33, 21, 31], 'flippers': [44, 41], 'erasable': true},
+      {'put': 15, 'flipped': [16, 17, 14, 13], 'flippers': [18, 12], 'erasable': true},
+      {'put': 32, 'flipped': [22], 'flippers': [12], 'erasable': false},
+      {'put': 61, 'flipped': [51], 'flippers': [41], 'erasable': false},
+    ],
+  ],
+}
+
+testBoardMethods([B], TEST_BOARD6, board6Expected, '6');

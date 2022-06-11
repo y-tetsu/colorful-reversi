@@ -72,7 +72,7 @@ function getMoveByMinimum(game) {
   const turn = game.turn;
   const board = game.board;
   const legalMoves = getLegalMoves(turn, board);
-  return legalMoves.reduce((a, b) => getFlippablesAtIndex(turn, board, a).length < getFlippablesAtIndex(turn, board, b).length ? a : b);
+  return legalMoves.reduce((a, b) => getFlippablesAtIndex(turn, board, a).flippables.length < getFlippablesAtIndex(turn, board, b).flippables.length ? a : b);
 }
 
 // なるべく多く石が取れる手を返す
@@ -84,7 +84,7 @@ function getMoveByMaximum(game) {
   const turn = game.turn;
   const board = game.board;
   const legalMoves = getLegalMoves(turn, board);
-  return legalMoves.reduce((a, b) => getFlippablesAtIndex(turn, board, a).length > getFlippablesAtIndex(turn, board, b).length ? a : b);
+  return legalMoves.reduce((a, b) => getFlippablesAtIndex(turn, board, a).flippables.length > getFlippablesAtIndex(turn, board, b).flippables.length ? a : b);
 }
 
 // 原始モンテカルロ探索で選んだ手を返す
