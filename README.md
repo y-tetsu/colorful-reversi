@@ -3,7 +3,7 @@ JavaScriptで作る変則リバーシ
 
 https://y-tetsu.github.io/colorful-reversi/
 
-<img src="image/demo5.gif" width="48%">
+<img src="image/demo5-2.gif" width="48%">
 
 7色の石を使った、3(+2)人対戦で遊べる変則リバーシです。<br>
 盤面の形や色、石の初期配置も通常とは異なっています。<br>

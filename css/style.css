@@ -13,6 +13,14 @@ img {                          /* (石の画像)             */
     margin: auto;              /* 周囲の余白 : 自動調整  */
 }
 
+ul {                           /* (横向きの石画像の並び) */
+    display: flex;             /* 要素を横並びにする     */
+    justify-content: center;   /* 要素を中央寄せにする   */
+    margin: auto;              /* 周囲の余白 : 自動調整  */
+    list-style-type: none;     /* liのビュレットを消す   */
+    padding-left: 0;           /* 左側の余白をとる       */
+}
+
 div#ui_board table {           /* (表全体)               */
     margin: auto;              /* 周囲の余白 : 自動調整  */
     color: #E0E0E0;            /* テキストの色           */
