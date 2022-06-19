@@ -128,9 +128,15 @@ class Game {
 
   // スコアの更新
   updateScore() {
+    //--- 時間計測 ---//
+    startMeasure(3);
+    //--- 時間計測 ---//
     for (let color of this.order) {
       this.flippers[color].score = this.board.filter(e => e === color).length;
     }
+    //--- 時間計測 ---//
+    stopMeasure(3);
+    //--- 時間計測 ---//
   }
 
   // 終了の判定

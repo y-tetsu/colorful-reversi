@@ -67,11 +67,17 @@ const COLOR_CODE = {
 // (戻り値)
 //  legalMoves : 打てる手(マスを表す番号)の配列
 function getLegalMoves(turn, board) {
+  //--- 時間計測 ---//
+  startMeasure(0);
+  //--- 時間計測 ---//
   let legalMoves = [];
   for (let i=0; i<board.length; i++) {
     const {flippables, flippers, erasable} = getFlippablesAtIndex(turn, board, i);
     if (flippables.length > 0) legalMoves.push(i);
   }
+  //--- 時間計測 ---//
+  stopMeasure(0);
+  //--- 時間計測 ---//
   return legalMoves;
 }
 
@@ -91,6 +97,9 @@ function getFlippablesAtIndex(turn, board, index) {
     'flippers'  : flippers,
     'erasable'  : erasable,
   };  // 空きマス以外はスキップ
+  //--- 時間計測 ---//
+  startMeasure(1);
+  //--- 時間計測 ---//
   const opponents = getOpponentColors(turn);
   const size = Math.sqrt(board.length);
   for (let {x, y} of DIRECTION_XY) {
@@ -126,6 +135,9 @@ function getFlippablesAtIndex(turn, board, index) {
       }
     }
   }
+  //--- 時間計測 ---//
+  stopMeasure(1);
+  //--- 時間計測 ---//
   return {'flippables': flippables, 'flippers': flippers, 'erasable': erasable};
 }
 
@@ -138,6 +150,9 @@ function getFlippablesAtIndex(turn, board, index) {
 //  return : 置いた石、ひっくり返した石、挟んだ石、消せるかどうか
 function putDisc(turn, board, index) {
   if (index === NO_MOVE) return {'put': NO_MOVE, 'flipped': [], 'flippers': [], 'erasable': false};
+  //--- 時間計測 ---//
+  startMeasure(2);
+  //--- 時間計測 ---//
   const {flippables, flippers, erasable} = getFlippablesAtIndex(turn, board, index);
   if (erasable === true) {
     for (let erase of flippables.concat(flippers)) board[erase] = E;  // 石を消す
@@ -148,6 +163,9 @@ function putDisc(turn, board, index) {
       if (!PERMANENTS.includes(board[flippable])) board[flippable] = turn;  // 不変石はひっくり返さない
     }
   }
+  //--- 時間計測 ---//
+  stopMeasure(2);
+  //--- 時間計測 ---//
   return {'put': index, 'flipped': flippables, 'flippers': flippers, 'erasable': erasable};
 }
 
