@@ -1,5 +1,16 @@
 console.log('[board_test.js]');
 
+// - getBitBoard
+function testGetBitBoard(boards, expecteds) {
+  let i = 0;
+  for (let board of boards) {
+    const actual = getBitBoard(board);
+    const expected = expecteds[i];
+    assertEqual(actual, expected, 'getBitBoard ' + (i + 1));
+    i++;
+  }
+}
+
 // - getLegalMoves
 function testGetLegalMoves(turns, board, expecteds, no) {
   for (let i in turns) {
@@ -416,3 +427,39 @@ let board6Expected = {
 }
 
 testBoardMethods([B], TEST_BOARD6, board6Expected, '6');
+
+// - getBitBoard
+boards = [TEST_BOARD1, BOARD];
+expecteds = [
+  {  // TEST_BOARD1
+    'bits': [
+      [0x00000000, 0x00000000],  // 穴
+      [0xFFFFFFE7, 0xE7FFFFFF],  // 空き
+      [0x00000008, 0x10000000],  // 黒
+      [0x00000010, 0x08000000],  // 白
+      [0x00000000, 0x00000000],  // 灰
+      [0x00000000, 0x00000000],  // シアン
+      [0x00000000, 0x00000000],  // 山吹
+      [0x00000000, 0x00000000],  // 緑
+      [0x00000000, 0x00000000],  // 赤
+    ],
+    'size': 8,
+    'pageSize': 2,
+  },
+  {  // BOARD
+    'bits': [
+      [0xF3F87C0E, 0x01000008, 0x0703E1FC, 0xF0000000],  // 穴
+      [0x0C0683F1, 0xCEA1F857, 0x38FC1603, 0x00000000],  // 空き
+      [0x00000000, 0x00040200, 0x00000000, 0x00000000],  // 黒
+      [0x00000000, 0x00080100, 0x00000000, 0x00000000],  // 白
+      [0x00000000, 0x00000000, 0x00000000, 0x00000000],  // 灰
+      [0x00000000, 0x10000000, 0x80000000, 0x00000000],  // シアン
+      [0x00000000, 0x00100080, 0x00000000, 0x00000000],  // 山吹
+      [0x00000000, 0x20020400, 0x40000000, 0x00000000],  // 緑
+      [0x00010000, 0x00400020, 0x00000800, 0x00000000],  // 赤
+    ],
+    'size': 10,
+    'pageSize': 4,
+  },
+];
+testGetBitBoard(boards, expecteds);

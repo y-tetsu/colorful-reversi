@@ -7,6 +7,7 @@ const C = 5;  // シアン色の石
 const Y = 6;  // 山吹色の石
 const G = 7;  // 緑色の石
 const R = 8;  // 赤色の石
+const S = 9;  // ボードの状態の数
 const DIRECTION_XY = [
   {'x': 0, 'y':-1},  // 上
   {'x': 1, 'y':-1},  // 右上
@@ -59,6 +60,38 @@ const COLOR_CODE = {
   '7': '#DED5FA',
   '*': '* no color *',
 };
+const MAX_BITSIZE = 32;
+
+// ビットボードを返す
+// (引数)
+//  board    : 盤面情報を格納した配列
+// (戻り値)
+//  bitboard : ビットボード
+function getBitBoard(board) {
+  // サイズ取得
+  const boardSize = Math.sqrt(board.length);
+  const playableSize = boardSize - 2;
+  const pageSize = Math.ceil(playableSize * playableSize / MAX_BITSIZE);
+  // ビットボード初期設定
+  let bits = [];
+  let bitboard = {'bits': bits, 'size': playableSize, 'pageSize': pageSize};
+  for (let s=0; s<S; s++) {
+    bits.push([]);
+    for (let p=0; p<pageSize; p++) bits[s].push(0);
+  }
+  // ビットボード情報格納
+  let p = -1;
+  for (let y=0; y<playableSize; y++) {
+    for (let x=0; x<playableSize; x++) {
+      const s = board[(y + 1) * boardSize + (x + 1)];         // ゲーム盤面の状態を取得
+      const bitIndex = (y * playableSize + x) % MAX_BITSIZE;  // ページ単位のビット位置を取得
+      const mask = 1 << ((MAX_BITSIZE - 1) - bitIndex);       // マスク値を設定
+      if (bitIndex === 0) p++;                                // ページ切り替え
+      bits[s][p] = (bits[s][p] | mask) >>> 0;                 // ビットデータに変換
+    }
+  }
+  return bitboard;
+}
 
 // 打てる手を取得する処理
 // (引数)
