@@ -23,6 +23,17 @@ function testGetOpponentsBitBoard(turns, boards, expecteds) {
   }
 }
 
+// - getBitBoardMask
+function testGetBitBoardMask(boards, expecteds) {
+  let i = 0;
+  for (let board of boards) {
+    const actual = getBitBoardMask(getBitBoard(board));
+    const expected = expecteds[i];
+    assertEqual(actual, expected, 'getBitBoardMask ' + (i + 1));
+    i++;
+  }
+}
+
 // - getLegalMoves
 function testGetLegalMoves(turns, board, expecteds, no) {
   for (let i in turns) {
@@ -485,3 +496,134 @@ expecteds = [
   [0x00010000, 0x305A05A0, 0xC0000800, 0x00000000],  // opponent against B at BOARD
 ];
 testGetOpponentsBitBoard(turns, boards, expecteds);
+
+// - getBitBoardMask
+const BOARD4 = [
+  H, H, H, H, H, H,
+  H, E, E, E, E, H,
+  H, E, W, B, E, H,
+  H, E, B, W, E, H,
+  H, E, E, E, E, H,
+  H, H, H, H, H, H,
+];
+const BOARD6 = [
+  H, H, H, H, H, H, H, H,
+  H, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, H,
+  H, E, E, W, B, E, E, H,
+  H, E, E, B, W, E, E, H,
+  H, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, H,
+  H, H, H, H, H, H, H, H,
+];
+const BOARD8 = [
+  H, H, H, H, H, H, H, H, H, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, W, B, E, E, E, H,
+  H, E, E, E, B, W, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, H, H, H, H, H, H, H, H, H,
+];
+const BOARD10 = [
+  H, H, H, H, H, H, H, H, H, H, H, H,
+  H, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, W, B, E, E, E, E, H,
+  H, E, E, E, E, B, W, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, H,
+  H, H, H, H, H, H, H, H, H, H, H, H,
+];
+const BOARD12 = [
+  H, H, H, H, H, H, H, H, H, H, H, H, H, H,
+  H, E, E, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, W, B, E, E, E, E, E, H,
+  H, E, E, E, E, E, B, W, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, E, E, H,
+  H, H, H, H, H, H, H, H, H, H, H, H, H, H,
+];
+boards = [BOARD4, BOARD6, BOARD8, BOARD10, BOARD12]
+expecteds = [
+  {
+    'horizontal': [0x66660000],
+    'vertical'  : [0x0FF00000],
+    'diagonal'  : [0x06600000],
+    'r'         : [0x77770000],
+    'l'         : [0xEEEE0000],
+    't'         : [0xFFF00000],
+    'b'         : [0x0FFF0000],
+    'rt'        : [0x77700000],
+    'rb'        : [0x07770000],
+    'lt'        : [0xEEE00000],
+    'lb'        : [0x0EEE0000],
+  },
+  {
+    'horizontal': [0x79E79E79, 0xE0000000],
+    'vertical'  : [0x03FFFFFC, 0x00000000],
+    'diagonal'  : [0x01E79E78, 0x00000000],
+    'r'         : [0x7DF7DF7D, 0xF0000000],
+    'l'         : [0xFBEFBEFB, 0xE0000000],
+    't'         : [0xFFFFFFFC, 0x00000000],
+    'b'         : [0x03FFFFFF, 0xF0000000],
+    'rt'        : [0x7DF7DF7C, 0x00000000],
+    'rb'        : [0x01F7DF7D, 0xF0000000],
+    'lt'        : [0xFBEFBEF8, 0x00000000],
+    'lb'        : [0x03EFBEFB, 0xE0000000],
+  },
+  {
+    'horizontal': [0x7E7E7E7E, 0x7E7E7E7E],
+    'vertical'  : [0x00FFFFFF, 0xFFFFFF00],
+    'diagonal'  : [0x007E7E7E, 0x7E7E7E00],
+    'r'         : [0x7F7F7F7F, 0x7F7F7F7F],
+    'l'         : [0xFEFEFEFE, 0xFEFEFEFE],
+    't'         : [0xFFFFFFFF, 0xFFFFFF00],
+    'b'         : [0x00FFFFFF, 0xFFFFFFFF],
+    'rt'        : [0x7F7F7F7F, 0x7F7F7F00],
+    'rb'        : [0x007F7F7F, 0x7F7F7F7F],
+    'lt'        : [0xFEFEFEFE, 0xFEFEFE00],
+    'lb'        : [0x00FEFEFE, 0xFEFEFEFE],
+  },
+  {
+    'horizontal': [0x7F9FE7F9, 0xFE7F9FE7, 0xF9FE7F9F, 0xE0000000],
+    'vertical'  : [0x003FFFFF, 0xFFFFFFFF, 0xFFFFFFC0, 0x00000000],
+    'diagonal'  : [0x001FE7F9, 0xFE7F9FE7, 0xF9FE7F80, 0x00000000],
+    'r'         : [0x7FDFF7FD, 0xFF7FDFF7, 0xFDFF7FDF, 0xF0000000],
+    'l'         : [0xFFBFEFFB, 0xFEFFBFEF, 0xFBFEFFBF, 0xE0000000],
+    't'         : [0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFC0, 0x00000000],
+    'b'         : [0x003FFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xF0000000],
+    'rt'        : [0x7FDFF7FD, 0xFF7FDFF7, 0xFDFF7FC0, 0x00000000],
+    'rb'        : [0x001FF7FD, 0xFF7FDFF7, 0xFDFF7FDF, 0xF0000000],
+    'lt'        : [0xFFBFEFFB, 0xFEFFBFEF, 0xFBFEFF80, 0x00000000],
+    'lb'        : [0x003FEFFB, 0xFEFFBFEF, 0xFBFEFFBF, 0xE0000000],
+  },
+  {
+    'horizontal': [0x7FE7FE7F, 0xE7FE7FE7, 0xFE7FE7FE, 0x7FE7FE7F, 0xE7FE0000],
+    'vertical'  : [0x000FFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xF0000000],
+    'diagonal'  : [0x0007FE7F, 0xE7FE7FE7, 0xFE7FE7FE, 0x7FE7FE7F, 0xE0000000],
+    'r'         : [0x7FF7FF7F, 0xF7FF7FF7, 0xFF7FF7FF, 0x7FF7FF7F, 0xF7FF0000],
+    'l'         : [0xFFEFFEFF, 0xEFFEFFEF, 0xFEFFEFFE, 0xFFEFFEFF, 0xEFFE0000],
+    't'         : [0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xF0000000],
+    'b'         : [0x000FFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFF0000],
+    'rt'        : [0x7FF7FF7F, 0xF7FF7FF7, 0xFF7FF7FF, 0x7FF7FF7F, 0xF0000000],
+    'rb'        : [0x0007FF7F, 0xF7FF7FF7, 0xFF7FF7FF, 0x7FF7FF7F, 0xF7FF0000],
+    'lt'        : [0xFFEFFEFF, 0xEFFEFFEF, 0xFEFFEFFE, 0xFFEFFEFF, 0xE0000000],
+    'lb'        : [0x000FFEFF, 0xEFFEFFEF, 0xFEFFEFFE, 0xFFEFFEFF, 0xEFFE0000],
+  },
+];
+testGetBitBoardMask(boards, expecteds);

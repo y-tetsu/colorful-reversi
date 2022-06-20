@@ -132,6 +132,53 @@ function getOpponentsBitBoard(turn, bitboard) {
   return opponents;
 }
 
+// ビットボードのマスク値取得
+// (引数)
+//  bitboard : ビットボード
+function getBitBoardMask(bitboard) {
+  const [size, pageSize] = [bitboard['size'], bitboard['pageSize']];
+  let [mask, page] = [{}, -1];
+  for (let i=0; i<pageSize * MAX_BITSIZE; i++) {
+    // マスク条件設定
+    const row = i % size;
+    const lr = (row > 0) && (row < (size - 1)) && (i < size * size);
+    const tb = (i >= size) && (i < (size * (size - 1)));
+    const r  = (row !== 0) && (i < size * size);
+    const l  = (row !== (size - 1)) && (i < size * size);
+    const t  = (i < (size * (size - 1)));
+    const b  = (i >= size) && (i < size * size);
+    const rt = r & t;
+    const rb = r & b;
+    const lt = l & t;
+    const lb = l & b;
+    const condition = {
+      'horizontal': lr,
+      'vertical'  : tb,
+      'diagonal'  : lr && tb,
+      'r'         : r,
+      'l'         : l,
+      't'         : t,
+      'b'         : b,
+      'rt'        : rt,
+      'rb'        : rb,
+      'lt'        : lt,
+      'lb'        : lb,
+    };
+    if (i === 0) for (let key in condition) mask[key] = [];  // 初回のみ初期化
+    // ページ切り替え
+    if ((i % MAX_BITSIZE) === 0) {
+      for (let key in condition) mask[key].push(0);  // 次のページを追加
+      page++;
+    }
+    // マスク値生成
+    for (let key in condition) {
+      const [cond, next] = [condition[key], mask[key][page] << 1];
+      mask[key][page] = (cond ? (next | 1) : next) >>> 0;  // 条件成立時ビットをON
+    }
+  }
+  return mask;
+}
+
 // ひっくり返せる石を取得する処理
 // (引数)
 //  turn  : プレイヤーの手番(色)
