@@ -114,6 +114,24 @@ function getLegalMoves(turn, board) {
   return legalMoves;
 }
 
+// 対戦相手のビットボード取得
+// (引数)
+//  turn     : プレイヤーの手番(色)
+//  bitboard : ビットボード
+function getOpponentsBitBoard(turn, bitboard) {
+  const bits = bitboard['bits'];
+  let opponents = [];
+  for (let p=0; p<bitboard['pageSize']; p++) {
+    let value = 0;
+    for (let s=2; s<S; s++) {  // H,E除外
+      if (s === turn) continue;
+      value = (value | bits[s][p]) >>> 0;
+    }
+    opponents.push(value);
+  }
+  return opponents;
+}
+
 // ひっくり返せる石を取得する処理
 // (引数)
 //  turn  : プレイヤーの手番(色)

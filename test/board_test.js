@@ -11,6 +11,18 @@ function testGetBitBoard(boards, expecteds) {
   }
 }
 
+// - getOpponentsBitBoard
+function testGetOpponentsBitBoard(turns, boards, expecteds) {
+  let i = 0;
+  for (let board of boards) {
+    const bitboard = getBitBoard(board);
+    const actual = getOpponentsBitBoard(turns[i], bitboard);
+    const expected = expecteds[i];
+    assertEqual(actual, expected, 'getOpponentsBitBoard ' + (i + 1));
+    i++;
+  }
+}
+
 // - getLegalMoves
 function testGetLegalMoves(turns, board, expecteds, no) {
   for (let i in turns) {
@@ -463,3 +475,13 @@ expecteds = [
   },
 ];
 testGetBitBoard(boards, expecteds);
+
+// - getOpponentsBitBoard
+turns = [B, W, B];
+boards = [TEST_BOARD1, TEST_BOARD1, BOARD];
+expecteds = [
+  [0x00000010, 0x08000000],  // opponent against B at TEST_BOARD1
+  [0x00000008, 0x10000000],  // opponent against W at TEST_BOARD1
+  [0x00010000, 0x305A05A0, 0xC0000800, 0x00000000],  // opponent against B at BOARD
+];
+testGetOpponentsBitBoard(turns, boards, expecteds);
