@@ -37,7 +37,17 @@ class Player {
       default:
         break;
     }
-    return putDisc(game.turn, game.board, move);
+    const putResult = putDisc(game.turn, game.board, move);
+
+    //--- 時間計測 ---//
+    //startMeasure(5);
+    //--- 時間計測 ---//
+    game.bitboard = getBitBoard(game.board);
+    //--- 時間計測 ---//
+    //stopMeasure(5);
+    //--- 時間計測 ---//
+
+    return putResult;
   }
 }
 
@@ -58,7 +68,7 @@ function getMoveByHuman(game) {
 // (戻り値)
 //  return : コンピュータの手(マスを表す番号)
 function getMoveByRandom(game) {
-  const legalMoves = getLegalMoves(game.turn, game.board);
+  const legalMoves = getLegalMoves(game.turn, game.bitboard, game.mask);
   const randomIndex = Math.floor(Math.random() * legalMoves.length);
   return legalMoves[randomIndex];
 }
@@ -71,7 +81,7 @@ function getMoveByRandom(game) {
 function getMoveByMinimum(game) {
   const turn = game.turn;
   const board = game.board;
-  const legalMoves = getLegalMoves(turn, board);
+  const legalMoves = getLegalMoves(game.turn, game.bitboard, game.mask);
   return legalMoves.reduce((a, b) => getFlippablesAtIndex(turn, board, a).flippables.length < getFlippablesAtIndex(turn, board, b).flippables.length ? a : b);
 }
 
@@ -83,7 +93,7 @@ function getMoveByMinimum(game) {
 function getMoveByMaximum(game) {
   const turn = game.turn;
   const board = game.board;
-  const legalMoves = getLegalMoves(turn, board);
+  const legalMoves = getLegalMoves(game.turn, game.bitboard, game.mask);
   return legalMoves.reduce((a, b) => getFlippablesAtIndex(turn, board, a).flippables.length > getFlippablesAtIndex(turn, board, b).flippables.length ? a : b);
 }
 
@@ -97,7 +107,7 @@ function getMoveByMonteCarloSearch(game, schedule) {
   const num = getPlayoutNum(game.board, schedule);
   const turn = game.turn;
   const randomFlippers = getRandomFlippers(game.flippers);
-  const legalMoves = getLegalMoves(turn, game.board);
+  const legalMoves = getLegalMoves(game.turn, game.bitboard, game.mask);
   if (legalMoves.length === 0) return NO_MOVE;
   let results = [];
   for (let move of legalMoves) {

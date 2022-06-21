@@ -27,17 +27,47 @@ function testGetOpponentsBitBoard(turns, boards, expecteds) {
 function testGetBitBoardMask(boards, expecteds) {
   let i = 0;
   for (let board of boards) {
-    const actual = getBitBoardMask(getBitBoard(board));
+    const bitboard = getBitBoard(board);
+    const actual = getBitBoardMask(bitboard['size'], bitboard['pageSize']);
     const expected = expecteds[i];
     assertEqual(actual, expected, 'getBitBoardMask ' + (i + 1));
     i++;
   }
 }
 
+// - getLegalMovesArray
+function testGetLegalMovesArray(boards, orders, cutins, num) {
+  for (let i in boards) {
+    for (let loop=0; loop<num; loop++) {
+      const game = new Game(boards[i], orders[i], getRandomFlippers(FLIPPERS), cutins[i]);
+      while(game.play() === GAME_PLAY) {
+        legal1 = getLegalMoves(game.turn, game.bitboard, game.mask);
+        legal2 = getLegalMovesArray(game.turn, game.board);
+        actual = {'legal': legal1, 'turn': game.turn, 'board': game.board};
+        expected = {'legal': legal2, 'turn': game.turn, 'board': game.board};
+        assertEqual(actual, expected, 'getLegalMovesArray ' + (Number(i) + 1) + '-' + (loop + 1));
+      }
+    }
+  }
+}
+
+// - getLegalMovesBits
+function testGetLegalMovesBits(turns, boards, expecteds) {
+  for (let i in turns) {
+    const bitboard = getBitBoard(boards[i]);
+    const mask = getBitBoardMask(bitboard['size'], bitboard['pageSize']);
+    const actual = getLegalMovesBits(turns[i], bitboard, mask);
+    const expected = expecteds[i];
+    assertEqual(actual, expected, 'getLegalMovesBits ' + (Number(i) + 1));
+  }
+}
+
 // - getLegalMoves
 function testGetLegalMoves(turns, board, expecteds, no) {
   for (let i in turns) {
-    const actual = getLegalMoves(turns[i], board);
+    const bitboard = getBitBoard(board);
+    const mask = getBitBoardMask(bitboard['size'], bitboard['pageSize']);
+    const actual = getLegalMoves(turns[i], bitboard, mask);
     const expected = expecteds[i];
     assertEqual(actual, expected, 'getLegalMoves ' + getGameTurnText(turns[i]) + ' ' + no);
   }
@@ -48,7 +78,9 @@ function testGetFlippablesAtIndex(turns, board, expecteds, no) {
   for (let i in turns) {
     let j = 0;
     const turn = turns[i];
-    for (let move of getLegalMoves(turn, board)) {
+    const bitboard = getBitBoard(board);
+    const mask = getBitBoardMask(bitboard['size'], bitboard['pageSize']);
+    for (let move of getLegalMoves(turn, bitboard, mask)) {
       const actual = getFlippablesAtIndex(turn, board, move);
       const expected = expecteds[i][j];
       j++;
@@ -62,7 +94,9 @@ function testPutDisc(turns, board, expecteds, no) {
   for (let i in turns) {
     let j = 0;
     const turn = turns[i];
-    for (let move of getLegalMoves(turn, board)) {
+    const bitboard = getBitBoard(board);
+    const mask = getBitBoardMask(bitboard['size'], bitboard['pageSize']);
+    for (let move of getLegalMoves(turn, bitboard, mask)) {
       let localBoard = board.concat();
       actual   = putDisc(turn, localBoard, move);
       expected = expecteds[i][j];
@@ -627,3 +661,150 @@ expecteds = [
   },
 ];
 testGetBitBoardMask(boards, expecteds);
+
+// - getLegalMovesBits
+const BOARD4_TOP = [
+  H, H, H, H, H, H,
+  H, E, E, E, E, H,
+  H, W, E, E, W, H,
+  H, B, W, E, W, H,
+  H, E, B, E, B, H,
+  H, H, H, H, H, H,
+];
+const BOARD4_BOTTOM = [
+  H, H, H, H, H, H,
+  H, W, E, W, E, H,
+  H, B, E, B, W, H,
+  H, B, E, E, B, H,
+  H, E, B, E, E, H,
+  H, H, H, H, H, H,
+];
+const BOARD6_TOP = [
+  H, H, H, H, H, H, H, H,
+  H, E, E, E, E, E, E, H,
+  H, E, W, E, E, E, W, H,
+  H, E, B, E, W, E, W, H,
+  H, W, E, E, W, E, W, H,
+  H, B, W, E, W, E, W, H,
+  H, E, B, E, B, E, B, H,
+  H, H, H, H, H, H, H, H,
+];
+const BOARD6_BOTTOM = [
+  H, H, H, H, H, H, H, H,
+  H, W, W, W, W, W, W, H,
+  H, B, B, B, B, E, E, H,
+  H, B, B, B, E, W, W, H,
+  H, B, B, E, W, B, B, H,
+  H, B, E, W, W, E, B, H,
+  H, E, W, W, W, E, E, H,
+  H, H, H, H, H, H, H, H,
+];
+const BOARD6_LEFT = [
+  H, H, H, H, H, H, H, H,
+  H, E, E, E, E, E, E, H,
+  H, E, W, W, W, W, B, H,
+  H, E, E, E, E, E, E, H,
+  H, E, W, W, W, W, B, H,
+  H, E, E, E, E, E, E, H,
+  H, E, W, W, W, W, B, H,
+  H, H, H, H, H, H, H, H,
+];
+const BOARD6_RIGHT = [
+  H, H, H, H, H, H, H, H,
+  H, E, E, E, E, E, E, H,
+  H, B, W, W, W, W, E, H,
+  H, E, E, E, E, E, E, H,
+  H, B, W, W, W, W, E, H,
+  H, E, E, E, E, E, E, H,
+  H, B, W, W, W, W, E, H,
+  H, H, H, H, H, H, H, H,
+];
+const BOARD10_TEST1 = [
+  H, H, H, H, H, H, H, H, H, H, H, H,
+  H, H, H, H, H, E, E, H, H, H, H, H,
+  H, H, H, H, E, E, E, E, H, H, H, H,
+  H, H, H, E, E, E, E, E, E, H, H, H,
+  H, H, E, E, E, E, C, E, E, E, H, H,
+  H, E, E, E, E, E, B, E, E, E, E, H,
+  H, E, E, E, E, E, W, E, E, E, E, H,
+  H, H, E, E, E, E, G, E, E, E, H, H,
+  H, H, H, E, E, E, E, E, E, H, H, H,
+  H, H, H, H, E, E, E, E, H, H, H, H,
+  H, H, H, H, H, E, E, H, H, H, H, H,
+  H, H, H, H, H, H, H, H, H, H, H, H,
+];
+const BOARD10_TEST2 = [
+  H, H, H, H, H, H, H, H, H, H, H, H,
+  H, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, B, E, E, E, B, E, E, C, E, H,
+  H, A, E, E, E, B, E, E, C, E, E, H,
+  H, E, E, E, B, E, E, C, E, E, E, H,
+  H, E, E, B, E, E, C, E, E, W, E, H,
+  H, E, B, E, E, C, E, E, W, E, E, H,
+  H, A, E, E, C, E, E, W, E, E, E, H,
+  H, E, E, C, E, E, W, E, E, E, E, H,
+  H, E, C, E, E, W, E, E, E, W, E, H,
+  H, A, E, E, A, E, E, E, A, E, E, H,
+  H, H, H, H, H, H, H, H, H, H, H, H,
+];
+turns = [B, W, B, W, B, W, B, W, B, W, B, W, B, B, A, A];
+boards = [
+  BOARD4,
+  BOARD4,
+  BOARD6,
+  BOARD6,
+  BOARD8,
+  BOARD8,
+  BOARD10,
+  BOARD10,
+  BOARD4_TOP,
+  BOARD4_BOTTOM,
+  BOARD6_TOP,
+  BOARD6_BOTTOM,
+  BOARD6_LEFT,
+  BOARD6_RIGHT,
+  BOARD10_TEST1,
+  BOARD10_TEST2,
+];
+expecteds = [
+  [0x48120000],
+  [0x21840000],
+  [0x00840210, 0x00000000],
+  [0x00409020, 0x00000000],
+  [0x00001020, 0x04080000],
+  [0x00000804, 0x20100000],
+  [0x00000000, 0x20100080, 0x40000000, 0x00000000],
+  [0x00000000, 0x10020400, 0x80000000, 0x00000000],
+  [0x94200000],
+  [0x04290000],
+  [0x44481020, 0x00000000],
+  [0x0001084A, 0x10000000],
+  [0x02002002, 0x00000000],
+  [0x00100100, 0x10000000],
+  [0x00000040, 0x00000000, 0x00000000, 0x00000000],
+  [0x22400000, 0x01000000, 0x00010000, 0x00000000],
+];
+testGetLegalMovesBits(turns, boards, expecteds);
+
+boards = [
+  BOARD4,
+  BOARD6,
+  BOARD8,
+  BOARD,
+  BOARD12,
+];
+orders = [
+  [B, W],
+  [B, W],
+  [B, W],
+  ORDER,
+  [B, W],
+];
+cutins  = [
+  {},
+  {},
+  {},
+  CUTINS,
+  {},
+];
+testGetLegalMovesArray(boards, orders, cutins, 5);

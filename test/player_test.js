@@ -45,7 +45,9 @@ assertEqual(game.humanMove, NO_MOVE, 'getMoveByHuman 3');
 // getMoveByRandom
 for (let i=0; i<10; i++) {
   let move = getMoveByRandom(new Game(TEST_BOARD1, ORDER, FLIPPERS, CUTINS));
-  assertEqual(getLegalMoves(B, TEST_BOARD1).includes(move), true, 'getMoveByRandom ' + (i + 1));
+  const bitboard = getBitBoard(TEST_BOARD1);
+  const mask = getBitBoardMask(bitboard['size'], bitboard['pageSize']);
+  assertEqual(getLegalMoves(B, bitboard, mask).includes(move), true, 'getMoveByRandom ' + (i + 1));
 }
 
 // getMoveByMonteCarloSearch

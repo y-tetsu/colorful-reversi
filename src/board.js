@@ -95,23 +95,168 @@ function getBitBoard(board) {
 
 // 打てる手を取得する処理
 // (引数)
+//  turn     : プレイヤーの手番(色)
+//  bitboard : 盤面情報を格納したビットボード
+//  mask     : ビットボードのマスク値
+// (戻り値)
+//  legalMoves : 打てる手(マスを表す番号)の配列
+function getLegalMoves(turn, bitboard, mask) {
+  const legalMovesBits = getLegalMovesBits(turn, bitboard, mask);
+
+  //--- 時間計測 ---//
+  startMeasure(1);
+  //--- 時間計測 ---//
+  const size = bitboard['size'];
+  const boardSize = size + 2;
+  let legalMoves = [];
+  let count = 0;
+  for (let p=0; p<legalMovesBits.length; p++) {
+    const bits = legalMovesBits[p];
+    let mask = 1 << (MAX_BITSIZE - 1);
+    for (let i=0; i<MAX_BITSIZE; i++) {
+      if ((bits & mask) !== 0) {
+        const y = Math.floor(count / size);
+        const x = count % size;
+        const index = (y + 1) * boardSize + (x + 1);
+        legalMoves.push(index);
+      }
+      mask >>>= 1;
+      count++;
+    }
+  }
+  //--- 時間計測 ---//
+  stopMeasure(1);
+  //--- 時間計測 ---//
+  return legalMoves;
+}
+
+// 打てる手を取得する処理(配列版)
+// (引数)
 //  turn  : プレイヤーの手番(色)
 //  board : 盤面情報を格納した配列
 // (戻り値)
 //  legalMoves : 打てる手(マスを表す番号)の配列
-function getLegalMoves(turn, board) {
-  //--- 時間計測 ---//
-  startMeasure(0);
-  //--- 時間計測 ---//
+function getLegalMovesArray(turn, board) {
   let legalMoves = [];
   for (let i=0; i<board.length; i++) {
     const {flippables, flippers, erasable} = getFlippablesAtIndex(turn, board, i);
     if (flippables.length > 0) legalMoves.push(i);
   }
+  return legalMoves;
+}
+
+// 打てる手を取得する処理(ビットボード版)
+// (引数)
+//  turn     : プレイヤーの手番(色)
+//  bitboard : ビットボード
+//  mask     : マスク値
+// (戻り値)
+//  legalMovesBits : 打てる手(マスを表す番号)のビットボード
+function getLegalMovesBits(turn, bitboard, mask) {
+  //--- 時間計測 ---//
+  startMeasure(0);
+  //--- 時間計測 ---//
+  const s = bitboard['size'];
+  const bits = bitboard['bits'];
+  const pageSize = bitboard['pageSize'];
+  const shifts = (s * s > MAX_BITSIZE ? Math.floor(MAX_BITSIZE / s) : s);
+  const opponents = getOpponentsBitBoard(turn, bitboard);
+  const blank = bitboard['bits'][E];
+  const wildcard = bits[WILDCARD];
+  const mH = mask['horizontal'];
+  const mV = mask['vertical'];
+  const mD = mask['diagonal'];
+  let player = bits[turn].concat();
+  let horizontal = opponents.concat();
+  let vertical = opponents.concat();
+  let diagonal = opponents.concat();
+  for (let p=0; p<pageSize; p++) {
+    player[p] |= wildcard[p];
+    horizontal[p] &= mH[p];
+    vertical[p] &= mV[p];
+    diagonal[p] &= mD[p];
+  }
+
+  const s1m = s - 1;
+  const s1p = s + 1;
+  const shLR = MAX_BITSIZE - 1;
+  const shTB = MAX_BITSIZE - s;
+  const shLTRB = shTB - 1;
+  const shLBRT = shTB + 1;
+  let legal = Array(pageSize).fill(0);
+  let tL  = 0;
+  let tT  = 0;
+  let tLT = 0;
+  let tRT = 0;
+  let tR  = 0;
+  let tB  = 0;
+  let tLB = 0;
+  let tRB = 0;
+  let cL  = 0;
+  let cT  = 0;
+  let cLT = 0;
+  let cRT = 0;
+  let cR  = 0;
+  let cB  = 0;
+  let cLB = 0;
+  let cRB = 0;
+
+  for (let p=0; p<pageSize; p++) {
+    const rev = (pageSize - 1) - p;
+    const pOrg = player[p];
+    const pPre = (p - 1) >= 0 ? player[p - 1] : 0;
+    const pRev = player[rev];
+    const pRevNext = (rev + 1) < pageSize ? player[rev + 1] : 0;
+    const h = horizontal[p];
+    const v = vertical[p];
+    const d = diagonal[p];
+    const b = blank[p];
+    const hRev = horizontal[rev];
+    const vRev = vertical[rev];
+    const dRev = diagonal[rev];
+    const bRev = blank[rev];
+
+    tR  = ((pOrg >>> 1)   | (cR  | pPre)     <<  shLR)   & h;     // 右
+    tB  = ((pOrg >>> s)   | (cB  | pPre)     <<  shTB)   & v;     // 下
+    tLB = ((pOrg >>> s1m) | (cLB | pPre)     <<  shLBRT) & d;     // 左下
+    tRB = ((pOrg >>> s1p) | (cRB | pPre)     <<  shLTRB) & d;     // 右下
+    tL  = ((pRev <<  1)   | (cL  | pRevNext) >>> shLR)   & hRev;  // 左
+    tT  = ((pRev <<  s)   | (cT  | pRevNext) >>> shTB)   & vRev;  // 上
+    tLT = ((pRev <<  s1p) | (cLT | pRevNext) >>> shLTRB) & dRev;  // 左上
+    tRT = ((pRev <<  s1m) | (cRT | pRevNext) >>> shLBRT) & dRev;  // 右上
+
+    for (let i=0; i<shifts; i++) {
+      tR  |= (tR  >>> 1)   & h;
+      tB  |= (tB  >>> s)   & v;
+      tLB |= (tLB >>> s1m) & d;
+      tRB |= (tRB >>> s1p) & d;
+      tL  |= (tL  <<  1)   & hRev;
+      tT  |= (tT  <<  s)   & vRev;
+      tLT |= (tLT <<  s1p) & dRev;
+      tRT |= (tRT <<  s1m) & dRev;
+    }
+    for (let i=0; i<s-3-shifts; i++) {
+      tR |= (tR >>> 1) & h;
+      tL |= (tL <<  1) & hRev;
+    }
+
+    legal[p]   |= (((tR >>> 1) | (cR <<  shLR)) | ((tB >>> s) | (cB <<  shTB)) | ((tLB >>> s1m) | (cLB <<  shLBRT)) | ((tRB >>> s1p) | (cRB <<  shLTRB))) & b;
+    legal[rev] |= (((tL <<  1) | (cL >>> shLR)) | ((tT <<  s) | (cT >>> shTB)) | ((tLT <<  s1p) | (cLT >>> shLTRB)) | ((tRT <<  s1m) | (cRT >>> shLBRT))) & bRev;
+
+    cR  = tR;
+    cB  = tB;
+    cLB = tLB;
+    cRB = tRB;
+    cL  = tL;
+    cT  = tT;
+    cLT = tLT;
+    cRT = tRT;
+  }
+  for (let p=0; p<pageSize; p++) legal[p] >>>= 0;
   //--- 時間計測 ---//
   stopMeasure(0);
   //--- 時間計測 ---//
-  return legalMoves;
+  return legal;
 }
 
 // 対戦相手のビットボード取得
@@ -134,9 +279,9 @@ function getOpponentsBitBoard(turn, bitboard) {
 
 // ビットボードのマスク値取得
 // (引数)
-//  bitboard : ビットボード
-function getBitBoardMask(bitboard) {
-  const [size, pageSize] = [bitboard['size'], bitboard['pageSize']];
+//  size     : 盤面のサイズ
+//  pageSize : ビットボードのページサイズ
+function getBitBoardMask(size, pageSize) {
   let [mask, page] = [{}, -1];
   for (let i=0; i<pageSize * MAX_BITSIZE; i++) {
     // マスク条件設定
@@ -196,7 +341,7 @@ function getFlippablesAtIndex(turn, board, index) {
     'erasable'  : erasable,
   };  // 空きマス以外はスキップ
   //--- 時間計測 ---//
-  startMeasure(1);
+  //startMeasure(2);
   //--- 時間計測 ---//
   const opponents = getOpponentColors(turn);
   const size = Math.sqrt(board.length);
@@ -234,22 +379,22 @@ function getFlippablesAtIndex(turn, board, index) {
     }
   }
   //--- 時間計測 ---//
-  stopMeasure(1);
+  //stopMeasure(2);
   //--- 時間計測 ---//
   return {'flippables': flippables, 'flippers': flippers, 'erasable': erasable};
 }
 
 // 石を置く処理
 // (引数)
-//  turn  : プレイヤーの手番(色)
-//  board : 盤面情報を格納した配列
-//  index : 石を置く位置(マスを示す番号)
+//  turn     : プレイヤーの手番(色)
+//  board    : 盤面情報を格納した配列
+//  index    : 石を置く位置(マスを示す番号)
 // (戻り値)
 //  return : 置いた石、ひっくり返した石、挟んだ石、消せるかどうか
 function putDisc(turn, board, index) {
   if (index === NO_MOVE) return {'put': NO_MOVE, 'flipped': [], 'flippers': [], 'erasable': false};
   //--- 時間計測 ---//
-  startMeasure(2);
+  //startMeasure(3);
   //--- 時間計測 ---//
   const {flippables, flippers, erasable} = getFlippablesAtIndex(turn, board, index);
   if (erasable === true) {
@@ -262,7 +407,7 @@ function putDisc(turn, board, index) {
     }
   }
   //--- 時間計測 ---//
-  stopMeasure(2);
+  //stopMeasure(3);
   //--- 時間計測 ---//
   return {'put': index, 'flipped': flippables, 'flippers': flippers, 'erasable': erasable};
 }

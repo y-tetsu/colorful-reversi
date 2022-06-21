@@ -46,6 +46,8 @@ const FLIPPERS = {                     // 使用可能な全プレイヤー情�
 class Game {
   constructor(board, order, flippers, cutins) {
     this.board = board.concat();
+    this.bitboard = getBitBoard(board);
+    this.mask = getBitBoardMask(this.bitboard['size'], this.bitboard['pageSize']);
     this.moveCount = 1;
     this.order = this.moveCount in cutins ? [cutins[this.moveCount]].concat(order) : order.concat();
     this.turnIndex = 0;
@@ -129,13 +131,13 @@ class Game {
   // スコアの更新
   updateScore() {
     //--- 時間計測 ---//
-    startMeasure(3);
+    //startMeasure(4);
     //--- 時間計測 ---//
     for (let color of this.order) {
       this.flippers[color].score = this.board.filter(e => e === color).length;
     }
     //--- 時間計測 ---//
-    stopMeasure(3);
+    //stopMeasure(4);
     //--- 時間計測 ---//
   }
 
@@ -150,7 +152,7 @@ class Game {
 
   // パスの判定
   isPass() {
-    if (getLegalMoves(this.turn, this.board).length <= 0) {
+    if (getLegalMoves(this.turn, this.bitboard, this.mask).length <= 0) {
       this.setNextPlayer(this.turn);
       this.pass++;
       return true;
