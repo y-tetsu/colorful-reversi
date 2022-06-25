@@ -16,6 +16,7 @@ let messages = null;
 let sizes = null;
 let counts = null;
 let orders = null;
+let bits = null;
 let expecteds = null;
 let waits = null;
 let total = '  OK   (total)';

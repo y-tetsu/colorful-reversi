@@ -40,8 +40,8 @@ function simulator(players, board, order, cutins, num) {
   const elapsed = endTime - startTime;
   console.log('end at ' + endTime.toFixed(3) + ' (' + msToSec(elapsed) + 's)');
   //--- 時間計測 ---//
-  //console.log('total of getLegalMovesBits    ' + msToSec(measure[0].total) + '(s) ' + (measure[0].total / elapsed * 100).toFixed(1) + '(%)');
-  //console.log('total of getLegalArray        ' + msToSec(measure[1].total) + '(s) ' + (measure[1].total / elapsed * 100).toFixed(1) + '(%)');
+  console.log('total of getLegalMovesBits    ' + msToSec(measure[0].total) + '(s) ' + (measure[0].total / elapsed * 100).toFixed(1) + '(%)');
+  console.log('total of getLegalArray        ' + msToSec(measure[1].total) + '(s) ' + (measure[1].total / elapsed * 100).toFixed(1) + '(%)');
   //console.log('total of getFlippablesAtIndex ' + msToSec(measure[2].total) + '(s) ' + (measure[2].total / elapsed * 100).toFixed(1) + '(%)');
   //console.log('total of putDisc              ' + msToSec(measure[3].total) + '(s) ' + (measure[3].total / elapsed * 100).toFixed(1) + '(%)');
   //console.log('total of updateScore          ' + msToSec(measure[4].total) + '(s) ' + (measure[4].total / elapsed * 100).toFixed(1) + '(%)');

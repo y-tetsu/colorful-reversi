@@ -130,15 +130,10 @@ class Game {
 
   // スコアの更新
   updateScore() {
-    //--- 時間計測 ---//
-    //startMeasure(4);
-    //--- 時間計測 ---//
+    const bits = this.bitboard['bits'];
     for (let color of this.order) {
-      this.flippers[color].score = this.board.filter(e => e === color).length;
+      this.flippers[color].score = popcount(bits[color]);
     }
-    //--- 時間計測 ---//
-    //stopMeasure(4);
-    //--- 時間計測 ---//
   }
 
   // 終了の判定
@@ -152,7 +147,8 @@ class Game {
 
   // パスの判定
   isPass() {
-    if (getLegalMoves(this.turn, this.bitboard, this.mask).length <= 0) {
+    const bits = getLegalMovesBits(this.turn, this.bitboard, this.mask);
+    if (popcount(bits) <= 0) {
       this.setNextPlayer(this.turn);
       this.pass++;
       return true;

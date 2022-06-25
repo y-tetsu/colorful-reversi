@@ -106,6 +106,15 @@ function testPutDisc(turns, board, expecteds, no) {
   }
 }
 
+// - popcount
+function testPopcount(bits, expecteds) {
+  for (let i in bits) {
+    const actual = popcount(bits[i]);
+    const expected = expecteds[i];
+    assertEqual(actual, expected, 'popcount ' + (Number(i) + 1));
+  }
+}
+
 // - boardMethods
 function testBoardMethods(turns, board, expected, no) {
   testGetLegalMoves(turns, board, expected['getLegalMoves'], no);
@@ -808,3 +817,20 @@ cutins  = [
   {},
 ];
 testGetLegalMovesArray(boards, orders, cutins, 5);
+
+// - popcount
+bits = [
+  [0x00000001],
+  [0x00010001],
+  [0xFFFFFFFF],
+  [0xFFFFFFFF, 0x11111111],
+  [0xFFFFFFFF, 0x11111111, 0x88888888, 0x22222222],
+];
+expecteds = [
+  1,
+  2,
+  32,
+  40,
+  56,
+];
+testPopcount(bits, expecteds);

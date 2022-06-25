@@ -324,6 +324,22 @@ function getBitBoardMask(size, pageSize) {
   return mask;
 }
 
+// ビットが1の数を数える
+// (引数)
+//  bits : ビットボード配列
+function popcount(bits) {
+  let count = 0;
+  for (let i=0; i<bits.length; i++) {
+    let bit = bits[i];
+    bit = bit - ((bit >>> 1) & 0x55555555);
+    bit = (bit & 0x33333333) + ((bit >>> 2) & 0x33333333);
+    bit = (bit + (bit >>> 4)) & 0x0F0F0F0F;
+    bit = bit + (bit >>> 8);
+    count += (bit + (bit >>> 16)) & 0x0000003F;
+  }
+  return count;
+}
+
 // ひっくり返せる石を取得する処理
 // (引数)
 //  turn  : プレイヤーの手番(色)

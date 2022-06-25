@@ -109,11 +109,14 @@ function testUpdateScore(boards, orders, moves, scores) {
   let i = 0;
   for (let order of orders) {
     const game = new Game(boards[i], order, FLIPPERS, CUTINS);
-    if (move) putDisc(game.turn, game.board, moves[i]);
+    if (move) {
+      putDisc(game.turn, game.board, moves[i]);
+      game.bitboard = getBitBoard(game.board);
+    }
     game.updateScore();
     let j = 0;
     for (let participant of game.participants) {
-      assertEqual(game.flippers[participant].score, scores[i][j], 'getScores ' + (i + 1) + '-' + (j + 1));
+      assertEqual(game.flippers[participant].score, scores[i][j], 'updateScores ' + (i + 1) + '-' + (j + 1));
       j++;
     }
     i++;
@@ -177,7 +180,10 @@ function testGetWinnerMessage(boards, orders, moves, winners) {
   let i = 0;
   for (let order of orders) {
     const game = new Game(boards[i], order, FLIPPERS, CUTINS);
-    if (move) putDisc(game.turn, game.board, moves[i]);
+    if (move) {
+      putDisc(game.turn, game.board, moves[i]);
+      game.bitboard = getBitBoard(game.board);
+    }
     game.updateScore();
     assertEqual(game.getWinnerMessage(), winners[i], 'getWinnerMessage ' + (i + 1));
     i++;
@@ -189,7 +195,10 @@ function testGetWinner(boards, orders, moves, winners) {
   let i = 0;
   for (let order of orders) {
     const game = new Game(boards[i], order, FLIPPERS, CUTINS);
-    if (move) putDisc(game.turn, game.board, moves[i]);
+    if (move) {
+      putDisc(game.turn, game.board, moves[i]);
+      game.bitboard = getBitBoard(game.board);
+    }
     game.updateScore();
     assertEqual(game.getWinner(), winners[i], 'getWinner ' + (i + 1));
     i++;
