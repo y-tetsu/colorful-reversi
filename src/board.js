@@ -130,7 +130,7 @@ function getLegalMovesArray(turn, board) {
 //  legalMovesBits : 打てる手(マスを表す番号)のビットボード
 function getLegalMovesBits(turn, bitboard, mask) {
   //--- 時間計測 ---//
-  startMeasure(0);
+  //startMeasure(0);
   //--- 時間計測 ---//
   const s = bitboard['size'];
   const bits = bitboard['bits'];
@@ -230,7 +230,7 @@ function getLegalMovesBits(turn, bitboard, mask) {
   }
   for (let p=0; p<pageSize; p++) legal[p] >>>= 0;
   //--- 時間計測 ---//
-  stopMeasure(0);
+  //stopMeasure(0);
   //--- 時間計測 ---//
   return legal;
 }
@@ -243,7 +243,7 @@ function getLegalMovesBits(turn, bitboard, mask) {
 //  indexs : 打てる手(マスを表す番号)の配列
 function bitsToIndexs(bits, size) {
   //--- 時間計測 ---//
-  startMeasure(1);
+  //startMeasure(1);
   //--- 時間計測 ---//
   const boardSize = size + 2;
   let indexs = [];
@@ -263,7 +263,7 @@ function bitsToIndexs(bits, size) {
     }
   }
   //--- 時間計測 ---//
-  stopMeasure(1);
+  //stopMeasure(1);
   //--- 時間計測 ---//
   return indexs;
 }
