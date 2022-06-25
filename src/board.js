@@ -409,6 +409,127 @@ function getFlippablesAtIndex(turn, board, index) {
   return {'flippables': flippables, 'flippers': flippers, 'erasable': erasable};
 }
 
+// ひっくり返せる石を取得する処理(ビットボード版)
+// (引数)
+// ひっくり返せる石を取得する処理
+// (引数)
+//  turn     : プレイヤーの手番(色)
+//  bitboard : ビットボード
+//  index    : 石を置く位置(マスを示すビットボード)
+// (戻り値)
+//  return : ひっくり返せる石、挟んだ石、消せるかどうか
+function getFlippablesAtIndexBits(turn, bitboard, index) {
+  const pageSize = bitboard['pageSize'];
+  const empty = bitboard['bits'][E];
+  let flippables = Array(pageSize).fill(0);
+  let flippers = Array(pageSize).fill(0);
+  let erasable = false;
+  for (let p=0; p<pageSize; p++) {
+    if (empty[p] & index[p] !== 0) return {
+      'flippables': flippables,
+      'flippers'  : flippers,
+      'erasable'  : erasable,
+    };  // 空きマス以外はスキップ
+  }
+  //--- 時間計測 ---//
+  //startMeasure(2);
+  //--- 時間計測 ---//
+
+  //const opponents = getOpponentColors(turn);
+  //const size = Math.sqrt(board.length);
+  //for (let {x, y} of DIRECTION_XY) {
+  //  const dir = (size * y) + x;
+  //  let opponentDiscs = [];
+  //  let next = index + dir;
+  //  // 相手ディスクが連続しているものを候補とする
+  //  while (opponents.includes(board[next])) {
+  //    opponentDiscs.push(next);
+  //    next += dir;
+  //  }
+  //  // 連続が途切れた箇所が自ディスクの場合、候補を戻り値に追加
+  //  if (board[next] === turn) {
+  //    flippables = flippables.concat(opponentDiscs);
+  //    // 挟んだ側の石を記憶
+  //    if (opponentDiscs.length > 0) flippers.push(next);
+  //    // ボム石が見つかったら記憶
+  //    if (opponentDiscs.map(e => board[e]).includes(BOMB)) erasable = true;
+  //  }
+  //  else {
+  //    while (opponentDiscs.length) {
+  //      // 候補をpopし、変化石を探す
+  //      const pre = opponentDiscs.pop();
+  //      if (board[pre] === WILDCARD) {
+  //        // 変化石が見つかったら、残りの候補を戻り値に追加
+  //        flippables = flippables.concat(opponentDiscs);
+  //        // 挟んだ側の石を記憶
+  //        if (opponentDiscs.length > 0) flippers.push(pre);
+  //        // ボム石が見つかったら記憶
+  //        if (opponentDiscs.map(e => board[e]).includes(BOMB)) erasable = true;
+  //        break;
+  //      }
+  //    }
+  //  }
+  //}
+  //--- 時間計測 ---//
+  //stopMeasure(2);
+  //--- 時間計測 ---//
+  return {'flippables': flippables, 'flippers': flippers, 'erasable': erasable};
+}
+
+// ひっくり返せる石を取得する処理(配列版)
+// (引数)
+//  turn  : プレイヤーの手番(色)
+//  board : 盤面情報を格納した配列
+//  index : 石を置く位置(マスを示す番号)
+// (戻り値)
+//  return : ひっくり返せる石、挟んだ石、消せるかどうか
+function getFlippablesAtIndexArray(turn, board, index) {
+  let flippables = [];
+  let flippers = [];
+  let erasable = false;
+  if (board[index] !== E) return {
+    'flippables': flippables,
+    'flippers'  : flippers,
+    'erasable'  : erasable,
+  };  // 空きマス以外はスキップ
+  const opponents = getOpponentColors(turn);
+  const size = Math.sqrt(board.length);
+  for (let {x, y} of DIRECTION_XY) {
+    const dir = (size * y) + x;
+    let opponentDiscs = [];
+    let next = index + dir;
+    // 相手ディスクが連続しているものを候補とする
+    while (opponents.includes(board[next])) {
+      opponentDiscs.push(next);
+      next += dir;
+    }
+    // 連続が途切れた箇所が自ディスクの場合、候補を戻り値に追加
+    if (board[next] === turn) {
+      flippables = flippables.concat(opponentDiscs);
+      // 挟んだ側の石を記憶
+      if (opponentDiscs.length > 0) flippers.push(next);
+      // ボム石が見つかったら記憶
+      if (opponentDiscs.map(e => board[e]).includes(BOMB)) erasable = true;
+    }
+    else {
+      while (opponentDiscs.length) {
+        // 候補をpopし、変化石を探す
+        const pre = opponentDiscs.pop();
+        if (board[pre] === WILDCARD) {
+          // 変化石が見つかったら、残りの候補を戻り値に追加
+          flippables = flippables.concat(opponentDiscs);
+          // 挟んだ側の石を記憶
+          if (opponentDiscs.length > 0) flippers.push(pre);
+          // ボム石が見つかったら記憶
+          if (opponentDiscs.map(e => board[e]).includes(BOMB)) erasable = true;
+          break;
+        }
+      }
+    }
+  }
+  return {'flippables': flippables, 'flippers': flippers, 'erasable': erasable};
+}
+
 // 石を置く処理
 // (引数)
 //  turn     : プレイヤーの手番(色)
