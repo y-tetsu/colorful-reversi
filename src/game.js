@@ -21,12 +21,12 @@ const FLIPPERS = {                     // 使用可能な全プレイヤー情�
     'score'    : 0,                    // 黒の石の数
   },
   [W]: {                               // 白
-    'player'   : new Player(MCS),      // コンピュータが操作(原始モンテカルロ探索)
+    'player'   : new Player(MCS2),     // コンピュータが操作(原始モンテカルロ探索)
     'opponents': [B, A, C, Y, G, R],   // 対戦相手 + 置き石
     'score'    : 0,                    // 白の石の数
   },
   [A]: {                               // 灰
-    'player'   : new Player(RANDOM),   // コンピュータが操作(ランダム)
+    'player'   : new Player(MCS),      // コンピュータが操作(ランダム)
     'opponents': [B, W, C, Y, G, R],   // 対戦相手 + 置き石
     'score'    : 0,                    // 灰の石の数
   },

@@ -3,10 +3,15 @@ const RANDOM = 'random';
 const MINIMUM = 'minimum';
 const MAXIMUM = 'maximum';
 const MCS = 'mcs';
+const MCS2 = 'mcs2';
 const NO_MOVE = -1;
 const MCS_SCHEDULE = [
   [48, 40, 34, 28, 22,  16,  13,  10,   6],  // 空きマス残り
   [10, 20, 40, 60, 80, 120, 200, 400, 800],  // プレイアウト回数
+];
+const MCS_SCHEDULE2 = [
+  [48,  40,  34,   28,   22,   16,   13,   10,   6],     // 空きマス残り
+  [500, 750, 1000, 1250, 1500, 1750, 2000, 4000, 8000],  // プレイアウト回数
 ];
 
 // プレイヤー
@@ -33,6 +38,9 @@ class Player {
         break;
       case MCS:
         move = getMoveByMonteCarloSearch(game, MCS_SCHEDULE);
+        break;
+      case MCS2:
+        move = getMoveByMonteCarloSearch(game, MCS_SCHEDULE2);
         break;
       default:
         break;

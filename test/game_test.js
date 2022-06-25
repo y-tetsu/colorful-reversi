@@ -298,7 +298,7 @@ cutins    = [{10: C}, {10: C}, {10: C}, {10: C}, {10: C}, {10: C, 11: Y}, {10: C
 expecteds = [
   {
     'next'     : W,
-    'player'   : MCS,
+    'player'   : MCS2,
     'turnIndex': 1,
   },
   {
@@ -308,12 +308,12 @@ expecteds = [
   },
   {
     'next'     : W,
-    'player'   : MCS,
+    'player'   : MCS2,
     'turnIndex': 1,
   },
   {
     'next'     : A,
-    'player'   : RANDOM,
+    'player'   : MCS,
     'turnIndex': 2,
   },
   {
@@ -494,12 +494,12 @@ expecteds = [
         'score'    : 0,
       },
       [W]: {
-        'player'   : new Player(MCS),
+        'player'   : new Player(MCS2),
         'opponents': [B, A, C, Y, G, R],
         'score'    : 0,
       },
       [A]: {
-        'player'   : new Player(RANDOM),
+        'player'   : new Player(MCS),
         'opponents': [B, W, C, Y, G, R],
         'score'    : 0,
       },
