@@ -14,6 +14,7 @@ let verticals = null;
 let blanks = null;
 let messages = null;
 let sizes = null;
+let bitss = null;
 let counts = null;
 let orders = null;
 let bits = null;

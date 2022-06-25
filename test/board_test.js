@@ -11,6 +11,17 @@ function testGetBitBoard(boards, expecteds) {
   }
 }
 
+// - bitsToIndexs
+function testBitsToIndexs(bitss, sizes, expecteds) {
+  let i = 0;
+  for (let bits of bitss) {
+    const actual = bitsToIndexs(bits, sizes[i]);
+    const expected = expecteds[i];
+    assertEqual(actual, expected, 'bitsToIndexs ' + (i + 1));
+    i++;
+  }
+}
+
 // - getOpponentsBitBoard
 function testGetOpponentsBitBoard(turns, boards, expecteds) {
   let i = 0;
@@ -529,6 +540,21 @@ expecteds = [
   },
 ];
 testGetBitBoard(boards, expecteds);
+
+// - bitsToIndexs
+bitss = [
+  [0x81000000, 0x00000081],
+  [0x80400000, 0x00000000, 0x00000020, 0x10000000],
+];
+sizes = [
+  8,
+  10,
+]
+expecteds = [
+  [11, 18, 81, 88],
+  [13, 22, 121, 130],
+];
+testBitsToIndexs(bitss, sizes, expecteds);
 
 // - getOpponentsBitBoard
 turns = [B, W, B];

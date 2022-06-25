@@ -102,31 +102,7 @@ function getBitBoard(board) {
 //  legalMoves : 打てる手(マスを表す番号)の配列
 function getLegalMoves(turn, bitboard, mask) {
   const legalMovesBits = getLegalMovesBits(turn, bitboard, mask);
-
-  //--- 時間計測 ---//
-  startMeasure(1);
-  //--- 時間計測 ---//
-  const size = bitboard['size'];
-  const boardSize = size + 2;
-  let legalMoves = [];
-  let count = 0;
-  for (let p=0; p<legalMovesBits.length; p++) {
-    const bits = legalMovesBits[p];
-    let mask = 1 << (MAX_BITSIZE - 1);
-    for (let i=0; i<MAX_BITSIZE; i++) {
-      if ((bits & mask) !== 0) {
-        const y = Math.floor(count / size);
-        const x = count % size;
-        const index = (y + 1) * boardSize + (x + 1);
-        legalMoves.push(index);
-      }
-      mask >>>= 1;
-      count++;
-    }
-  }
-  //--- 時間計測 ---//
-  stopMeasure(1);
-  //--- 時間計測 ---//
+  const legalMoves = bitsToIndexs(legalMovesBits, bitboard['size']);
   return legalMoves;
 }
 
@@ -257,6 +233,39 @@ function getLegalMovesBits(turn, bitboard, mask) {
   stopMeasure(0);
   //--- 時間計測 ---//
   return legal;
+}
+
+// ビットデータをインデックス配列に変換
+// (引数)
+//  bits : ビットボード
+//  size : 盤面サイズ
+// (戻り値)
+//  indexs : 打てる手(マスを表す番号)の配列
+function bitsToIndexs(bits, size) {
+  //--- 時間計測 ---//
+  startMeasure(1);
+  //--- 時間計測 ---//
+  const boardSize = size + 2;
+  let indexs = [];
+  let count = 0;
+  for (let p=0; p<bits.length; p++) {
+    const b = bits[p];
+    let mask = 1 << (MAX_BITSIZE - 1);
+    for (let i=0; i<MAX_BITSIZE; i++) {
+      if ((b & mask) !== 0) {
+        const y = Math.floor(count / size);
+        const x = count % size;
+        const index = (y + 1) * boardSize + (x + 1);
+        indexs.push(index);
+      }
+      mask >>>= 1;
+      count++;
+    }
+  }
+  //--- 時間計測 ---//
+  stopMeasure(1);
+  //--- 時間計測 ---//
+  return indexs;
 }
 
 // 対戦相手のビットボード取得
