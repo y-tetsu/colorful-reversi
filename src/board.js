@@ -435,6 +435,26 @@ function getFlippablesAtIndexBits(turn, bitboard, index) {
   //startMeasure(2);
   //--- 時間計測 ---//
 
+  // 1. maskF作成
+  // 2. 手を1シフト マスクとand
+  // 3. 8方向について
+  //    2と相手をand
+  //    　→0でないなら
+  //          バッファ追加
+  //          手を1シフト マスクとand
+  // 5. プレイヤー作成
+  //     player and バッファ
+  //     端だけON(flipper)
+  //     端から反対側をON(端はoff)
+  //     バッファとAND(flippers)
+  // 6. 手とプレイヤーand
+  //    →0でないなら
+  //        flippableにバッファ追加
+  //        erasabel検出
+
+
+
+
   //const opponents = getOpponentColors(turn);
   //const size = Math.sqrt(board.length);
   //for (let {x, y} of DIRECTION_XY) {
