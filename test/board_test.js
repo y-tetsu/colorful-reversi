@@ -84,18 +84,114 @@ function testGetLegalMoves(turns, board, expecteds, no) {
   }
 }
 
-// - getFlippablesAtIndex
-function testGetFlippablesAtIndex(turns, board, expecteds, no) {
-  for (let i in turns) {
-    let j = 0;
+// - getFlippablesAtIndexArray
+function testGetFlippablesAtIndexArray(boards, orders, cutins, num) {
+  for (let i in boards) {
+    for (let loop=0; loop<num; loop++) {
+      const game = new Game(boards[i], orders[i], getRandomFlippers(FLIPPERS), cutins[i]);
+      const size = game.bitboard['size'];
+      const boardSize = size + 2;
+      while(game.play() === GAME_PLAY) {
+        const bits = getLegalMovesBits(game.turn, game.bitboard, game.mask);
+        let count = 0;
+        for (let p=0; p<bits.length; p++) {
+          let bit = 1 << (MAX_BITSIZE - 1);
+          for (let q=0; q<MAX_BITSIZE; q++) {
+            let index = Array(bits.length).fill(0);
+            if ((bits[p] & bit) !== 0) {
+              index[p] |= bit;
+              const x = (count % size) + 1;
+              const y = (Math.floor(count / size) + 1);
+              //const move = ((Math.floor(count / size) + 1) * boardSize + (count % size) + 1);
+              const move = y * boardSize + x;
+              const actual = getFlippablesAtIndex(game.turn, game.bitboard, game.mask, index);
+              const expected = getFlippablesAtIndexArray(game.turn, game.board, move);
+              expected['flippables'] = expected['flippables'].concat().sort(function(a, b){ return a - b; });
+              expected['flippers'] = expected['flippers'].concat().sort(function(a, b){ return a - b; });
+              assertEqual(actual, expected, 'getFlippablesAtIndexArray ' + (Number(i) + 1) + '-' + (loop + 1));
+              // --- for debug ---
+              if (total !== '  OK   (total)') {
+                console.log('turn  : ' + game.turn);
+                let tmp = "\n";
+                let count = 0;
+                for (let y=0; y<boardSize; y++) {
+                  for (let x=0; x<boardSize; x++) {
+                    tmp += ' ' + game.board[count];
+                    count++;
+                  }
+                  tmp += '\n';
+                }
+                console.log('board       : ' + tmp);
+                console.log('move        : ' + move + ' (' + x + ', ' + y + ')');
+                console.log('index       : ' + index);
+                console.log('bitboard[0] : ' + game.bitboard['bits'][0]);
+                console.log('bitboard[1] : ' + game.bitboard['bits'][1]);
+                console.log('bitboard[2] : ' + game.bitboard['bits'][2]);
+                console.log('bitboard[3] : ' + game.bitboard['bits'][3]);
+                console.log('bitboard[4] : ' + game.bitboard['bits'][4]);
+                console.log('bitboard[5] : ' + game.bitboard['bits'][5]);
+                console.log('bitboard[6] : ' + game.bitboard['bits'][6]);
+                console.log('bitboard[7] : ' + game.bitboard['bits'][7]);
+                console.log('bitboard[8] : ' + game.bitboard['bits'][8]);
+                return;
+              }
+              // --- for debug ---
+            }
+            bit >>>= 1;
+            count++;
+          }
+        }
+      }
+    }
+  }
+}
+
+// - getFlippablesAtIndexBits
+function testGetFlippablesAtIndexBits(turns, boards, indexs, expecteds) {
+  let i = 0;
+  for (let board of boards) {
     const turn = turns[i];
     const bitboard = getBitBoard(board);
     const mask = getBitBoardMask(bitboard['size'], bitboard['pageSize']);
-    for (let move of getLegalMoves(turn, bitboard, mask)) {
-      const actual = getFlippablesAtIndex(turn, board, move);
-      const expected = expecteds[i][j];
-      j++;
-      assertEqual(actual, expected, 'getFlippablesAtIndex ' + getGameTurnText(turn) + ' ' + no + ' ' + move);
+    const actual = getFlippablesAtIndexBits(turn, bitboard, mask, indexs[i]);
+    const expected = expecteds[i];
+    assertEqual(actual, expected, 'getFlippablesAtIndexBits ' + (i + 1));
+    i++;
+  }
+}
+
+// - getFlippablesAtIndex
+function testGetFlippablesAtIndex(turns, board, expecteds, no) {
+  for (let i in turns) {
+    const turn = turns[i];
+    const bitboard = getBitBoard(board);
+    const mask = getBitBoardMask(bitboard['size'], bitboard['pageSize']);
+    const bits = getLegalMovesBits(turn, bitboard, mask);
+    const legals = getLegalMovesArray(turn, board);
+    const size = bitboard['size'];
+    const boardSize = size + 2;
+    //console.log('legals : ' + legals);
+    //console.log('bits   : ' + bits);
+    let j = 0;
+    let count = 0;
+    for (let p=0; p<bits.length; p++) {
+      let bit = 1 << (MAX_BITSIZE - 1);
+      for (let q=0; q<MAX_BITSIZE; q++) {
+        let index = Array(bits.length).fill(0);
+        if ((bits[p] & bit) !== 0) {
+          index[p] |= bit;
+          //console.log('index : ' + index);
+          const move = ((Math.floor(count / size) + 1) * boardSize + (count % size) + 1);
+          const actual = getFlippablesAtIndex(turn, bitboard, mask, index);
+          let expected = expecteds[i][j];
+          expected['flippables'] = expected['flippables'].concat().sort(function(a, b){ return a - b; });
+          expected['flippers'] = expected['flippers'].concat().sort(function(a, b){ return a - b; });
+          assertEqual(actual, expected, 'getFlippablesAtIndex ' + getGameTurnText(turn) + ' ' + no + ' ' + p + '-' + move);
+          j++;
+        }
+        bit >>>= 1;
+        count++;
+      }
     }
   }
 }
@@ -821,12 +917,425 @@ expecteds = [
 ];
 testGetLegalMovesBits(turns, boards, expecteds);
 
+// - getFlippablesAtIndexBits
+const BOARD4_F1 = [
+  H, H, H, H, H, H,
+  H, E, W, W, B, H,
+  H, W, W, E, E, H,
+  H, W, E, W, E, H,
+  H, B, B, E, B, H,
+  H, H, H, H, H, H,
+];
+const BOARD4_F2 = [
+  H, H, H, H, H, H,
+  H, W, E, W, W, H,
+  H, E, B, E, B, H,
+  H, E, E, B, B, H,
+  H, W, B, B, E, H,
+  H, H, H, H, H, H,
+];
+const BOARD6_F1 = [
+  H, H, H, H, H, H, H, H,
+  H, E, W, W, W, W, B, H,
+  H, W, W, B, E, E, W, H,
+  H, W, E, W, W, B, W, H,
+  H, W, E, W, W, W, W, H,
+  H, W, B, W, W, W, E, H,
+  H, B, E, E, E, E, B, H,
+  H, H, H, H, H, H, H, H,
+];
+const BOARD6_F2 = [
+  H, H, H, H, H, H, H, H,
+  H, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, H,
+  H, E, E, W, E, E, E, H,
+  H, E, E, B, E, E, E, H,
+  H, E, E, B, E, B, B, H,
+  H, W, B, E, W, E, W, H,
+  H, H, H, H, H, H, H, H,
+];
+const BOARD8_F1 = [
+  H, H, H, H, H, H, H, H, H, H,
+  H, B, E, E, B, E, E, E, E, H,
+  H, W, W, E, W, E, E, E, B, H,
+  H, W, B, W, W, E, B, W, E, H,
+  H, W, E, W, W, W, W, B, B, H,
+  H, W, E, E, E, W, E, W, E, H,
+  H, W, E, E, W, E, W, W, E, H,
+  H, W, E, W, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, H, H, H, H, H, H, H, H, H,
+];
+const BOARD8_F2 = [
+  H, H, H, H, H, H, H, H, H, H,
+  H, E, E, E, E, E, E, E, E, H,
+  H, B, B, E, E, E, E, B, B, H,
+  H, B, E, B, E, E, B, E, B, H,
+  H, B, E, E, B, B, B, E, B, H,
+  H, B, B, W, B, B, B, W, W, H,
+  H, B, B, B, E, B, B, E, E, H,
+  H, B, B, E, W, E, W, B, E, H,
+  H, W, W, E, E, E, E, E, W, H,
+  H, H, H, H, H, H, H, H, H, H,
+];
+const BOARD10_F1 = [
+  H, H, H, H, H, H, H, H, H, H, H, H,
+  H, E, E, E, E, E, E, E, E, B, B, H,
+  H, W, B, W, E, E, E, E, W, W, W, H,
+  H, W, E, W, E, E, E, W, W, E, W, H,
+  H, W, E, B, W, E, E, W, E, E, W, H,
+  H, W, E, E, E, W, W, E, E, E, W, H,
+  H, W, E, E, E, W, W, E, E, E, W, H,
+  H, W, E, W, W, W, W, W, W, B, W, H,
+  H, W, E, W, E, E, E, E, W, E, W, H,
+  H, W, E, E, E, E, E, E, E, W, W, H,
+  H, B, W, W, W, W, W, W, W, W, E, H,
+  H, H, H, H, H, H, H, H, H, H, H, H,
+];
+const BOARD10_F2 = [
+  H, H, H, H, H, H, H, H, H, H, H, H,
+  H, E, B, B, B, B, B, B, B, B, W, H,
+  H, E, B, E, E, E, E, E, E, E, E, H,
+  H, E, E, B, E, E, B, B, W, B, E, H,
+  H, E, W, E, B, B, E, B, B, E, E, H,
+  H, E, E, B, B, B, E, B, B, E, E, H,
+  H, E, E, B, B, E, B, B, B, E, E, H,
+  H, E, B, E, E, B, E, B, B, E, E, H,
+  H, W, E, E, B, E, B, B, B, E, E, H,
+  H, E, E, B, E, E, E, B, B, B, E, H,
+  H, E, W, E, E, E, E, W, E, E, W, H,
+  H, H, H, H, H, H, H, H, H, H, H, H,
+];
+const BOARD12_F1 = [
+  H, H, H, H, H, H, H, H, H, H, H, H, H, H,
+  H, E, W, W, W, W, W, W, W, W, W, W, B, H,
+  H, W, W, E, E, E, E, E, E, E, E, W, W, H,
+  H, W, B, W, E, E, E, E, E, E, W, E, W, H,
+  H, W, E, W, W, E, E, E, E, W, W, E, W, H,
+  H, W, E, E, W, W, E, E, W, W, E, E, W, H,
+  H, W, E, E, E, W, W, W, W, E, E, E, W, H,
+  H, W, E, E, E, E, W, W, E, E, E, E, W, H,
+  H, W, E, E, E, W, W, W, W, E, E, E, W, H,
+  H, W, E, E, W, W, E, E, W, W, E, E, W, H,
+  H, W, E, W, W, E, E, E, E, W, W, E, W, H,
+  H, W, E, B, E, E, E, E, E, E, E, B, W, H,
+  H, B, W, W, W, W, W, W, W, W, W, W, E, H,
+  H, H, H, H, H, H, H, H, H, H, H, H, H, H,
+];
+const TEST_WILDCARD1 = [
+  H, H, H, H, H, H, H, H, H, H, H, H,
+  H, E, W, A, C, Y, G, G, B, G, G, H,
+  H, G, G, E, E, E, E, E, E, E, G, H,
+  H, W, E, G, E, E, E, E, E, E, G, H,
+  H, G, E, E, G, E, E, E, E, E, G, H,
+  H, W, E, E, E, G, E, E, E, E, G, H,
+  H, G, E, E, E, E, E, E, E, E, W, H,
+  H, W, E, E, E, E, E, G, E, E, W, H,
+  H, G, E, E, E, E, E, E, G, E, W, H,
+  H, W, E, E, E, E, E, E, E, G, W, H,
+  H, G, G, G, G, B, B, G, G, G, E, H,
+  H, H, H, H, H, H, H, H, H, H, H, H,
+];
+const TEST_WILDCARD2 = [
+  H, H, H, H, H, H, H, H,
+  H, E, E, E, E, E, E, H,
+  H, E, G, G, G, E, E, H,
+  H, E, G, E, G, E, E, H,
+  H, E, G, G, G, E, E, H,
+  H, E, B, E, E, E, E, H,
+  H, E, E, E, E, E, E, H,
+  H, H, H, H, H, H, H, H,
+];
+const TEST_BOMB1 = [
+  H, H, H, H, H, H, H, H, H, H, H, H,
+  H, E, W, W, R, B, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, H,
+  H, E, E, E, E, E, E, E, E, E, E, H,
+  H, H, H, H, H, H, H, H, H, H, H, H,
+];
+const DEBUG1 = [
+  H, H, H, H, H, H, H, H, H, H, H, H,
+  H, H, H, H, H, E, E, H, H, H, H, H,
+  H, H, H, H, E, E, R, E, H, H, H, H,
+  H, H, H, E, E, E, E, W, E, H, H, H,
+  H, H, E, E, E, G, C, E, E, E, H, H,
+  H, E, R, B, Y, B, B, G, E, E, E, H,
+  H, E, E, E, G, B, W, Y, E, R, E, H,
+  H, H, E, E, E, C, G, E, B, E, H, H,
+  H, H, H, E, E, E, E, E, E, H, H, H,
+  H, H, H, H, E, R, E, E, H, H, H, H,
+  H, H, H, H, H, E, E, H, H, H, H, H,
+  H, H, H, H, H, H, H, H, H, H, H, H,
+];
+const DEBUG2 = [
+  H, H, H, H, H, H, H, H, H, H, H, H,
+  H, H, H, H, H, E, E, H, H, H, H, H,
+  H, H, H, H, E, E, R, E, H, H, H, H,
+  H, H, H, E, B, E, E, E, E, H, H, H,
+  H, H, E, E, E, G, C, E, E, E, H, H,
+  H, E, R, E, Y, W, B, G, E, E, E, H,
+  H, E, E, E, G, W, W, Y, E, R, E, H,
+  H, H, E, E, E, C, G, E, E, E, H, H,
+  H, H, H, E, E, W, E, E, E, H, H, H,
+  H, H, H, H, E, R, E, E, H, H, H, H,
+  H, H, H, H, H, E, E, H, H, H, H, H,
+  H, H, H, H, H, H, H, H, H, H, H, H,
+];
+const DEBUG3 = [
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 1, 1, 8, 1, 0, 0, 0, 0,
+  0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0,
+  0, 0, 1, 1, 3, 7, 5, 1, 1, 1, 0, 0,
+  0, 1, 8, 1, 6, 3, 2, 7, 1, 1, 1, 0,
+  0, 1, 1, 1, 7, 2, 2, 6, 1, 8, 1, 0,
+  0, 0, 1, 1, 1, 5, 7, 1, 1, 1, 0, 0,
+  0, 0, 0, 1, 2, 1, 1, 1, 1, 0, 0, 0,
+  0, 0, 0, 0, 1, 8, 1, 1, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+];
+const DEBUG4 = [
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 1, 1, 8, 1, 0, 0, 0, 0,
+  0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0,
+  0, 0, 1, 1, 1, 7, 5, 1, 1, 1, 0, 0,
+  0, 1, 8, 1, 6, 3, 3, 7, 3, 3, 1, 0,
+  0, 1, 1, 1, 7, 2, 3, 6, 1, 8, 1, 0,
+  0, 0, 1, 1, 1, 5, 7, 1, 1, 1, 0, 0,
+  0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0,
+  0, 0, 0, 0, 1, 8, 1, 1, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+];
+const DEBUG5 = [
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 1, 1, 8, 1, 0, 0, 0, 0,
+  0, 0, 0, 1, 1, 2, 1, 1, 1, 0, 0, 0,
+  0, 0, 1, 2, 2, 7, 5, 1, 1, 1, 0, 0,
+  0, 1, 8, 1, 6, 3, 2, 7, 1, 1, 1, 0,
+  0, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 0,
+  0, 0, 1, 3, 3, 5, 7, 3, 1, 1, 0, 0,
+  0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0,
+  0, 0, 0, 0, 1, 8, 1, 1, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+];
+const DEBUG6 = [
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 2, 3, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 3, 3, 3, 1, 0, 0, 0, 0,
+  0, 0, 0, 3, 3, 3, 3, 1, 3, 0, 0, 0,
+  0, 0, 1, 3, 3, 7, 3, 3, 1, 1, 0, 0,
+  0, 1, 1, 3, 6, 3, 3, 7, 2, 2, 2, 0,
+  0, 3, 3, 3, 7, 3, 1, 6, 1, 1, 1, 0,
+  0, 0, 3, 3, 3, 5, 2, 2, 2, 2, 0, 0,
+  0, 0, 0, 3, 3, 3, 3, 3, 3, 0, 0, 0,
+  0, 0, 0, 0, 3, 3, 1, 3, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+];
+const DEBUG7 = [
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 3, 1, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 3, 3, 3, 1, 0, 0, 0, 0,
+  0, 0, 0, 3, 2, 3, 3, 3, 2, 0, 0, 0,
+  0, 0, 3, 2, 3, 2, 5, 2, 2, 2, 0, 0,
+  0, 3, 2, 3, 6, 3, 3, 7, 2, 3, 2, 0,
+  0, 2, 3, 2, 7, 2, 3, 6, 2, 3, 3, 0,
+  0, 0, 2, 3, 3, 5, 7, 3, 2, 3, 0, 0,
+  0, 0, 0, 3, 3, 3, 3, 3, 3, 0, 0, 0,
+  0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 3, 3, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+];
+turns = [
+  B, B, W, W,
+  B, B, B, B, W, W,
+  B, B, B, B, B, W, W, W, W, W, W,
+  B, B, B, B, B, B, W, W, W, W,
+  B,
+  B, B, B, B, B,
+  B, W, B, B,
+  B,  // TEST_BOMB1
+  W,  // DEBUG1
+  B,  // DEBUG2
+  B,  // DEBUG3
+  B,  // DEBUG4
+  W,  // DEBUG5
+  B,  // DEBUG6
+  B,  // DEBUG7
+];
 boards = [
-  BOARD4,
-  BOARD6,
-  BOARD8,
+  BOARD4_F1,       // 1
+  BOARD4_F1,       // 2
+  BOARD4_F2,       // 3
+  BOARD4_F2,       // 4
+  BOARD6_F1,       // 5
+  BOARD6_F1,       // 6
+  BOARD6_F1,       // 7
+  BOARD6_F1,       // 8
+  BOARD6_F2,       // 9
+  BOARD6_F2,       // 10
+  BOARD8_F1,       // 11
+  BOARD8_F1,       // 12
+  BOARD8_F1,       // 13
+  BOARD8_F1,       // 14
+  BOARD8_F1,       // 15
+  BOARD8_F2,       // 16
+  BOARD8_F2,       // 17
+  BOARD8_F2,       // 18
+  BOARD8_F2,       // 19
+  BOARD8_F2,       // 20
+  BOARD8_F2,       // 21
+  BOARD10_F1,      // 22
+  BOARD10_F1,      // 23
+  BOARD10_F1,      // 24
+  BOARD10_F1,      // 25
+  BOARD10_F1,      // 26
+  BOARD10_F1,      // 27
+  BOARD10_F2,      // 28
+  BOARD10_F2,      // 29
+  BOARD10_F2,      // 30
+  BOARD10_F2,      // 31
+  TEST_BOARD1,     // 32
+  BOARD12_F1,      // 33
+  BOARD12_F1,      // 34
+  BOARD12_F1,      // 35
+  BOARD12_F1,      // 36
+  BOARD12_F1,      // 37
+  TEST_WILDCARD1,  // 38
+  TEST_WILDCARD1,  // 39
+  TEST_WILDCARD1,  // 40
+  TEST_WILDCARD2,  // 41
+  TEST_BOMB1,      // 42
+  DEBUG1,          // 43
+  DEBUG2,          // 44
+  DEBUG3,          // 45
+  DEBUG4,          // 46
+  DEBUG5,          // 47
+  DEBUG6,          // 48
+  DEBUG7,          // 49
+];
+indexs = [
+  [0x80000000],                                                  // 1
+  [0x01000000],                                                  // 2
+  [0x00800000],                                                  // 3
+  [0x00010000],                                                  // 4
+  [0x80000000, 0x00000000],                                      // 5
+  [0x00200000, 0x00000000],                                      // 6
+  [0x00000004, 0x00000000],                                      // 7
+  [0x00000001, 0x00000000],                                      // 8
+  [0x00000100, 0x00000000],                                      // 9
+  [0x00000000, 0x80000000],                                      // 10
+  [0x00000000, 0x10000000],                                      // 11
+  [0x00000000, 0x00000800],                                      // 12
+  [0x00000000, 0x00000200],                                      // 13
+  [0x00000000, 0x00000080],                                      // 14
+  [0x00000000, 0x00000040],                                      // 15
+  [0x80000000, 0x00000000],                                      // 16
+  [0x01000000, 0x00000000],                                      // 17
+  [0x00000800, 0x00000000],                                      // 18
+  [0x00000040, 0x00000000],                                      // 19
+  [0x00000020, 0x00000000],                                      // 20
+  [0x00000002, 0x00000000],                                      // 21
+  [0x80000000, 0x00000000, 0x00000000, 0x00000000],              // 22
+  [0x20000000, 0x00000000, 0x00000000, 0x00000000],              // 23
+  [0x00000000, 0x10000000, 0x00000000, 0x00000000],              // 24
+  [0x00000000, 0x00000004, 0x00000000, 0x00000000],              // 25
+  [0x00000000, 0x00000000, 0x00004000, 0x00000000],              // 26
+  [0x00000000, 0x00000000, 0x00000000, 0x10000000],              // 27
+  [0x80000000, 0x00000000, 0x00000000, 0x00000000],              // 28
+  [0x00001000, 0x00000000, 0x00000000, 0x00000000],              // 29
+  [0x00008000, 0x00000000, 0x00000000, 0x00000000],              // 30
+  [0x00000000, 0x00000000, 0x00000000, 0x40000000],              // 31
+  [0x00001000, 0x00000000],                                      // 32
+  [0x80000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000],  // 33
+  [0x00000000, 0x20000000, 0x00000000, 0x00000000, 0x00000000],  // 34
+  [0x00000000, 0x00000000, 0x00000000, 0x00000040, 0x00000000],  // 35
+  [0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x40000000],  // 36
+  [0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00010000],  // 37
+  [0x80000000, 0x00000000, 0x00000000, 0x00000000],              // 38
+  [0x00000000, 0x00000100, 0x00000000, 0x00000000],              // 39
+  [0x00000000, 0x00000000, 0x00000000, 0x10000000],              // 40
+  [0x00020000, 0x00000000],                                      // 41
+  [0x80000000, 0x00000000, 0x00000000, 0x00000000],              // 42
+  [0x00000001, 0x00000000, 0x00000000, 0x00000000],              // 43
+  [0x00000000, 0x00000000, 0x00100000, 0x00000000],              // 44
+  [0x00000000, 0x80000000, 0x00000000, 0x00000000],              // 45
+  [0x00000000, 0x00004000, 0x00000000, 0x00000000],              // 46
+  [0x00020000, 0x00000000, 0x00000000, 0x00000000],              // 47
+  [0x00000000, 0x00000100, 0x00000000, 0x00000000],              // 48
+  [0x04000000, 0x00000000, 0x00000000, 0x00000000],              // 49
+];
+expecteds = [
+  {'flippables': [0x6CA00000], 'flippers': [0x10090000], 'erasable': false},                                                                                                  // 1
+  {'flippables': [0x00200000], 'flippers': [0x00040000], 'erasable': false},                                                                                                  // 2
+  {'flippables': [0x04000000], 'flippers': [0x20000000], 'erasable': false},                                                                                                  // 3
+  {'flippables': [0x05360000], 'flippers': [0x90080000], 'erasable': false},                                                                                                  // 4
+  {'flippables': [0x7B0A2488, 0x00000000], 'flippers': [0x04000002, 0x10000000], 'erasable': false},                                                                          // 5
+  {'flippables': [0x00010800, 0x00000000], 'flippers': [0x00000040, 0x00000000], 'erasable': false},                                                                          // 6
+  {'flippables': [0x00114338, 0x00000000], 'flippers': [0x04800040, 0x00000000], 'erasable': false},                                                                          // 7
+  {'flippables': [0x00000420, 0x00000000], 'flippers': [0x00008000, 0x00000000], 'erasable': false},                                                                          // 8
+  {'flippables': [0x0000000C, 0x00000000], 'flippers': [0x00000000, 0x50000000], 'erasable': false},                                                                          // 9
+  {'flippables': [0x00000821, 0x00000000], 'flippers': [0x00020002, 0x00000000], 'erasable': false},                                                                          // 10
+  {'flippables': [0x00101038, 0x00000000], 'flippers': [0x10004400, 0x00000000], 'erasable': false},                                                                          // 11
+  {'flippables': [0x00000000, 0x02040000], 'flippers': [0x00000001, 0x00000000], 'erasable': false},                                                                          // 12
+  {'flippables': [0x00402010, 0x0A060000], 'flippers': [0x80000002, 0x00000000], 'erasable': false},                                                                          // 13
+  {'flippables': [0x00808080, 0x80808000], 'flippers': [0x80000000, 0x00000000], 'erasable': false},                                                                          // 14
+  {'flippables': [0x00000204, 0x08102000], 'flippers': [0x00010000, 0x00000000], 'erasable': false},                                                                          // 15
+  {'flippables': [0x00C0A090, 0x88848200], 'flippers': [0x00000000, 0x00000081], 'erasable': false},                                                                          // 16
+  {'flippables': [0x00030509, 0x10204000], 'flippers': [0x00000000, 0x01000080], 'erasable': false},                                                                          // 17
+  {'flippables': [0x00000014, 0x00000000], 'flippers': [0x00000000, 0x22000000], 'erasable': false},                                                                          // 18
+  {'flippables': [0x00000000, 0x40404000], 'flippers': [0x00000000, 0x00000040], 'erasable': false},                                                                          // 19
+  {'flippables': [0x00000000, 0x10080000], 'flippers': [0x00000000, 0x00000400], 'erasable': false},                                                                          // 20
+  {'flippables': [0x00000000, 0x04080000], 'flippers': [0x00000000, 0x00001000], 'erasable': false},                                                                          // 21
+  {'flippables': [0x00200802, 0x00802008, 0x02008000, 0x00000000], 'flippers': [0x00000000, 0x00000000, 0x00000020, 0x00000000], 'erasable': false},                          // 22
+  {'flippables': [0x00080200, 0x00000000, 0x00000000, 0x00000000], 'flippers': [0x00000000, 0x80000000, 0x00000000, 0x00000000], 'erasable': false},                          // 23
+  {'flippables': [0x00004020, 0x00000000, 0x00000000, 0x00000000], 'flippers': [0x00800000, 0x00000000, 0x00000000, 0x00000000], 'erasable': false},                          // 24
+  {'flippables': [0x00000000, 0x00000003, 0xF0000000, 0x00000000], 'flippers': [0x00000000, 0x00000000, 0x08000000, 0x00000000], 'erasable': false},                          // 25
+  {'flippables': [0x00002010, 0x08040201, 0x00800000, 0x00000000], 'flippers': [0x00400000, 0x00000000, 0x00000000, 0x00000000], 'erasable': false},                          // 26
+  {'flippables': [0x00001204, 0x41084110, 0x240500DF, 0xE0000000], 'flippers': [0x00500000, 0x00000000, 0x00000020, 0x00000000], 'erasable': false},                          // 27
+  {'flippables': [0x7F900200, 0x40080100, 0x20040080, 0x00000000], 'flippers': [0x00400000, 0x00000000, 0x00000000, 0x10000000], 'erasable': false},                          // 28
+  {'flippables': [0x00000008, 0x04020100, 0x80402000, 0x00000000], 'flippers': [0x00000000, 0x00000000, 0x00000010, 0x00000000], 'erasable': false},                          // 29
+  {'flippables': [0x00000060, 0x28120884, 0x20080200, 0x00000000], 'flippers': [0x00000000, 0x00000000, 0x02000000, 0x80000000], 'erasable': false},                          // 30
+  {'flippables': [0x00000000, 0x04210440, 0x90140300, 0x00000000], 'flippers': [0x00000011, 0x00000000, 0x00000000, 0x00000000], 'erasable': false},                          // 31
+  {'flippables': [0x00000010, 0x00000000], 'flippers': [0x00000000, 0x10000000], 'erasable': false},                                                                          // 32
+  {'flippables': [0x7FEC00A0, 0x09008808, 0x40820810, 0x80880480, 0x00000000], 'flippers': [0x00100000, 0x00000000, 0x00000000, 0x00000000, 0x28000000], 'erasable': false},  // 33
+  {'flippables': [0x00000000, 0x00040080, 0x10020040, 0x08010000, 0x00000000], 'flippers': [0x00000000, 0x00000000, 0x00000000, 0x00000020, 0x00000000], 'erasable': false},  // 34
+  {'flippables': [0x00000200, 0x40080100, 0x20040080, 0x10020000, 0x00000000], 'flippers': [0x00100000, 0x00000000, 0x00000000, 0x00000000, 0x00000000], 'erasable': false},  // 35
+  {'flippables': [0x00000000, 0x02001000, 0x80040020, 0x01000800, 0x00000000], 'flippers': [0x00000040, 0x00000000, 0x00000000, 0x00000000, 0x00000000], 'erasable': false},  // 36
+  {'flippables': [0x00000100, 0x10010010, 0x01001001, 0x00100100, 0x17FE0000], 'flippers': [0x00100000, 0x00000000, 0x00000000, 0x00000000, 0x08000000], 'erasable': false},  // 37
+  {'flippables': [0x7E300A02, 0x40802008, 0x02008000, 0x00000000], 'flippers': [0x01000000, 0x00080000, 0x00000020, 0x00000000], 'erasable': false},                          // 38
+  {'flippables': [0x00000200, 0x40080000, 0x20040000, 0x00000000], 'flippers': [0x00100000, 0x00000000, 0x00000080, 0x00000000], 'erasable': false},                          // 39
+  {'flippables': [0x00001004, 0x01004010, 0x040500C0, 0xE0000000], 'flippers': [0x00400000, 0x00000000, 0x20000001, 0x00000000], 'erasable': false},                          // 40
+  {'flippables': [0x00000000, 0x00000000], 'flippers': [0x00000000, 0x00000000], 'erasable': false},                                                                          // 41
+  {'flippables': [0x70000000, 0x00000000, 0x00000000, 0x00000000], 'flippers': [0x08000000, 0x00000000, 0x00000000, 0x00000000], 'erasable': true},                           // 42
+  {'flippables': [0x00000000, 0x00200000, 0x00000000, 0x00000000], 'flippers': [0x00000000, 0x00000400, 0x00000000, 0x00000000], 'erasable': false},                          // 43
+  {'flippables': [0x00000000, 0x00000100, 0xC0000000, 0x00000000], 'flippers': [0x00000000, 0x00040400, 0x00000000, 0x00000000], 'erasable': false},                          // 44
+  {'flippables': [0x00000000, 0x40100000, 0x00000000, 0x00000000], 'flippers': [0x00000000, 0x20000200, 0x00000000, 0x00000000], 'erasable': false},                          // 45
+  {'flippables': [0x00000000, 0x00018000, 0x00000000, 0x00000000], 'flippers': [0x00000000, 0x00020000, 0x00000000, 0x00000000], 'erasable': false},                          // 46
+  {'flippables': [0x00000080, 0x20000000, 0x00000000, 0x00000000], 'flippers': [0x00000000, 0x00080000, 0x00000000, 0x00000000], 'erasable': false},                          // 47
+  {'flippables': [0x00000000, 0x00000200, 0x00000000, 0x00000000], 'flippers': [0x00000000, 0x00000400, 0x00000000, 0x00000000], 'erasable': false},                          // 48
+  {'flippables': [0x00030040, 0x10040100, 0x00000000, 0x00000000], 'flippers': [0x00000100, 0x00000000, 0x40000000, 0x00000000], 'erasable': false},                          // 49
+];
+testGetFlippablesAtIndexBits(turns, boards, indexs, expecteds);
+
+boards = [
+//  BOARD4,
+//  BOARD6,
+//  BOARD8,
   BOARD,
-  BOARD12,
+//  BOARD12,
 ];
 orders = [
   [B, W],
@@ -842,7 +1351,8 @@ cutins  = [
   CUTINS,
   {},
 ];
-testGetLegalMovesArray(boards, orders, cutins, 5);
+//testGetLegalMovesArray(boards, orders, cutins, 1);
+//testGetFlippablesAtIndexArray(boards, orders, cutins, 1);
 
 // - popcount
 bits = [
