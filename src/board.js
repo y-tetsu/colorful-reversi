@@ -268,6 +268,28 @@ function bitsToIndexs(bits, size) {
   return indexs;
 }
 
+// 打ち手をビットデータに変換
+// (引数)
+//  move : 打ち手の番号
+//  size : 盤面サイズ
+// (戻り値)
+//  bits : ビットボード
+function moveToBits(move, size) {
+  const boardSize = size + 2;
+  const pageSize = Math.ceil(size * size / MAX_BITSIZE);
+  const x = (move % boardSize) - 1;
+  const y = Math.floor(move / boardSize) - 1;
+  const count = size * y + x;
+  let bits = Array(pageSize).fill(0);
+  const p = Math.floor(count / MAX_BITSIZE);
+  const q = count % MAX_BITSIZE;
+  let bit = 1 << (MAX_BITSIZE - 1);
+  for (let i=0; i<q; i++) bit >>>= 1;
+  bits[p] |= bit;
+  return bits;
+}
+
+
 // 対戦相手のビットボード取得
 // (引数)
 //  turn     : プレイヤーの手番(色)

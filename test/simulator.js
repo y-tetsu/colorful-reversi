@@ -1,9 +1,9 @@
 console.log('[simulator.js]');
 
 players = [
-  [MCS2, MCS,  MCS],
-  [MCS,  MCS2, MCS],
-  [MCS,  MCS,  MCS2],
+  [MCS, RANDOM,  RANDOM],
+  [RANDOM,  MCS, RANDOM],
+  [RANDOM,  RANDOM,  MCS],
 ];
 
 // simulator

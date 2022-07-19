@@ -22,6 +22,17 @@ function testBitsToIndexs(bitss, sizes, expecteds) {
   }
 }
 
+// - moveToBits
+function testMoveToBits(moves, sizes, expecteds) {
+  let i = 0;
+  for (let move of moves) {
+    const actual = moveToBits(move, sizes[i]);
+    const expected = expecteds[i];
+    assertEqual(actual, expected, 'moveToBits ' + (i + 1));
+    i++;
+  }
+}
+
 // - getOpponentsBitBoard
 function testGetOpponentsBitBoard(turns, boards, expecteds) {
   let i = 0;
@@ -651,6 +662,24 @@ expecteds = [
   [13, 22, 121, 130],
 ];
 testBitsToIndexs(bitss, sizes, expecteds);
+
+// - moveToBits
+moves = [
+  56,
+  18,
+  91,
+];
+sizes = [
+  8,
+  10,
+  10,
+]
+expecteds = [
+  [0x00000000, 0x04000000],
+  [0x04000000, 0x00000000, 0x00000000, 0x00000000],
+  [0x00000000, 0x00000000, 0x20000000, 0x00000000],
+];
+testMoveToBits(moves, sizes, expecteds);
 
 // - getOpponentsBitBoard
 turns = [B, W, B];
