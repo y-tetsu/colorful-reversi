@@ -31,29 +31,32 @@ class Player {
         move = getMoveByRandom(game);
         break;
       case MINIMUM:
-        move = getMoveByMinimum(game);
+        move = getMoveByRandom(game);
+        //move = getMoveByMinimum(game);
         break;
       case MAXIMUM:
-        move = getMoveByMaximum(game);
+        move = getMoveByRandom(game);
+        //move = getMoveByMaximum(game);
         break;
       case MCS:
-        move = getMoveByMonteCarloSearch(game, MCS_SCHEDULE);
+        move = getMoveByRandom(game);
+        //move = getMoveByMonteCarloSearch(game, MCS_SCHEDULE);
         break;
       case MCS2:
-        move = getMoveByMonteCarloSearch(game, MCS_SCHEDULE2);
+        move = getMoveByRandom(game);
+        //move = getMoveByMonteCarloSearch(game, MCS_SCHEDULE2);
         break;
       default:
         break;
     }
-    const putResult = putDisc(game.turn, game.board, move);
 
-    //--- 時間計測 ---//
-    //startMeasure(5);
-    //--- 時間計測 ---//
+    // --------------------------- //
+    // array
+    const putResult = putDisc(game.turn, game.board, move);
     game.bitboard = getBitBoard(game.board);
-    //--- 時間計測 ---//
-    //stopMeasure(5);
-    //--- 時間計測 ---//
+    // bitboard
+    //const putResult = putDiscBits(game.turn, game.bitboard, game.mask, moveToBits(move, game.bitboard['size']));
+    // --------------------------- //
 
     return putResult;
   }

@@ -8,6 +8,7 @@ players = [
 
 // simulator
 function simulator(players, board, order, cutins, num) {
+  measure = {};
   const startTime = performance.now();
   console.log('------------------------------');
   console.log('start at ' + startTime.toFixed(3));
@@ -42,8 +43,8 @@ function simulator(players, board, order, cutins, num) {
   //--- 時間計測 ---//
   //console.log('total of getLegalMovesBits    ' + msToSec(measure[0].total) + '(s) ' + (measure[0].total / elapsed * 100).toFixed(1) + '(%)');
   //console.log('total of bitsToIndexs         ' + msToSec(measure[1].total) + '(s) ' + (measure[1].total / elapsed * 100).toFixed(1) + '(%)');
-  //console.log('total of getFlippablesAtIndex ' + msToSec(measure[2].total) + '(s) ' + (measure[2].total / elapsed * 100).toFixed(1) + '(%)');
-  //console.log('total of putDisc              ' + msToSec(measure[3].total) + '(s) ' + (measure[3].total / elapsed * 100).toFixed(1) + '(%)');
+  console.log('total of getFlippablesAtIndex ' + msToSec(measure[2].total) + '(s) ' + (measure[2].total / elapsed * 100).toFixed(1) + '(%)');
+  console.log('total of putDisc              ' + msToSec(measure[3].total) + '(s) ' + (measure[3].total / elapsed * 100).toFixed(1) + '(%)');
   //console.log('total of updateScore          ' + msToSec(measure[4].total) + '(s) ' + (measure[4].total / elapsed * 100).toFixed(1) + '(%)');
   //console.log('total of getBitBoard          ' + msToSec(measure[5].total) + '(s) ' + (measure[5].total / elapsed * 100).toFixed(1) + '(%)');
   //console.log('total of getLegalMovesBits1   ' + msToSec(measure[6].total) + '(s) ' + (measure[6].total / elapsed * 100).toFixed(1) + '(%)');

@@ -413,13 +413,7 @@ function popcount(bits) {
 // (戻り値)
 //  return : ひっくり返せる石、挟んだ石、消せるかどうか
 function getFlippablesAtIndex(turn, bitboard, mask, index) {
-  //--- 時間計測 ---//
-  //startMeasure(2);
-  //--- 時間計測 ---//
   let bits = getFlippablesAtIndexBits(turn, bitboard, mask, index);
-  //--- 時間計測 ---//
-  //stopMeasure(2);
-  //--- 時間計測 ---//
   const size = bitboard['size'];
   return {
     'flippables': bitsToIndexs(bits['flippables'], size),
@@ -437,6 +431,9 @@ function getFlippablesAtIndex(turn, bitboard, mask, index) {
 // (戻り値)
 //  return : ひっくり返せる石、挟んだ石、消せるかどうか
 function getFlippablesAtIndexBits(turn, bitboard, mask, index) {
+  //--- 時間計測 ---//
+  startMeasure(2);
+  //--- 時間計測 ---//
   const pageSize = bitboard['pageSize'];
   const empty = bitboard['bits'][E];
   let flippables = Array(pageSize).fill(0);
@@ -905,6 +902,9 @@ function getFlippablesAtIndexBits(turn, bitboard, mask, index) {
       break;
     }
   }
+  //--- 時間計測 ---//
+  stopMeasure(2);
+  //--- 時間計測 ---//
 
   return {'flippables': flippables, 'flippers': flippers, 'erasable': erasable};
 }
@@ -917,6 +917,9 @@ function getFlippablesAtIndexBits(turn, bitboard, mask, index) {
 // (戻り値)
 //  return : ひっくり返せる石、挟んだ石、消せるかどうか
 function getFlippablesAtIndexArray(turn, board, index) {
+  //--- 時間計測 ---//
+  startMeasure(2);
+  //--- 時間計測 ---//
   let flippables = [];
   let flippers = [];
   let erasable = false;
@@ -960,6 +963,9 @@ function getFlippablesAtIndexArray(turn, board, index) {
       }
     }
   }
+  //--- 時間計測 ---//
+  stopMeasure(2);
+  //--- 時間計測 ---//
   return {'flippables': flippables, 'flippers': flippers, 'erasable': erasable};
 }
 
@@ -972,10 +978,10 @@ function getFlippablesAtIndexArray(turn, board, index) {
 //  return : 置いた石、ひっくり返した石、挟んだ石、消せるかどうか
 function putDisc(turn, board, index) {
   if (index === NO_MOVE) return {'put': NO_MOVE, 'flipped': [], 'flippers': [], 'erasable': false};
-  //--- 時間計測 ---//
-  //startMeasure(3);
-  //--- 時間計測 ---//
   const {flippables, flippers, erasable} = getFlippablesAtIndexArray(turn, board, index);
+  //--- 時間計測 ---//
+  startMeasure(3);
+  //--- 時間計測 ---//
   if (erasable === true) {
     for (let erase of flippables.concat(flippers)) board[erase] = E;  // 石を消す
   }
@@ -986,7 +992,7 @@ function putDisc(turn, board, index) {
     }
   }
   //--- 時間計測 ---//
-  //stopMeasure(3);
+  stopMeasure(3);
   //--- 時間計測 ---//
   return {'put': index, 'flipped': flippables, 'flippers': flippers, 'erasable': erasable};
 }
@@ -1001,10 +1007,10 @@ function putDisc(turn, board, index) {
 //  return : 置いた石、ひっくり返した石、挟んだ石、消せるかどうか
 function putDiscBits(turn, bitboard, mask, index) {
   if (index === NO_MOVE) return {'put': NO_MOVE, 'flipped': [], 'flippers': [], 'erasable': false};
-  //--- 時間計測 ---//
-  //startMeasure(3);
-  //--- 時間計測 ---//
   const bits = getFlippablesAtIndexBits(turn, bitboard, mask, index);
+  //--- 時間計測 ---//
+  startMeasure(3);
+  //--- 時間計測 ---//
   const erasable = bits['erasable'];
   const flippables = bits['flippables'];
   const flippers = bits['flippers'];
@@ -1040,7 +1046,7 @@ function putDiscBits(turn, bitboard, mask, index) {
     }
   }
   //--- 時間計測 ---//
-  //stopMeasure(3);
+  stopMeasure(3);
   //--- 時間計測 ---//
   return {'put': index, 'flipped': flippables, 'flippers': flippers, 'erasable': erasable};
 }
