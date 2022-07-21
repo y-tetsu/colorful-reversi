@@ -52,10 +52,10 @@ class Player {
 
     // --------------------------- //
     // array
-    const putResult = putDisc(game.turn, game.board, move);
-    game.bitboard = getBitBoard(game.board);
+    //const putResult = putDisc(game.turn, game.board, move);
+    //game.bitboard = getBitBoard(game.board);
     // bitboard
-    //const putResult = putDiscBits(game.turn, game.bitboard, game.mask, moveToBits(move, game.bitboard['size']));
+    const putResult = putDiscBits(game.turn, game.bitboard, game.mask, moveToBits(move, game.bitboard['size']));
     // --------------------------- //
 
     return putResult;
