@@ -93,6 +93,39 @@ function getBitBoard(board) {
   return bitboard;
 }
 
+// 配列ボードを返す
+// (引数)
+//  bitboard : ビットボード
+// (戻り値)
+//  board    : 盤面情報を格納した配列
+function getArrayBoard(bitboard) {
+  const bits = bitboard['bits'];
+  const playableSize = bitboard['size'];
+  const boardSize = playableSize + 2;
+  const pageSize = bitboard['pageSize'];
+  let board = Array(boardSize*boardSize).fill(H);
+  let count = 0;
+  for (let p=0; p<pageSize; p++) {
+    let mask = 1 << (MAX_BITSIZE - 1);
+    for (let b=0; b<MAX_BITSIZE; b++) {
+      const y = Math.floor(count / playableSize);
+      const x = count % playableSize;
+      const index = (y + 1) * boardSize + (x + 1);
+      for (let s=0; s<S; s++) {
+        if ((bits[s][p] & mask) !== 0) {
+          board[index] = s;
+          break;
+        }
+      }
+      mask >>>= 1;
+      count++;
+      if (count >= playableSize*playableSize) break;
+    }
+    if (count >= playableSize*playableSize) break;
+  }
+  return board;
+}
+
 // 打てる手を取得する処理
 // (引数)
 //  turn     : プレイヤーの手番(色)
@@ -950,6 +983,60 @@ function putDisc(turn, board, index) {
     board[index] = turn;                                                    // 手の位置にディスクを置く
     for (let flippable of flippables) {                                     // 相手のディスクをひっくり返す
       if (!PERMANENTS.includes(board[flippable])) board[flippable] = turn;  // 不変石はひっくり返さない
+    }
+  }
+  //--- 時間計測 ---//
+  //stopMeasure(3);
+  //--- 時間計測 ---//
+  return {'put': index, 'flipped': flippables, 'flippers': flippers, 'erasable': erasable};
+}
+
+// 石を置く処理(ビットボード)
+// (引数)
+//  turn     : プレイヤーの手番(色)
+//  bitboard : ビットボード
+//  mask     : ビットボードのマスク値
+//  index    : 石を置く位置(マスを示すビットボード)
+// (戻り値)
+//  return : 置いた石、ひっくり返した石、挟んだ石、消せるかどうか
+function putDiscBits(turn, bitboard, mask, index) {
+  if (index === NO_MOVE) return {'put': NO_MOVE, 'flipped': [], 'flippers': [], 'erasable': false};
+  //--- 時間計測 ---//
+  //startMeasure(3);
+  //--- 時間計測 ---//
+  const bits = getFlippablesAtIndexBits(turn, bitboard, mask, index);
+  const erasable = bits['erasable'];
+  const flippables = bits['flippables'];
+  const flippers = bits['flippers'];
+  const b = bitboard['bits'];
+  if (erasable === true) {
+    for (let s=0; s<S; s++) {
+      for (let p=0; p<bitboard['pageSize']; p++) {
+        if (s === E) {
+          b[s][p] |= (flippables[p] | flippers[p]);
+        }
+        else {
+          b[s][p] &= ~(flippables[p] | flippers[p]);
+        }
+      }
+    }
+  }
+  else {
+    for (let p=0; p<bitboard['pageSize']; p++) {
+      // 不変石を除外
+      let fExp = flippables[p];
+      for (let permanent of PERMANENTS) fExp &= ~b[permanent][p];
+      // 石をひっくり返す
+      for (let s=0; s<S; s++) {
+        // 自分の石
+        if (s === turn) {
+          b[s][p] |= (index[p] | fExp);
+        }
+        // 相手の石
+        else {
+          b[s][p] &= ~(index[p] | fExp);
+        }
+      }
     }
   }
   //--- 時間計測 ---//

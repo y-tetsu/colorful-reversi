@@ -11,6 +11,17 @@ function testGetBitBoard(boards, expecteds) {
   }
 }
 
+// - getArrayBoard
+function testGetArrayBoard(boards, expecteds) {
+  let i = 0;
+  for (let board of boards) {
+    const actual = getArrayBoard(getBitBoard(board));
+    const expected = expecteds[i];
+    assertEqual(actual, expected, 'getArrayBoard ' + (i + 1));
+    i++;
+  }
+}
+
 // - bitsToIndexs
 function testBitsToIndexs(bitss, sizes, expecteds) {
   let i = 0;
@@ -216,13 +227,39 @@ function testPutDisc(turns, board, expecteds, no) {
     const mask = getBitBoardMask(bitboard['size'], bitboard['pageSize']);
     for (let move of getLegalMoves(turn, bitboard, mask)) {
       let localBoard = board.concat();
-      actual   = putDisc(turn, localBoard, move);
+      actual = putDisc(turn, localBoard, move);
+      actual['board'] = localBoard;
       expected = expecteds[i][j];
       j++;
       assertEqual(actual, expected, 'putDisc ' + getGameTurnText(turn) + ' ' + no + ' ' + move);
     }
   }
 }
+
+// - putDiscBits
+function testPutDiscBits(turns, board, expecteds, no) {
+  for (let i in turns) {
+    let j = 0;
+    const turn = turns[i];
+    const bitboard = getBitBoard(board);
+    const size = bitboard['size'];
+    const mask = getBitBoardMask(size, bitboard['pageSize']);
+    for (let move of getLegalMoves(turn, bitboard, mask)) {
+      let localBitBoard = getBitBoard(board);
+      actual = putDiscBits(turn, localBitBoard, mask, moveToBits(move, size));
+      actual['put'] = bitsToIndexs(actual['put'], size)[0];
+      actual['flipped'] = bitsToIndexs(actual['flipped'], size).sort(function(a, b){ return a - b; });
+      actual['flippers'] = bitsToIndexs(actual['flippers'], size).sort(function(a, b){ return a - b; });
+      actual['board'] = getArrayBoard(localBitBoard);
+      expected = expecteds[i][j];
+      expected['flipped'] = expected['flipped'].concat().sort(function(a, b){ return a - b; });
+      expected['flippers'] = expected['flippers'].concat().sort(function(a, b){ return a - b; });
+      j++;
+      assertEqual(actual, expected, 'putDiscBits ' + getGameTurnText(turn) + ' ' + no + ' ' + move);
+    }
+  }
+}
+
 
 // - popcount
 function testPopcount(bits, expecteds) {
@@ -238,6 +275,7 @@ function testBoardMethods(turns, board, expected, no) {
   testGetLegalMoves(turns, board, expected['getLegalMoves'], no);
   testGetFlippablesAtIndex(turns, board, expected['getFlippablesAtIndex'], no);
   testPutDisc(turns, board, expected['putDisc'], no);
+  testPutDiscBits(turns, board, expected['putDisc'], no);
 }
 
 // - getOpponentColors
@@ -268,12 +306,136 @@ let board1Expected = {
     [35, 46, 53, 64],
   ],
   'getFlippablesAtIndex': [
-    [{'flippables': [44], 'flippers': [54], 'erasable': false}, {'flippables': [44], 'flippers': [45], 'erasable': false}, {'flippables': [55], 'flippers': [54], 'erasable': false}, {'flippables': [55], 'flippers': [45], 'erasable': false}],
-    [{'flippables': [45], 'flippers': [55], 'erasable': false}, {'flippables': [45], 'flippers': [44], 'erasable': false}, {'flippables': [54], 'flippers': [55], 'erasable': false}, {'flippables': [54], 'flippers': [44], 'erasable': false}],
+    [
+      {'flippables': [44], 'flippers': [54], 'erasable': false},
+      {'flippables': [44], 'flippers': [45], 'erasable': false},
+      {'flippables': [55], 'flippers': [54], 'erasable': false},
+      {'flippables': [55], 'flippers': [45], 'erasable': false}
+    ],
+    [
+      {'flippables': [45], 'flippers': [55], 'erasable': false},
+      {'flippables': [45], 'flippers': [44], 'erasable': false},
+      {'flippables': [54], 'flippers': [55], 'erasable': false},
+      {'flippables': [54], 'flippers': [44], 'erasable': false}
+    ],
   ],
   'putDisc': [
-    [{'put': 34, 'flipped': [44], 'flippers': [54], 'erasable': false}, {'put': 43, 'flipped': [44], 'flippers': [45], 'erasable': false}, {'put': 56, 'flipped': [55], 'flippers': [54], 'erasable': false}, {'put': 65, 'flipped': [55], 'flippers': [45], 'erasable': false}],
-    [{'put': 35, 'flipped': [45], 'flippers': [55], 'erasable': false}, {'put': 46, 'flipped': [45], 'flippers': [44], 'erasable': false}, {'put': 53, 'flipped': [54], 'flippers': [55], 'erasable': false}, {'put': 64, 'flipped': [54], 'flippers': [44], 'erasable': false}],
+    [
+      {'put': 34, 'flipped': [44], 'flippers': [54], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, B, E, E, E, E, H,
+         H, E, E, E, B, B, E, E, E, H,
+         H, E, E, E, B, W, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ]
+      },
+      {'put': 43, 'flipped': [44], 'flippers': [45], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, B, B, B, E, E, E, H,
+         H, E, E, E, B, W, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ]
+      },
+      {'put': 56, 'flipped': [55], 'flippers': [54], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, W, B, E, E, E, H,
+         H, E, E, E, B, B, B, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ]
+      },
+      {'put': 65, 'flipped': [55], 'flippers': [45], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, W, B, E, E, E, H,
+         H, E, E, E, B, B, E, E, E, H,
+         H, E, E, E, E, B, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ]
+      }
+    ],
+    [
+      {'put': 35, 'flipped': [45], 'flippers': [55], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, W, E, E, E, H,
+         H, E, E, E, W, W, E, E, E, H,
+         H, E, E, E, B, W, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ]
+      },
+      {'put': 46, 'flipped': [45], 'flippers': [44], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, W, W, W, E, E, H,
+         H, E, E, E, B, W, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ]
+      },
+      {'put': 53, 'flipped': [54], 'flippers': [55], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, W, B, E, E, E, H,
+         H, E, E, W, W, W, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ]
+      },
+      {'put': 64, 'flipped': [54], 'flippers': [44], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, W, B, E, E, E, H,
+         H, E, E, E, W, W, E, E, E, H,
+         H, E, E, E, W, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ]
+      }
+    ],
   ],
 }
 
@@ -298,7 +460,20 @@ let board2_1Expected = {
     [{'flippables': [34, 24, 35, 26, 45, 46, 47, 55, 66, 77, 54, 64, 74, 53, 62, 43, 42, 33, 22], 'flippers': [14, 17, 48, 88, 84, 71, 41, 11], 'erasable': false}],
   ],
   'putDisc': [
-    [{'put': 44, 'flipped': [34, 24, 35, 26, 45, 46, 47, 55, 66, 77, 54, 64, 74, 53, 62, 43, 42, 33, 22], 'flippers': [14, 17, 48, 88, 84, 71, 41, 11], 'erasable': false}],
+    [{'put': 44, 'flipped': [34, 24, 35, 26, 45, 46, 47, 55, 66, 77, 54, 64, 74, 53, 62, 43, 42, 33, 22], 'flippers': [14, 17, 48, 88, 84, 71, 41, 11], 'erasable': false,
+     'board': [
+       H, H, H, H, H, H, H, H, H, H,
+       H, B, B, B, B, B, B, B, B, H,
+       H, B, B, W, B, W, B, W, B, H,
+       H, B, W, B, B, B, W, W, B, H,
+       H, B, B, B, B, B, B, B, B, H,
+       H, B, W, B, B, B, W, W, B, H,
+       H, B, B, W, B, W, B, W, B, H,
+       H, B, W, W, B, W, W, B, B, H,
+       H, B, B, B, B, B, B, B, B, H,
+       H, H, H, H, H, H, H, H, H, H,
+     ],
+    }],
   ],
 }
 
@@ -322,7 +497,20 @@ let board2_2Expected = {
     [{'flippables': [35, 25, 36, 27, 46, 47, 56, 67, 55, 65, 75, 54, 63, 72, 44, 43, 42, 34, 23], 'flippers': [15, 18, 48, 78, 85, 81, 41, 12], 'erasable': false}],
   ],
   'putDisc': [
-    [{'put': 45, 'flipped': [35, 25, 36, 27, 46, 47, 56, 67, 55, 65, 75, 54, 63, 72, 44, 43, 42, 34, 23], 'flippers': [15, 18, 48, 78, 85, 81, 41, 12], 'erasable': false}],
+    [{'put': 45, 'flipped': [35, 25, 36, 27, 46, 47, 56, 67, 55, 65, 75, 54, 63, 72, 44, 43, 42, 34, 23], 'flippers': [15, 18, 48, 78, 85, 81, 41, 12], 'erasable': false,
+     'board': [
+       H, H, H, H, H, H, H, H, H, H,
+       H, B, B, B, B, B, B, B, B, H,
+       H, B, W, B, W, B, W, B, B, H,
+       H, B, W, W, B, B, B, W, B, H,
+       H, B, B, B, B, B, B, B, B, H,
+       H, B, W, W, B, B, B, W, B, H,
+       H, B, W, B, W, B, W, B, B, H,
+       H, B, B, W, W, B, W, W, B, H,
+       H, B, B, B, B, B, B, B, B, H,
+       H, H, H, H, H, H, H, H, H, H,
+     ],
+    }],
   ],
 }
 
@@ -346,7 +534,20 @@ let board2_3Expected = {
     [{'flippables': [44, 34, 24, 45, 36, 27, 55, 56, 57, 65, 76, 64, 74, 63, 72, 53, 52, 43, 32], 'flippers': [14, 18, 58, 87, 84, 81, 51, 21], 'erasable': false}],
   ],
   'putDisc': [
-    [{'put': 54, 'flipped': [44, 34, 24, 45, 36, 27, 55, 56, 57, 65, 76, 64, 74, 63, 72, 53, 52, 43, 32], 'flippers': [14, 18, 58, 87, 84, 81, 51, 21], 'erasable': false}],
+    [{'put': 54, 'flipped': [44, 34, 24, 45, 36, 27, 55, 56, 57, 65, 76, 64, 74, 63, 72, 53, 52, 43, 32], 'flippers': [14, 18, 58, 87, 84, 81, 51, 21], 'erasable': false,
+     'board': [
+       H, H, H, H, H, H, H, H, H, H,
+       H, W, W, W, W, W, W, W, W, H,
+       H, W, B, B, W, B, B, W, W, H,
+       H, W, W, B, W, B, W, B, W, H,
+       H, W, B, W, W, W, B, B, W, H,
+       H, W, W, W, W, W, W, W, W, H,
+       H, W, B, W, W, W, B, B, W, H,
+       H, W, W, B, W, B, W, B, W, H,
+       H, W, W, W, W, W, W, W, W, H,
+       H, H, H, H, H, H, H, H, H, H,
+     ],
+    }],
   ],
 }
 
@@ -370,7 +571,20 @@ let board2_4Expected = {
     [{'flippables': [45, 35, 25, 46, 37, 56, 57, 66, 77, 65, 75, 64, 73, 54, 53, 52, 44, 33, 22], 'flippers': [15, 28, 58, 88, 85, 82, 51, 11], 'erasable': false}],
   ],
   'putDisc': [
-    [{'put': 55, 'flipped': [45, 35, 25, 46, 37, 56, 57, 66, 77, 65, 75, 64, 73, 54, 53, 52, 44, 33, 22], 'flippers': [15, 28, 58, 88, 85, 82, 51, 11], 'erasable': false}],
+    [{'put': 55, 'flipped': [45, 35, 25, 46, 37, 56, 57, 66, 77, 65, 75, 64, 73, 54, 53, 52, 44, 33, 22], 'flippers': [15, 28, 58, 88, 85, 82, 51, 11], 'erasable': false,
+      'board': [
+        H, H, H, H, H, H, H, H, H, H,
+        H, W, W, W, W, W, W, W, W, H,
+        H, W, W, B, B, W, B, B, W, H,
+        H, W, B, W, B, W, B, W, W, H,
+        H, W, B, B, W, W, W, B, W, H,
+        H, W, W, W, W, W, W, W, W, H,
+        H, W, B, B, W, W, W, B, W, H,
+        H, W, B, W, B, W, B, W, W, H,
+        H, W, W, W, W, W, W, W, W, H,
+        H, H, H, H, H, H, H, H, H, H,
+      ],
+    }],
   ],
 }
 
@@ -433,30 +647,270 @@ let board3Expected = {
   ],
   'putDisc': [
     [
-      {'put': 23, 'flipped': [34],     'flippers': [45], 'erasable': false},
-      {'put': 24, 'flipped': [34, 44], 'flippers': [54], 'erasable': false},
-      {'put': 43, 'flipped': [44],     'flippers': [45], 'erasable': false},
-      {'put': 47, 'flipped': [46],     'flippers': [45], 'erasable': false},
-      {'put': 52, 'flipped': [53],     'flippers': [54], 'erasable': false},
-      {'put': 56, 'flipped': [55],     'flippers': [54], 'erasable': false},
-      {'put': 75, 'flipped': [65, 55], 'flippers': [45], 'erasable': false},
-      {'put': 76, 'flipped': [65],     'flippers': [54], 'erasable': false},
+      {'put': 23, 'flipped': [34],     'flippers': [45], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, B, E, E, E, E, E, H,
+         H, E, E, E, B, E, E, E, E, H,
+         H, E, E, E, W, B, A, E, E, H,
+         H, E, E, A, B, W, E, E, E, H,
+         H, E, E, E, E, A, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 24, 'flipped': [34, 44], 'flippers': [54], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, B, E, E, E, E, H,
+         H, E, E, E, B, E, E, E, E, H,
+         H, E, E, E, B, B, A, E, E, H,
+         H, E, E, A, B, W, E, E, E, H,
+         H, E, E, E, E, A, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 43, 'flipped': [44],     'flippers': [45], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, A, E, E, E, E, H,
+         H, E, E, B, B, B, A, E, E, H,
+         H, E, E, A, B, W, E, E, E, H,
+         H, E, E, E, E, A, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 47, 'flipped': [46],     'flippers': [45], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, A, E, E, E, E, H,
+         H, E, E, E, W, B, B, B, E, H,
+         H, E, E, A, B, W, E, E, E, H,
+         H, E, E, E, E, A, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 52, 'flipped': [53],     'flippers': [54], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, A, E, E, E, E, H,
+         H, E, E, E, W, B, A, E, E, H,
+         H, E, B, B, B, W, E, E, E, H,
+         H, E, E, E, E, A, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 56, 'flipped': [55],     'flippers': [54], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, A, E, E, E, E, H,
+         H, E, E, E, W, B, A, E, E, H,
+         H, E, E, A, B, B, B, E, E, H,
+         H, E, E, E, E, A, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 75, 'flipped': [65, 55], 'flippers': [45], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, A, E, E, E, E, H,
+         H, E, E, E, W, B, A, E, E, H,
+         H, E, E, A, B, B, E, E, E, H,
+         H, E, E, E, E, B, E, E, E, H,
+         H, E, E, E, E, B, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 76, 'flipped': [65],     'flippers': [54], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, A, E, E, E, E, H,
+         H, E, E, E, W, B, A, E, E, H,
+         H, E, E, A, B, W, E, E, E, H,
+         H, E, E, E, E, B, E, E, E, H,
+         H, E, E, E, E, E, B, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
     ],
     [
-      {'put': 24, 'flipped': [34],     'flippers': [44], 'erasable': false},
-      {'put': 35, 'flipped': [45],     'flippers': [55], 'erasable': false},
-      {'put': 37, 'flipped': [46],     'flippers': [55], 'erasable': false},
-      {'put': 47, 'flipped': [46, 45], 'flippers': [44], 'erasable': false},
-      {'put': 52, 'flipped': [53, 54], 'flippers': [55], 'erasable': false},
-      {'put': 62, 'flipped': [53],     'flippers': [44], 'erasable': false},
-      {'put': 64, 'flipped': [54],     'flippers': [44], 'erasable': false},
-      {'put': 75, 'flipped': [65],     'flippers': [55], 'erasable': false},
+      {'put': 24, 'flipped': [34],     'flippers': [44], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, W, E, E, E, E, H,
+         H, E, E, E, W, E, E, E, E, H,
+         H, E, E, E, W, B, A, E, E, H,
+         H, E, E, A, B, W, E, E, E, H,
+         H, E, E, E, E, A, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 35, 'flipped': [45],     'flippers': [55], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, A, W, E, E, E, H,
+         H, E, E, E, W, W, A, E, E, H,
+         H, E, E, A, B, W, E, E, E, H,
+         H, E, E, E, E, A, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 37, 'flipped': [46],     'flippers': [55], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, A, E, E, W, E, H,
+         H, E, E, E, W, B, W, E, E, H,
+         H, E, E, A, B, W, E, E, E, H,
+         H, E, E, E, E, A, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 47, 'flipped': [46, 45], 'flippers': [44], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, A, E, E, E, E, H,
+         H, E, E, E, W, W, W, W, E, H,
+         H, E, E, A, B, W, E, E, E, H,
+         H, E, E, E, E, A, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 52, 'flipped': [53, 54], 'flippers': [55], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, A, E, E, E, E, H,
+         H, E, E, E, W, B, A, E, E, H,
+         H, E, W, W, W, W, E, E, E, H,
+         H, E, E, E, E, A, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 62, 'flipped': [53],     'flippers': [44], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, A, E, E, E, E, H,
+         H, E, E, E, W, B, A, E, E, H,
+         H, E, E, W, B, W, E, E, E, H,
+         H, E, W, E, E, A, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 64, 'flipped': [54],     'flippers': [44], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, A, E, E, E, E, H,
+         H, E, E, E, W, B, A, E, E, H,
+         H, E, E, A, W, W, E, E, E, H,
+         H, E, E, E, W, A, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 75, 'flipped': [65],     'flippers': [55], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, A, E, E, E, E, H,
+         H, E, E, E, W, B, A, E, E, H,
+         H, E, E, A, B, W, E, E, E, H,
+         H, E, E, E, E, W, E, E, E, H,
+         H, E, E, E, E, W, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
     ],
     [
-      {'put': 35, 'flipped': [45, 55, 44], 'flippers': [65, 53], 'erasable': false},
-      {'put': 43, 'flipped': [44, 45, 54], 'flippers': [46, 65], 'erasable': false},
-      {'put': 56, 'flipped': [55, 54, 45], 'flippers': [53, 34], 'erasable': false},
-      {'put': 64, 'flipped': [54, 44, 55], 'flippers': [34, 46], 'erasable': false},
+      {'put': 35, 'flipped': [45, 55, 44], 'flippers': [65, 53], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, A, A, E, E, E, H,
+         H, E, E, E, A, A, A, E, E, H,
+         H, E, E, A, B, A, E, E, E, H,
+         H, E, E, E, E, A, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 43, 'flipped': [44, 45, 54], 'flippers': [46, 65], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, A, E, E, E, E, H,
+         H, E, E, A, A, A, A, E, E, H,
+         H, E, E, A, A, W, E, E, E, H,
+         H, E, E, E, E, A, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 56, 'flipped': [55, 54, 45], 'flippers': [53, 34], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, A, E, E, E, E, H,
+         H, E, E, E, W, A, A, E, E, H,
+         H, E, E, A, A, A, A, E, E, H,
+         H, E, E, E, E, A, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 64, 'flipped': [54, 44, 55], 'flippers': [34, 46], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, A, E, E, E, E, H,
+         H, E, E, E, A, B, A, E, E, H,
+         H, E, E, A, A, A, E, E, E, H,
+         H, E, E, E, A, A, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
     ],
   ],
 }
@@ -512,30 +966,270 @@ let board4Expected = {
   ],
   'putDisc': [
     [
-      {'put': 34, 'flipped': [44],         'flippers': [54], 'erasable': false},
-      {'put': 36, 'flipped': [45],         'flippers': [54], 'erasable': false},
-      {'put': 38, 'flipped': [28],         'flippers': [18], 'erasable': false},
-      {'put': 46, 'flipped': [45],         'flippers': [44], 'erasable': false},
-      {'put': 51, 'flipped': [41, 31, 21], 'flippers': [11], 'erasable': false},
-      {'put': 56, 'flipped': [55],         'flippers': [54], 'erasable': false},
-      {'put': 66, 'flipped': [55],         'flippers': [44], 'erasable': false},
+      {'put': 34, 'flipped': [44], 'flippers': [54], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, G, E, E, E, E, E, E, G, H,
+         H, W, E, E, E, E, E, E, G, H,
+         H, G, E, E, B, E, E, E, E, H,
+         H, A, E, E, G, A, E, E, E, H,
+         H, E, E, E, B, W, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 36, 'flipped': [45], 'flippers': [54], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, G, E, E, E, E, E, E, G, H,
+         H, W, E, E, E, E, E, E, G, H,
+         H, G, E, E, E, E, B, E, E, H,
+         H, A, E, E, G, B, E, E, E, H,
+         H, E, E, E, B, W, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 38, 'flipped': [28],         'flippers': [18], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, G, E, E, E, E, E, E, G, H,
+         H, W, E, E, E, E, E, E, G, H,
+         H, G, E, E, E, E, E, E, B, H,
+         H, A, E, E, G, A, E, E, E, H,
+         H, E, E, E, B, W, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 46, 'flipped': [45],         'flippers': [44], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, G, E, E, E, E, E, E, G, H,
+         H, W, E, E, E, E, E, E, G, H,
+         H, G, E, E, E, E, E, E, E, H,
+         H, A, E, E, G, B, B, E, E, H,
+         H, E, E, E, B, W, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 51, 'flipped': [41, 31, 21], 'flippers': [11], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, G, E, E, E, E, E, E, G, H,
+         H, B, E, E, E, E, E, E, G, H,
+         H, G, E, E, E, E, E, E, E, H,
+         H, B, E, E, G, A, E, E, E, H,
+         H, B, E, E, B, W, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 56, 'flipped': [55],         'flippers': [54], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, G, E, E, E, E, E, E, G, H,
+         H, W, E, E, E, E, E, E, G, H,
+         H, G, E, E, E, E, E, E, E, H,
+         H, A, E, E, G, A, E, E, E, H,
+         H, E, E, E, B, B, B, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 66, 'flipped': [55],         'flippers': [44], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, G, E, E, E, E, E, E, G, H,
+         H, W, E, E, E, E, E, E, G, H,
+         H, G, E, E, E, E, E, E, E, H,
+         H, A, E, E, G, A, E, E, E, H,
+         H, E, E, E, B, B, E, E, E, H,
+         H, E, E, E, E, E, B, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
     ],
     [
-      {'put': 33, 'flipped': [44],     'flippers': [55], 'erasable': false},
-      {'put': 35, 'flipped': [45],     'flippers': [55], 'erasable': false},
-      {'put': 38, 'flipped': [28],     'flippers': [18], 'erasable': false},
-      {'put': 46, 'flipped': [45],     'flippers': [44], 'erasable': false},
-      {'put': 51, 'flipped': [41, 31], 'flippers': [21], 'erasable': false},
-      {'put': 53, 'flipped': [54],     'flippers': [55], 'erasable': false},
-      {'put': 64, 'flipped': [54],     'flippers': [44], 'erasable': false},
+      {'put': 33, 'flipped': [44],     'flippers': [55], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, G, E, E, E, E, E, E, G, H,
+         H, W, E, E, E, E, E, E, G, H,
+         H, G, E, W, E, E, E, E, E, H,
+         H, A, E, E, G, A, E, E, E, H,
+         H, E, E, E, B, W, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 35, 'flipped': [45],     'flippers': [55], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, G, E, E, E, E, E, E, G, H,
+         H, W, E, E, E, E, E, E, G, H,
+         H, G, E, E, E, W, E, E, E, H,
+         H, A, E, E, G, W, E, E, E, H,
+         H, E, E, E, B, W, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 38, 'flipped': [28],     'flippers': [18], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, G, E, E, E, E, E, E, G, H,
+         H, W, E, E, E, E, E, E, G, H,
+         H, G, E, E, E, E, E, E, W, H,
+         H, A, E, E, G, A, E, E, E, H,
+         H, E, E, E, B, W, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 46, 'flipped': [45],     'flippers': [44], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, G, E, E, E, E, E, E, G, H,
+         H, W, E, E, E, E, E, E, G, H,
+         H, G, E, E, E, E, E, E, E, H,
+         H, A, E, E, G, W, W, E, E, H,
+         H, E, E, E, B, W, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 51, 'flipped': [41, 31], 'flippers': [21], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, G, E, E, E, E, E, E, G, H,
+         H, W, E, E, E, E, E, E, G, H,
+         H, G, E, E, E, E, E, E, E, H,
+         H, W, E, E, G, A, E, E, E, H,
+         H, W, E, E, B, W, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 53, 'flipped': [54],     'flippers': [55], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, G, E, E, E, E, E, E, G, H,
+         H, W, E, E, E, E, E, E, G, H,
+         H, G, E, E, E, E, E, E, E, H,
+         H, A, E, E, G, A, E, E, E, H,
+         H, E, E, W, W, W, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 64, 'flipped': [54],     'flippers': [44], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, G, E, E, E, E, E, E, G, H,
+         H, W, E, E, E, E, E, E, G, H,
+         H, G, E, E, E, E, E, E, E, H,
+         H, A, E, E, G, A, E, E, E, H,
+         H, E, E, E, W, W, E, E, E, H,
+         H, E, E, E, W, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
     ],
     [
-      {'put': 38, 'flipped': [28], 'flippers': [18], 'erasable': false},
-      {'put': 43, 'flipped': [44], 'flippers': [45], 'erasable': false},
-      {'put': 63, 'flipped': [54], 'flippers': [45], 'erasable': false},
-      {'put': 64, 'flipped': [54], 'flippers': [44], 'erasable': false},
-      {'put': 65, 'flipped': [55], 'flippers': [45], 'erasable': false},
-      {'put': 66, 'flipped': [55], 'flippers': [44], 'erasable': false},
+      {'put': 38, 'flipped': [28], 'flippers': [18], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, G, E, E, E, E, E, E, G, H,
+         H, W, E, E, E, E, E, E, G, H,
+         H, G, E, E, E, E, E, E, A, H,
+         H, A, E, E, G, A, E, E, E, H,
+         H, E, E, E, B, W, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 43, 'flipped': [44], 'flippers': [45], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, G, E, E, E, E, E, E, G, H,
+         H, W, E, E, E, E, E, E, G, H,
+         H, G, E, E, E, E, E, E, E, H,
+         H, A, E, A, G, A, E, E, E, H,
+         H, E, E, E, B, W, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 63, 'flipped': [54], 'flippers': [45], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, G, E, E, E, E, E, E, G, H,
+         H, W, E, E, E, E, E, E, G, H,
+         H, G, E, E, E, E, E, E, E, H,
+         H, A, E, E, G, A, E, E, E, H,
+         H, E, E, E, A, W, E, E, E, H,
+         H, E, E, A, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 64, 'flipped': [54], 'flippers': [44], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, G, E, E, E, E, E, E, G, H,
+         H, W, E, E, E, E, E, E, G, H,
+         H, G, E, E, E, E, E, E, E, H,
+         H, A, E, E, G, A, E, E, E, H,
+         H, E, E, E, A, W, E, E, E, H,
+         H, E, E, E, A, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 65, 'flipped': [55], 'flippers': [45], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, G, E, E, E, E, E, E, G, H,
+         H, W, E, E, E, E, E, E, G, H,
+         H, G, E, E, E, E, E, E, E, H,
+         H, A, E, E, G, A, E, E, E, H,
+         H, E, E, E, B, A, E, E, E, H,
+         H, E, E, E, E, A, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
+      {'put': 66, 'flipped': [55], 'flippers': [44], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, G, E, E, E, E, E, E, G, H,
+         H, W, E, E, E, E, E, E, G, H,
+         H, G, E, E, E, E, E, E, E, H,
+         H, A, E, E, G, A, E, E, E, H,
+         H, E, E, E, B, A, E, E, E, H,
+         H, E, E, E, E, E, A, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ],},
     ],
   ],
 }
@@ -567,9 +1261,96 @@ let board5Expected = {
     [{'flippables': [61, 51, 41, 31],     'flippers': [21], 'erasable': false}, {'flippables': [63, 53, 43, 33, 23], 'flippers': [13], 'erasable': false}],
   ],
   'putDisc': [
-    [{'put': 71, 'flipped': [61],                 'flippers': [51], 'erasable': false}, {'put': 73, 'flipped': [63],                 'flippers': [53], 'erasable': false}],
-    [{'put': 71, 'flipped': [61, 51, 41, 31, 21], 'flippers': [11], 'erasable': false}, {'put': 73, 'flipped': [63, 53, 43, 33],     'flippers': [23], 'erasable': false}],
-    [{'put': 71, 'flipped': [61, 51, 41, 31],     'flippers': [21], 'erasable': false}, {'put': 73, 'flipped': [63, 53, 43, 33, 23], 'flippers': [13], 'erasable': false}],
+    [
+      {'put': 71, 'flipped': [61], 'flippers': [51], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, C, E, Y, E, E, E, E, E, H,
+         H, Y, E, C, E, E, E, E, E, H,
+         H, A, E, A, E, E, E, E, E, H,
+         H, W, E, W, E, E, E, E, E, H,
+         H, B, E, B, E, E, E, E, E, H,
+         H, G, E, G, E, E, E, E, E, H,
+         H, B, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ]
+      },
+      {'put': 73, 'flipped': [63], 'flippers': [53], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, C, E, Y, E, E, E, E, E, H,
+         H, Y, E, C, E, E, E, E, E, H,
+         H, A, E, A, E, E, E, E, E, H,
+         H, W, E, W, E, E, E, E, E, H,
+         H, B, E, B, E, E, E, E, E, H,
+         H, G, E, G, E, E, E, E, E, H,
+         H, E, E, B, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ]
+      }
+    ],
+    [
+      {'put': 71, 'flipped': [61, 51, 41, 31, 21], 'flippers': [11], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, C, E, Y, E, E, E, E, E, H,
+         H, Y, E, C, E, E, E, E, E, H,
+         H, C, E, A, E, E, E, E, E, H,
+         H, C, E, W, E, E, E, E, E, H,
+         H, C, E, B, E, E, E, E, E, H,
+         H, G, E, G, E, E, E, E, E, H,
+         H, C, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ]
+      },
+      {'put': 73, 'flipped': [63, 53, 43, 33],     'flippers': [23], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, C, E, Y, E, E, E, E, E, H,
+         H, Y, E, C, E, E, E, E, E, H,
+         H, A, E, C, E, E, E, E, E, H,
+         H, W, E, C, E, E, E, E, E, H,
+         H, B, E, C, E, E, E, E, E, H,
+         H, G, E, G, E, E, E, E, E, H,
+         H, E, E, C, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ]
+      }
+    ],
+    [
+      {'put': 71, 'flipped': [61, 51, 41, 31],     'flippers': [21], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, C, E, Y, E, E, E, E, E, H,
+         H, Y, E, C, E, E, E, E, E, H,
+         H, Y, E, A, E, E, E, E, E, H,
+         H, Y, E, W, E, E, E, E, E, H,
+         H, Y, E, B, E, E, E, E, E, H,
+         H, G, E, G, E, E, E, E, E, H,
+         H, Y, E, E, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ]
+      },
+      {'put': 73, 'flipped': [63, 53, 43, 33, 23], 'flippers': [13], 'erasable': false,
+       'board': [
+         H, H, H, H, H, H, H, H, H, H,
+         H, C, E, Y, E, E, E, E, E, H,
+         H, Y, E, C, E, E, E, E, E, H,
+         H, A, E, Y, E, E, E, E, E, H,
+         H, W, E, Y, E, E, E, E, E, H,
+         H, B, E, Y, E, E, E, E, E, H,
+         H, G, E, G, E, E, E, E, E, H,
+         H, E, E, Y, E, E, E, E, E, H,
+         H, E, E, E, E, E, E, E, E, H,
+         H, H, H, H, H, H, H, H, H, H,
+       ]
+      }
+    ],
   ],
 }
 
@@ -602,10 +1383,66 @@ let board6Expected = {
   ],
   'putDisc': [
     [
-      {'put': 11, 'flipped': [22, 33, 21, 31], 'flippers': [44, 41], 'erasable': true},
-      {'put': 15, 'flipped': [16, 17, 14, 13], 'flippers': [18, 12], 'erasable': true},
-      {'put': 32, 'flipped': [22], 'flippers': [12], 'erasable': false},
-      {'put': 61, 'flipped': [51], 'flippers': [41], 'erasable': false},
+      {'put': 11, 'flipped': [22, 33, 21, 31], 'flippers': [44, 41], 'erasable': true,
+       'board':
+         [
+           H, H, H, H, H, H, H, H, H, H,
+           H, E, B, W, R, E, W, W, B, H,
+           H, E, E, E, E, B, E, E, E, H,
+           H, E, E, E, E, E, E, E, E, H,
+           H, E, E, E, E, E, E, E, E, H,
+           H, G, E, E, E, E, E, E, E, H,
+           H, E, E, E, E, E, E, E, E, H,
+           H, E, E, E, E, E, E, E, E, H,
+           H, E, E, E, E, E, E, E, E, H,
+           H, H, H, H, H, H, H, H, H, H,
+         ],
+      },
+      {'put': 15, 'flipped': [16, 17, 14, 13], 'flippers': [18, 12], 'erasable': true,
+       'board':
+         [
+           H, H, H, H, H, H, H, H, H, H,
+           H, E, E, E, E, E, E, E, E, H,
+           H, W, W, E, E, B, E, E, E, H,
+           H, R, E, G, E, E, E, E, E, H,
+           H, B, E, E, B, E, E, E, E, H,
+           H, G, E, E, E, E, E, E, E, H,
+           H, E, E, E, E, E, E, E, E, H,
+           H, E, E, E, E, E, E, E, E, H,
+           H, E, E, E, E, E, E, E, E, H,
+           H, H, H, H, H, H, H, H, H, H,
+         ],
+      },
+      {'put': 32, 'flipped': [22], 'flippers': [12], 'erasable': false,
+       'board':
+         [
+           H, H, H, H, H, H, H, H, H, H,
+           H, E, B, W, R, E, W, W, B, H,
+           H, W, B, E, E, B, E, E, E, H,
+           H, R, B, G, E, E, E, E, E, H,
+           H, B, E, E, B, E, E, E, E, H,
+           H, G, E, E, E, E, E, E, E, H,
+           H, E, E, E, E, E, E, E, E, H,
+           H, E, E, E, E, E, E, E, E, H,
+           H, E, E, E, E, E, E, E, E, H,
+           H, H, H, H, H, H, H, H, H, H,
+         ],
+      },
+      {'put': 61, 'flipped': [51], 'flippers': [41], 'erasable': false,
+       'board':
+         [
+           H, H, H, H, H, H, H, H, H, H,
+           H, E, B, W, R, E, W, W, B, H,
+           H, W, W, E, E, B, E, E, E, H,
+           H, R, E, G, E, E, E, E, E, H,
+           H, B, E, E, B, E, E, E, E, H,
+           H, G, E, E, E, E, E, E, E, H,
+           H, B, E, E, E, E, E, E, E, H,
+           H, E, E, E, E, E, E, E, E, H,
+           H, E, E, E, E, E, E, E, E, H,
+           H, H, H, H, H, H, H, H, H, H,
+         ],
+      },
     ],
   ],
 }
@@ -613,7 +1450,7 @@ let board6Expected = {
 testBoardMethods([B], TEST_BOARD6, board6Expected, '6');
 
 // - getBitBoard
-boards = [TEST_BOARD1, BOARD];
+boards = [TEST_BOARD1, BOARD, TEST_BOARD6];
 expecteds = [
   {  // TEST_BOARD1
     'bits': [
@@ -645,8 +1482,27 @@ expecteds = [
     'size': 10,
     'pageSize': 4,
   },
+  {  // TEST_BOARD6
+    'bits': [
+      [0x00000000, 0x00000000],  // 穴
+      [0x88375F6F, 0x7FFFFFFF],  // 空き
+      [0x41080090, 0x00000000],  // 黒
+      [0x26C00000, 0x00000000],  // 白
+      [0x00000000, 0x00000000],  // 灰
+      [0x00000000, 0x00000000],  // シアン
+      [0x00000000, 0x00000000],  // 山吹
+      [0x00002000, 0x80000000],  // 緑
+      [0x10008000, 0x00000000],  // 赤
+    ],
+    'size': 8,
+    'pageSize': 2,
+  },
 ];
 testGetBitBoard(boards, expecteds);
+
+// - getArrayBoard
+boards = [TEST_BOARD1, BOARD, TEST_BOARD6];
+testGetArrayBoard(boards, boards);
 
 // - bitsToIndexs
 bitss = [
@@ -1399,3 +2255,6 @@ expecteds = [
   56,
 ];
 testPopcount(bits, expecteds);
+
+// testPutDiscBits
+testPutDiscBits([B], TEST_BOARD6, board6Expected['putDisc'], 'putDiscBits');
