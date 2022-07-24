@@ -1016,7 +1016,7 @@ function putDiscBits(turn, bitboard, mask, index) {
   const flippers = bits['flippers'];
   const b = bitboard['bits'];
   if (erasable === true) {
-    for (let s=0; s<S; s++) {
+    for (let s=E; s<S; s++) {
       for (let p=0; p<bitboard['pageSize']; p++) {
         if (s === E) {
           b[s][p] |= (flippables[p] | flippers[p]);
@@ -1033,7 +1033,7 @@ function putDiscBits(turn, bitboard, mask, index) {
       let fExp = flippables[p];
       for (let permanent of PERMANENTS) fExp &= ~b[permanent][p];
       // 石をひっくり返す
-      for (let s=0; s<S; s++) {
+      for (let s=E; s<S; s++) {
         // 自分の石
         if (s === turn) {
           b[s][p] |= (index[p] | fExp);

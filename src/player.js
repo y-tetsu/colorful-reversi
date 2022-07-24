@@ -31,20 +31,16 @@ class Player {
         move = getMoveByRandom(game);
         break;
       case MINIMUM:
-        move = getMoveByRandom(game);
-        //move = getMoveByMinimum(game);
+        move = getMoveByMinimum(game);
         break;
       case MAXIMUM:
-        move = getMoveByRandom(game);
-        //move = getMoveByMaximum(game);
+        move = getMoveByMaximum(game);
         break;
       case MCS:
-        move = getMoveByRandom(game);
-        //move = getMoveByMonteCarloSearch(game, MCS_SCHEDULE);
+        move = getMoveByMonteCarloSearch(game, MCS_SCHEDULE);
         break;
       case MCS2:
-        move = getMoveByRandom(game);
-        //move = getMoveByMonteCarloSearch(game, MCS_SCHEDULE2);
+        move = getMoveByMonteCarloSearch(game, MCS_SCHEDULE2);
         break;
       default:
         break;
@@ -55,7 +51,13 @@ class Player {
     //const putResult = putDisc(game.turn, game.board, move);
     //game.bitboard = getBitBoard(game.board);
     // bitboard
-    const putResult = putDiscBits(game.turn, game.bitboard, game.mask, moveToBits(move, game.bitboard['size']));
+    const size = game.bitboard['size'];
+    const moveBits = move === NO_MOVE ? NO_MOVE : moveToBits(move, size);
+    let putResult = putDiscBits(game.turn, game.bitboard, game.mask, moveBits);
+    putResult['put'] = move === NO_MOVE ? NO_MOVE : bitsToIndexs(putResult['put'], size)[0];
+    putResult['flipped'] = bitsToIndexs(putResult['flipped'], size);
+    putResult['flippers'] = bitsToIndexs(putResult['flippers'], size);
+    game.board = getArrayBoard(game.bitboard);
     // --------------------------- //
 
     return putResult;
